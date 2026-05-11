@@ -64,6 +64,14 @@ function renderFeedbackHTML(container) {
     const negativeTotal = salesNeg + techNeg;
     const voiceTotal = filtered.length * 2;
     const overallPct = voiceTotal > 0 ? Math.round((positiveTotal / voiceTotal) * 100) : 0;
+    const activeStatsWeek = selectedFeedbackWeek === 'All' ? sortedWeeks[0] : selectedFeedbackWeek;
+    const activeWeekNumber = getWeekNum(activeStatsWeek || '');
+    const activeDashboardWeek = dashboardData.find(d => d.week === activeStatsWeek)
+        || dashboardData.find(d => getWeekNum(d.week || '') === activeWeekNumber)
+        || null;
+    const weeklyCompletedInstalls = activeDashboardWeek?.tech?.installs?.actual || 0;
+    const weeklyReachedCalls = feedbackData.filter(d => d.week === activeStatsWeek).length;
+    const reachedCallPct = weeklyCompletedInstalls > 0 ? Math.round((weeklyReachedCalls / weeklyCompletedInstalls) * 100) : 0;
 
     const statRows = (stats, accent) => {
         const rows = Object.entries(stats)
@@ -133,14 +141,19 @@ function renderFeedbackHTML(container) {
                             <p class="mt-1 text-sm font-bold text-white/80 sm:text-base">สรุปคำชม จุดที่ต้องติดตาม และข้อเสนอแนะจากงานติดตั้งอาคาร</p>
                         </div>
                     </div>
-                    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
                         <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
-                            <p class="text-xs font-black uppercase text-white/70">Feedback</p>
-                            <p class="mt-1 text-3xl font-black">${filtered.length}</p>
+                            <p class="text-xs font-black uppercase text-white/70">ติดตั้งเสร็จ</p>
+                            <p class="mt-1 text-3xl font-black">${formatCurrency(weeklyCompletedInstalls)}</p>
+                            <p class="mt-1 text-xs font-bold text-white/70">${activeStatsWeek || '-'}</p>
                         </div>
                         <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
-                            <p class="text-xs font-black uppercase text-white/70">Positive</p>
-                            <p class="mt-1 text-3xl font-black">${overallPct}%</p>
+                            <p class="text-xs font-black uppercase text-white/70">โทรได้</p>
+                            <p class="mt-1 text-3xl font-black">${formatCurrency(weeklyReachedCalls)}</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
+                            <p class="text-xs font-black uppercase text-white/70">% โทรได้</p>
+                            <p class="mt-1 text-3xl font-black">${reachedCallPct}%</p>
                         </div>
                         <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
                             <p class="text-xs font-black uppercase text-white/70">ต้องติดตาม</p>
