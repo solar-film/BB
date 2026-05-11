@@ -35,7 +35,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
 
     container.innerHTML = `
         <div class="flex items-center gap-2 mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm shrink-0"><i data-lucide="filter" class="w-5 h-5 text-slate-400"></i><span class="text-base font-bold text-slate-600 mr-2">เลือกสัปดาห์:</span><select onchange="handleWeekChange(event)" class="ml-auto bg-blue-50 border border-blue-200 text-blue-700 text-base rounded-xl p-2 w-72 cursor-pointer font-bold">${opt}</select></div>
-        <h3 class="font-black text-slate-800 flex items-center gap-3 text-2xl uppercase tracking-tight leading-none mb-6 shrink-0"><i data-lucide="target" class="text-blue-500 w-7 h-7"></i>เป้ายอดขายสะสม (YTD) - ทีมอาคาร</h3>
+        <h3 class="font-black text-slate-800 flex items-center gap-3 text-2xl uppercase tracking-tight leading-none mb-6 shrink-0"><i data-lucide="target" class="text-blue-500 w-7 h-7"></i>ยอดขายทีมอาคาร (Team Sales Performance))</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 shrink-0">
             <!-- การ์ด 1: ยอดขายสัปดาห์นี้ (Weekly Sales) และ % เทียบเป้า -->
@@ -56,7 +56,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
             
             <!-- การ์ด 2: ยอดขายแยกแต่ละแผนก -->
             <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center relative">
-                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2 flex items-center gap-2"><i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i> ยอดขายแยกแต่ละแผนก (YTD)</p>
+                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2 flex items-center gap-2"><i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i> ยอดขายแยกแต่ละแผนก</p>
                 <div class="space-y-2.5 flex-1 flex flex-col justify-center">
                     <div class="flex justify-between items-center px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
                         <span class="text-sm font-bold text-slate-600 flex items-center gap-2">👤 Sales Representative</span>

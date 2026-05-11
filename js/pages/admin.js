@@ -33,7 +33,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
         </div>
         
         <div class="flex items-center gap-3 mb-6 shrink-0 mt-2">
-            <h3 class="font-black text-slate-800 text-2xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="filter" class="text-indigo-600 w-7 h-7"></i> กระบวนการคัดกรอง (Sales Admin Funnel)</h3>
+            <h3 class="font-black text-slate-800 text-2xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="filter" class="text-indigo-600 w-7 h-7"></i> กระบวนการคัดกรอง (Sales Admin Funnel) สัปดาห์นี้</h3>
             <div class="h-px bg-slate-200 flex-1 ml-2"></div>
         </div>
 
@@ -78,7 +78,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
         </div>
 
         <div class="flex items-center gap-3 mb-6 shrink-0 mt-4">
-            <h3 class="font-black text-slate-800 text-xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="pie-chart" class="text-blue-500 w-6 h-6"></i> เจาะลึกรายบริษัทและคุณภาพงาน (Breakdown)</h3>
+            <h3 class="font-black text-slate-800 text-xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="pie-chart" class="text-blue-500 w-6 h-6"></i> แยกรายบริษัทและคุณภาพงาน (Breakdown)</h3>
             <div class="h-px bg-slate-200 flex-1 ml-2"></div>
         </div>
 

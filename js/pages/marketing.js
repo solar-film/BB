@@ -73,7 +73,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
         </div>
 
         <div class="flex items-center gap-3 mb-6 shrink-0">
-            <h3 class="font-black text-slate-800 text-xl uppercase tracking-tight">เจาะลึกรายบริษัท (Company Breakdown)</h3>
+            <h3 class="font-black text-slate-800 text-xl uppercase tracking-tight">แยกรายบริษัท (Company Breakdown) สัปดาห์นี้</h3>
             <div class="h-px bg-slate-200 flex-1"></div>
         </div>
 

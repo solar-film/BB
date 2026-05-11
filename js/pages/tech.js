@@ -172,27 +172,31 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
             </div>
 
             <!-- 4. Damage Control -->
-            <div class="bg-white rounded-[2rem] p-6 border ${isDamageOverLimit?'border-red-300 ring-4 ring-red-50':'border-slate-200'} shadow-sm flex flex-col relative overflow-hidden">
+            <div class="bg-white rounded-[2rem] p-6 border ${isDamageOverLimit?'border-red-300 ring-4 ring-red-50':'border-red-100'} shadow-sm flex flex-col relative overflow-hidden">
                 <div class="absolute -right-2 -bottom-2 opacity-5 pointer-events-none"><i data-lucide="shield-alert" class="w-24 h-24 text-rose-600"></i></div>
-                <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4 relative z-10">
-                    <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-black shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                <div class="flex items-center gap-3 mb-4 border-b border-red-100 pb-4 relative z-10">
+                    <div class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
                     <div>
-                        <h4 class="font-black text-slate-800 text-base leading-none">ควบคุมความเสียหาย</h4>
-                        <p class="text-xs text-slate-400 font-bold uppercase mt-1 ${isDamageOverLimit?'text-rose-500':''}">${damagePercentSales.toFixed(2)}% ของยอดขาย</p>
+                        <h4 class="font-black text-red-700 text-base leading-none">ควบคุมความเสียหาย</h4>
+                        <p class="text-xs text-red-500 font-bold uppercase mt-1">${damagePercentSales.toFixed(2)}% ของยอดขาย</p>
                     </div>
                 </div>
                 <div class="mb-3 relative z-10 text-center">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-0.5">มูลค่าความเสียหาย</p>
-                    <h3 class="text-3xl font-black ${isDamageOverLimit?'text-rose-600':'text-slate-900'} tracking-tighter">฿${formatCurrency(t.damage.totalValue)}</h3>
+                    <p class="text-xs text-red-500 font-bold uppercase tracking-widest mb-0.5">มูลค่าความเสียหาย</p>
+                    <h3 class="text-3xl font-black text-red-600 tracking-tighter">฿${formatCurrency(t.damage.totalValue)}</h3>
+                    <a href="https://docs.google.com/spreadsheets/d/1yl5Y7hNoe_meEUBwep9A2foUYGAG8GB-okewcp_e6dA/edit?gid=809669814#gid=809669814" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-black text-red-700 border border-red-100 hover:bg-red-100 transition-colors">
+                        ดูรายละเอียดเพิ่มเติม
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mt-auto relative z-10">
-                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-0.5">จากช่าง</p>
-                        <p class="text-sm font-black text-slate-800">฿${formatCurrency(t.damage.byTech)}</p>
+                    <div class="bg-red-50/60 p-2.5 rounded-lg border border-red-100">
+                        <p class="text-[10px] font-bold text-red-400 uppercase mb-0.5">จากช่าง</p>
+                        <p class="text-sm font-black text-red-700">฿${formatCurrency(t.damage.byTech)}</p>
                     </div>
-                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-0.5">จากฟิล์ม</p>
-                        <p class="text-sm font-black text-slate-800">฿${formatCurrency(t.damage.byFilm)}</p>
+                    <div class="bg-red-50/60 p-2.5 rounded-lg border border-red-100">
+                        <p class="text-[10px] font-bold text-red-400 uppercase mb-0.5">จากฟิล์ม</p>
+                        <p class="text-sm font-black text-red-700">฿${formatCurrency(t.damage.byFilm)}</p>
                     </div>
                 </div>
             </div>

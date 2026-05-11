@@ -75,23 +75,16 @@ function renderFeedbackHTML(container) {
         }
 
         return rows.map(([name, stat], index) => {
-            const rate = stat.total > 0 ? Math.round((stat.pos / stat.total) * 100) : 0;
             return `
                 <div class="rounded-xl border border-slate-200 bg-white px-3 py-3 shadow-sm">
                     <div class="flex items-center gap-3">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${accent.rank} text-xs font-black">${index + 1}</span>
                         <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-3">
-                                <p class="truncate text-sm font-black text-slate-800">${name}</p>
-                                <p class="shrink-0 text-lg font-black ${accent.text}">${rate}%</p>
-                            </div>
-                            <div class="mt-2 h-1.5 rounded-full bg-slate-100">
-                                <div class="h-full rounded-full ${accent.bar}" style="width:${Math.min(rate, 100)}%"></div>
-                            </div>
+                            <p class="truncate text-sm font-black text-slate-800">${name}</p>
                             <div class="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
                                 <span class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-500">รวม ${stat.total}</span>
                                 <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700">ชม ${stat.pos}</span>
-                                <span class="rounded-md bg-red-50 px-2 py-0.5 text-red-700">ต้องดูแล ${stat.neg}</span>
+                                <span class="rounded-md bg-red-50 px-2 py-0.5 text-red-700">ติ ${stat.neg}</span>
                             </div>
                         </div>
                     </div>
@@ -320,7 +313,7 @@ function renderFeedbackHTML(container) {
                                     </div>
                                     <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${salesTone.name}">${row.salesName || '-'}</p>
                                     <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${salesTone.quote}">${row.salesComments && row.salesComments.trim() !== '' ? row.salesComments : 'ไม่มีข้อมูลคำติชม'}</blockquote>
-                                    ${row.salesFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-sm font-bold leading-relaxed ${salesTone.feedback}"><span class="block text-xs font-black ${salesTone.label}">Feedback / การแก้ไข</span>${row.salesFeedback}</p>` : ''}
+                                    ${row.salesFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${salesTone.feedback}"><span class="mb-1 block text-base font-black ${salesTone.label}">Feedback / การแก้ไข</span>${row.salesFeedback}</p>` : ''}
                                 </div>
                                 <div class="rounded-[1.35rem] border p-5 ${techTone.wrap}">
                                     <div class="mb-4 flex items-center justify-between gap-3 border-b border-white/70 pb-3">
@@ -329,7 +322,7 @@ function renderFeedbackHTML(container) {
                                     </div>
                                     <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${techTone.name}">${row.technicians || '-'}</p>
                                     <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${techTone.quote}">${row.techComments && row.techComments.trim() !== '' ? row.techComments : 'ไม่มีข้อมูลคำติชม'}</blockquote>
-                                    ${row.techFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-sm font-bold leading-relaxed ${techTone.feedback}"><span class="block text-xs font-black ${techTone.label}">Feedback / การแก้ไข</span>${row.techFeedback}</p>` : ''}
+                                    ${row.techFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${techTone.feedback}"><span class="mb-1 block text-base font-black ${techTone.label}">Feedback / การแก้ไข</span>${row.techFeedback}</p>` : ''}
                                 </div>
                             </div>
 
