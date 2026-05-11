@@ -46,7 +46,7 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
         
         <!-- Section 1: YTD Hero Cards -->
         <div class="flex items-center gap-3 mb-6 shrink-0 mt-2">
-            <h3 class="font-black text-slate-800 text-2xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="target" class="text-sky-600 w-7 h-7"></i> เป้าหมายสะสมปีนี้ (YTD Goals)</h3>
+            <h3 class="font-black text-slate-800 text-2xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="target" class="text-sky-600 w-7 h-7"></i> จำนวนงานติดตั้งสะสมปีนี้</h3>
             <div class="h-px bg-slate-200 flex-1 ml-2"></div>
         </div>
 
@@ -116,8 +116,8 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <span class="${isInstallOverTarget ? 'text-blue-600' : ''}">${installProgress.toFixed(1)}%</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mt-auto">
-                    <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">GFS</p><p class="text-sm font-black text-slate-700">${formatCurrency(t.installs.gfs)}</p></div>
-                    <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">MHL</p><p class="text-sm font-black text-slate-700">${formatCurrency(t.installs.mhl)}</p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center"><p class="text-xs font-black text-slate-400 uppercase">GFS</p><p class="text-xl font-black text-slate-800">${formatCurrency(t.installs.gfs)}</p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center"><p class="text-xs font-black text-slate-400 uppercase">MHL</p><p class="text-xl font-black text-slate-800">${formatCurrency(t.installs.mhl)}</p></div>
                 </div>
             </div>
 
@@ -141,8 +141,8 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <span class="${areaProgress >= 100 ? 'text-emerald-600' : ''}">${areaProgress.toFixed(1)}%</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mt-auto">
-                    <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">GFS</p><p class="text-sm font-black text-slate-700">${formatCurrency(t.area.gfs)}</p></div>
-                    <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">MHL</p><p class="text-sm font-black text-slate-700">${formatCurrency(t.area.mhl)}</p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center"><p class="text-xs font-black text-slate-400 uppercase">GFS</p><p class="text-xl font-black text-slate-800">${formatCurrency(t.area.gfs)}</p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center"><p class="text-xs font-black text-slate-400 uppercase">MHL</p><p class="text-xl font-black text-slate-800">${formatCurrency(t.area.mhl)}</p></div>
                 </div>
             </div>
 
@@ -190,13 +190,13 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     </a>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mt-auto relative z-10">
-                    <div class="bg-red-50/60 p-2.5 rounded-lg border border-red-100">
-                        <p class="text-[10px] font-bold text-red-400 uppercase mb-0.5">จากช่าง</p>
-                        <p class="text-sm font-black text-red-700">฿${formatCurrency(t.damage.byTech)}</p>
+                    <div class="bg-red-50/60 p-4 rounded-xl border border-red-100">
+                        <p class="text-xs font-black text-red-500 uppercase mb-1.5">จากช่าง</p>
+                        <p class="text-2xl font-black text-red-700 tracking-tight">฿${formatCurrency(t.damage.byTech)}</p>
                     </div>
-                    <div class="bg-red-50/60 p-2.5 rounded-lg border border-red-100">
-                        <p class="text-[10px] font-bold text-red-400 uppercase mb-0.5">จากฟิล์ม</p>
-                        <p class="text-sm font-black text-red-700">฿${formatCurrency(t.damage.byFilm)}</p>
+                    <div class="bg-red-50/60 p-4 rounded-xl border border-red-100">
+                        <p class="text-xs font-black text-red-500 uppercase mb-1.5">จากฟิล์ม</p>
+                        <p class="text-2xl font-black text-red-700 tracking-tight">฿${formatCurrency(t.damage.byFilm)}</p>
                     </div>
                 </div>
             </div>

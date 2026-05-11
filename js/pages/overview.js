@@ -21,6 +21,34 @@ function renderOverviewHTML(current, m, opt, container) {
     
     const buildingDamageValue = current.tech.damage.totalValue;
     const damagePercent = buildingSales > 0 ? (buildingDamageValue / buildingSales) * 100 : 0;
+    const monthSalesByCompany = dashboardData
+        .filter(d => extractMonthGroup(d.dateRange) === m.monthly.label)
+        .reduce((sum, d) => ({
+            gfs: sum.gfs + d.gfs.actual,
+            mhl: sum.mhl + d.mhl.actual,
+            car: sum.car + d.car.actual
+        }), { gfs: 0, mhl: 0, car: 0 });
+    const ytdSalesByCompany = dashboardData.reduce((sum, d) => ({
+        gfs: sum.gfs + d.gfs.actual,
+        mhl: sum.mhl + d.mhl.actual,
+        car: sum.car + d.car.actual
+    }), { gfs: 0, mhl: 0, car: 0 });
+    const companySalesRows = (sales) => `
+        <div class="mt-5 grid grid-cols-1 gap-2">
+            <div class="flex items-center justify-between rounded-xl bg-blue-50 px-3 py-2 border border-blue-100">
+                <span class="text-xs font-black text-blue-700 tracking-widest">GFS</span>
+                <span class="text-sm font-black text-blue-700">฿${formatCurrency(sales.gfs)}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 border border-amber-100">
+                <span class="text-xs font-black text-amber-700 tracking-widest">MHL</span>
+                <span class="text-sm font-black text-amber-700">฿${formatCurrency(sales.mhl)}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2 border border-emerald-100">
+                <span class="text-xs font-black text-emerald-700 tracking-widest">CAR</span>
+                <span class="text-sm font-black text-emerald-700">฿${formatCurrency(sales.car)}</span>
+            </div>
+        </div>
+    `;
 
     container.innerHTML = `
         <!-- ส่วน Filter สัปดาห์ -->
@@ -32,36 +60,42 @@ function renderOverviewHTML(current, m, opt, container) {
 
         <!-- 1. ส่วนหัว: KPI หลัก (The Big Picture) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0 mb-8">
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 shadow-lg text-white relative overflow-hidden flex flex-col justify-center">
-                <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="bar-chart-2" class="w-48 h-48"></i></div>
+            <div class="bg-gradient-to-br from-cyan-700 via-sky-700 to-blue-700 rounded-[2rem] p-8 border border-cyan-500/40 shadow-lg shadow-cyan-900/10 text-white relative overflow-hidden flex flex-col justify-center">
+                <div class="absolute -right-4 -bottom-4 opacity-20 text-white"><i data-lucide="bar-chart-2" class="w-48 h-48"></i></div>
                 <div class="relative z-10">
-                    <p class="text-slate-300 font-bold tracking-widest uppercase mb-2">ยอดขายสัปดาห์นี้ (Weekly Sales)</p>
-                    <h2 class="text-5xl font-black mb-4">฿${formatCurrency(m.weekly.a)}</h2>
+                    <p class="text-cyan-100 font-bold tracking-widest uppercase mb-2">ยอดขายสัปดาห์นี้ (Weekly Sales)</p>
+                    <h2 class="text-5xl font-black mb-4 text-white">฿${formatCurrency(m.weekly.a)}</h2>
                     <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-xl text-sm font-black ${totalSales >= totalTarget ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
+                        <span class="px-3 py-1 rounded-xl text-sm font-black ${totalSales >= totalTarget ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}">
                             ${totalSales >= totalTarget ? '⭐ ทะลุเป้า' : '⚠️ ต่ำกว่าเป้า'} ${totalSalesProgress.toFixed(1)}%
                         </span>
-                        <span class="text-slate-400 text-sm font-bold">เป้า: ฿${formatCurrency(m.weekly.t)}</span>
+                        <span class="text-cyan-100 text-sm font-bold">เป้า: ฿${formatCurrency(m.weekly.t)}</span>
                     </div>
+                    ${companySalesRows({ gfs: current.gfs.actual, mhl: current.mhl.actual, car: current.car.actual })}
                 </div>
             </div>
 
-            <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col justify-center">
-                <p class="text-slate-500 font-bold tracking-widest uppercase mb-2 flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-blue-500"></i> ยอดขายเดือนนี้ (${m.monthly.label})</p>
-                <h3 class="text-4xl font-black text-slate-900 mb-3">฿${formatCurrency(m.monthly.a)}</h3>
-                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-2">
-                    <div class="bg-blue-500 h-full rounded-full" style="width:${Math.min(m.monthly.p,100)}%"></div>
+            <div class="bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500 rounded-[2rem] p-8 border border-sky-300/50 shadow-lg shadow-sky-900/10 flex flex-col justify-center">
+                <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sky-50 font-bold tracking-widest uppercase flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-sky-50"></i> ยอดขายเดือนนี้ (Monthly Sales) ${m.monthly.label}</p>
+                    ${m.monthly.a >= m.monthly.t ? '<span class="inline-flex items-center gap-1 rounded-xl bg-amber-300 px-3 py-1 text-xs font-black text-amber-950 shadow-sm"><i data-lucide="trophy" class="w-4 h-4"></i> ถึงเป้า</span>' : ''}
                 </div>
-                <p class="text-slate-500 text-sm font-bold">เป้าเดือน: ฿${formatCurrency(m.monthly.t)} (${m.monthly.p.toFixed(1)}%)</p>
+                <h3 class="text-4xl font-black text-white mb-3">฿${formatCurrency(m.monthly.a)}</h3>
+                <div class="w-full bg-white/20 h-2.5 rounded-full overflow-hidden mb-2">
+                    <div class="bg-white h-full rounded-full" style="width:${Math.min(m.monthly.p,100)}%"></div>
+                </div>
+                <p class="text-sky-50 text-sm font-bold">เป้าเดือน: ฿${formatCurrency(m.monthly.t)} (${m.monthly.p.toFixed(1)}%)</p>
+                ${companySalesRows(monthSalesByCompany)}
             </div>
 
-            <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col justify-center">
-                <p class="text-slate-500 font-bold tracking-widest uppercase mb-2 flex items-center gap-2"><i data-lucide="calendar-days" class="w-5 h-5 text-purple-500"></i> ยอดขายสะสมปีนี้ (YTD)</p>
-                <h3 class="text-4xl font-black text-slate-900 mb-3">฿${formatCurrency(m.ytd.a)}</h3>
-                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-2">
-                    <div class="bg-purple-500 h-full rounded-full" style="width:${Math.min(m.ytd.p,100)}%"></div>
+            <div class="bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-[2rem] p-8 border border-purple-300/50 shadow-lg shadow-purple-900/10 flex flex-col justify-center">
+                <p class="text-purple-50 font-bold tracking-widest uppercase mb-2 flex items-center gap-2"><i data-lucide="calendar-days" class="w-5 h-5 text-purple-50"></i> ยอดขายสะสมปีนี้ (YEARLY SALES)</p>
+                <h3 class="text-4xl font-black text-white mb-3">฿${formatCurrency(m.ytd.a)}</h3>
+                <div class="w-full bg-white/20 h-2.5 rounded-full overflow-hidden mb-2">
+                    <div class="bg-white h-full rounded-full" style="width:${Math.min(m.ytd.p,100)}%"></div>
                 </div>
-                <p class="text-slate-500 text-sm font-bold">เป้าปี: ฿${formatCurrency(m.ytd.t)} (${m.ytd.p.toFixed(1)}%)</p>
+                <p class="text-purple-50 text-sm font-bold">เป้าปี: ฿${formatCurrency(m.ytd.t)} (${m.ytd.p.toFixed(1)}%)</p>
+                ${companySalesRows(ytdSalesByCompany)}
             </div>
         </div>
 
