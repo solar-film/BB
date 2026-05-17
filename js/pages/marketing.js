@@ -146,6 +146,14 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
                     <!-- Detail Grid -->
                     <div class="grid grid-cols-2 gap-3 mt-auto relative z-10 border-t border-slate-100 pt-5">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-0.5">จำนวนลูกค้า</p>
+                            <p class="text-lg font-black text-slate-800">${formatCurrency(cLead)} ราย</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-0.5">จำนวนติดต่อ</p>
+                            <p class="text-lg font-black text-slate-800">${formatCurrency(cCont)} ติดต่อ</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <p class="text-xs font-bold text-slate-400 uppercase mb-0.5">ผลตอบแทน</p>
                             <p class="text-lg font-black text-emerald-600">ROAS ${coRoas}x</p>
                         </div>
