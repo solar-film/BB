@@ -22,7 +22,7 @@ function generateMockData() {
 
 async function loadData() {
     document.getElementById('loading-view').classList.remove('hidden');
-    isUsingMock = false; errorMessage = null;
+    isUsingMock = false; errorMessage = null; feedbackErrorMessage = null;
     try {
         const sheetId = '12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo';
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&sheet=BB-2026`;
@@ -32,6 +32,8 @@ async function loadData() {
         const parsed = parseCSV(csvText);
 
         const weeksData = [];
+        if (!parsed[1]) throw new Error('Missing week header row');
+
         for (let i = 4; i < parsed[1].length; i++) {
             const weekName = parsed[1][i]?.trim();
             if (!weekName || (!weekName.toLowerCase().includes('week') && !weekName.toLowerCase().match(/^w\d/))) continue;
@@ -42,12 +44,6 @@ async function loadData() {
             const mhlMkFbVal = cleanNumber(parsed[69]?.[i]);
             const carMkGoogleVal = cleanNumber(parsed[82]?.[i]);
             const carMkFbVal = cleanNumber(parsed[83]?.[i]);
-
-            // Tech Data Extraction
-            const techInstallsGFS = cleanNumber(parsed[326]?.[i]);
-            const techInstallsMHL = cleanNumber(parsed[327]?.[i]);
-            const techAreaGFS = cleanNumber(parsed[332]?.[i]);
-            const techAreaMHL = cleanNumber(parsed[333]?.[i]);
 
             // Sales Reps Meetings/Installs
             const bomMeets = cleanNumber(parsed[173]?.[i]);
@@ -100,16 +96,18 @@ async function loadData() {
                     totalRepSales: cleanNumber(parsed[168]?.[i]), // Row 169
                     totalProjSales: cleanNumber(parsed[169]?.[i]), // Row 170
                     totalAdminSales: cleanNumber(parsed[170]?.[i]), // Row 171
-                    bom: { ytd: cleanNumber(parsed[172]?.[i]), meets: bomMeets, installs: bomInstalls, sales: cleanNumber(parsed[175]?.[i]), newMeets: cleanNumber(parsed[177]?.[i]), newInstalls: cleanNumber(parsed[178]?.[i]), newSales: cleanNumber(parsed[179]?.[i]), oldMeets: cleanNumber(parsed[181]?.[i]), oldInstalls: cleanNumber(parsed[182]?.[i]), oldSales: cleanNumber(parsed[183]?.[i]), noInstalls: cleanNumber(parsed[185]?.[i]), noInstallSales: cleanNumber(parsed[186]?.[i]), sr: bomMeets > 0 ? (bomInstalls / bomMeets) * 100 : 0 },
-                    jay: { ytd: cleanNumber(parsed[192]?.[i]), meets: jayMeets, installs: jayInstalls, sales: cleanNumber(parsed[195]?.[i]), newMeets: cleanNumber(parsed[197]?.[i]), newInstalls: cleanNumber(parsed[198]?.[i]), newSales: cleanNumber(parsed[199]?.[i]), oldMeets: cleanNumber(parsed[201]?.[i]), oldInstalls: cleanNumber(parsed[202]?.[i]), oldSales: cleanNumber(parsed[203]?.[i]), noInstalls: cleanNumber(parsed[205]?.[i]), noInstallSales: cleanNumber(parsed[206]?.[i]), sr: jayMeets > 0 ? (jayInstalls / jayMeets) * 100 : 0 },
-                    saifha: { ytd: cleanNumber(parsed[228]?.[i]), meets: saifhaMeets, installs: saifhaInstalls, sales: cleanNumber(parsed[231]?.[i]), newMeets: cleanNumber(parsed[233]?.[i]), newInstalls: cleanNumber(parsed[234]?.[i]), newSales: cleanNumber(parsed[235]?.[i]), oldMeets: cleanNumber(parsed[237]?.[i]), oldInstalls: cleanNumber(parsed[238]?.[i]), oldSales: cleanNumber(parsed[239]?.[i]), noInstalls: cleanNumber(parsed[241]?.[i]), noInstallSales: cleanNumber(parsed[242]?.[i]), sr: saifhaMeets > 0 ? (saifhaInstalls / saifhaMeets) * 100 : 0 },
-                    pat: { ytd: cleanNumber(parsed[249]?.[i]), meets: patMeets, installs: patInstalls, sales: cleanNumber(parsed[252]?.[i]), newMeets: cleanNumber(parsed[253]?.[i]), newInstalls: cleanNumber(parsed[254]?.[i]), newSales: cleanNumber(parsed[255]?.[i]), oldMeets: cleanNumber(parsed[257]?.[i]), oldInstalls: cleanNumber(parsed[258]?.[i]), oldSales: cleanNumber(parsed[259]?.[i]), noInstalls: cleanNumber(parsed[261]?.[i]), noInstallSales: cleanNumber(parsed[262]?.[i]), sr: patMeets > 0 ? (patInstalls / patMeets) * 100 : 0 },
-                    image: { ytd: cleanNumber(parsed[268]?.[i]), meets: imageMeets, installs: imageInstalls, sales: cleanNumber(parsed[271]?.[i]), newMeets: cleanNumber(parsed[273]?.[i]), newInstalls: cleanNumber(parsed[274]?.[i]), newSales: cleanNumber(parsed[275]?.[i]), oldMeets: cleanNumber(parsed[277]?.[i]), oldInstalls: cleanNumber(parsed[278]?.[i]), oldSales: cleanNumber(parsed[279]?.[i]), noInstalls: cleanNumber(parsed[281]?.[i]), noInstallSales: cleanNumber(parsed[282]?.[i]), sr: imageMeets > 0 ? (imageInstalls / imageMeets) * 100 : 0 },
+                    bom: normalizeSalesRepData({ ytd: cleanNumber(parsed[172]?.[i]), meets: bomMeets, installs: bomInstalls, sales: cleanNumber(parsed[175]?.[i]), newMeets: cleanNumber(parsed[177]?.[i]), newInstalls: cleanNumber(parsed[178]?.[i]), newSales: cleanNumber(parsed[179]?.[i]), oldMeets: cleanNumber(parsed[181]?.[i]), oldInstalls: cleanNumber(parsed[182]?.[i]), oldSales: cleanNumber(parsed[183]?.[i]), noInstalls: cleanNumber(parsed[185]?.[i]), noInstallSales: cleanNumber(parsed[186]?.[i]) }),
+                    jay: normalizeSalesRepData({ ytd: cleanNumber(parsed[192]?.[i]), meets: jayMeets, installs: jayInstalls, sales: cleanNumber(parsed[195]?.[i]), newMeets: cleanNumber(parsed[197]?.[i]), newInstalls: cleanNumber(parsed[198]?.[i]), newSales: cleanNumber(parsed[199]?.[i]), oldMeets: cleanNumber(parsed[201]?.[i]), oldInstalls: cleanNumber(parsed[202]?.[i]), oldSales: cleanNumber(parsed[203]?.[i]), noInstalls: cleanNumber(parsed[205]?.[i]), noInstallSales: cleanNumber(parsed[206]?.[i]) }),
+                    saifha: normalizeSalesRepData({ ytd: cleanNumber(parsed[228]?.[i]), meets: saifhaMeets, installs: saifhaInstalls, sales: cleanNumber(parsed[231]?.[i]), newMeets: cleanNumber(parsed[233]?.[i]), newInstalls: cleanNumber(parsed[234]?.[i]), newSales: cleanNumber(parsed[235]?.[i]), oldMeets: cleanNumber(parsed[237]?.[i]), oldInstalls: cleanNumber(parsed[238]?.[i]), oldSales: cleanNumber(parsed[239]?.[i]), noInstalls: cleanNumber(parsed[241]?.[i]), noInstallSales: cleanNumber(parsed[242]?.[i]) }),
+                    pat: normalizeSalesRepData({ ytd: cleanNumber(parsed[249]?.[i]), meets: patMeets, installs: patInstalls, sales: cleanNumber(parsed[252]?.[i]), newMeets: cleanNumber(parsed[253]?.[i]), newInstalls: cleanNumber(parsed[254]?.[i]), newSales: cleanNumber(parsed[255]?.[i]), oldMeets: cleanNumber(parsed[257]?.[i]), oldInstalls: cleanNumber(parsed[258]?.[i]), oldSales: cleanNumber(parsed[259]?.[i]), noInstalls: cleanNumber(parsed[261]?.[i]), noInstallSales: cleanNumber(parsed[262]?.[i]) }),
+                    image: normalizeSalesRepData({ ytd: cleanNumber(parsed[268]?.[i]), meets: imageMeets, installs: imageInstalls, sales: cleanNumber(parsed[271]?.[i]), newMeets: cleanNumber(parsed[273]?.[i]), newInstalls: cleanNumber(parsed[274]?.[i]), newSales: cleanNumber(parsed[275]?.[i]), oldMeets: cleanNumber(parsed[277]?.[i]), oldInstalls: cleanNumber(parsed[278]?.[i]), oldSales: cleanNumber(parsed[279]?.[i]), noInstalls: cleanNumber(parsed[281]?.[i]), noInstallSales: cleanNumber(parsed[282]?.[i]) }),
                     projYa: { ytd: cleanNumber(parsed[289]?.[i]), sales: cleanNumber(parsed[290]?.[i]), installs: cleanNumber(parsed[291]?.[i]), targetMeets: cleanNumber(parsed[294]?.[i]), meets: cleanNumber(parsed[295]?.[i]), newMeets: cleanNumber(parsed[296]?.[i]), oldMeets: cleanNumber(parsed[297]?.[i]) },
                     projTung: { ytd: cleanNumber(parsed[302]?.[i]), sales: cleanNumber(parsed[303]?.[i]), installs: cleanNumber(parsed[304]?.[i]), targetMeets: cleanNumber(parsed[307]?.[i]), meets: cleanNumber(parsed[308]?.[i]), newMeets: cleanNumber(parsed[309]?.[i]), oldMeets: cleanNumber(parsed[310]?.[i]) }
                 }
             });
         }
+        if (weeksData.length === 0) throw new Error('No weekly data found');
+
         dashboardData = weeksData;
         let lastValid = weeksData[0].id;
         for (let i = weeksData.length - 1; i >= 0; i--) { 
@@ -119,36 +117,9 @@ async function loadData() {
         }
         selectedId = lastValid;
 
-        // Fetch Feedback Data
-        const fbUrl = `https://docs.google.com/spreadsheets/d/1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM/gviz/tq?tqx=out:csv&sheet=Feedback`;
-        const fbRes = await fetch(fbUrl);
-        if (fbRes.ok) {
-            const fbCsv = await fbRes.text();
-            const parsedFb = parseCSV(fbCsv);
-            feedbackData = parsedFb.slice(1).map(row => ({
-                customerName: row[2] || '',    // Col C
-                company: row[3] || '',         // Col D
-                phone: row[4] || '',           // Col E
-                address: row[7] || '',         // Col H
-                installDate: row[9] || '',     // Col J
-                salesName: row[12] || '',      // Col M (ฝ่ายขาย)
-                week: row[34] || '',           // Col AI
-                surveyDate: row[35] || '',     // Col AJ
-                salesComments: row[36] || '',  // Col AK (คำติชม ฝ่ายขาย)
-                salesFeedback: row[37] || '',  // Col AL (Feedback ฝ่ายขาย)
-                techComments: row[38] || '',   // Col AM (คำติชม ทีมช่าง)
-                techFeedback: row[39] || '',   // Col AN (Feedback ทีมช่าง)
-                suggestions: row[40] || '',    // Col AO (ข้อแนะนำอื่นๆ)
-                technicians: row[41] || ''     // Col AP (รายชื่อช่าง)
-            })).filter(item => 
-                // กรองแสดงเฉพาะรายการที่มีข้อมูลในคอลัมน์ AK ถึง AO เท่านั้น
-                (item.salesComments && item.salesComments.trim() !== '') ||
-                (item.salesFeedback && item.salesFeedback.trim() !== '') ||
-                (item.techComments && item.techComments.trim() !== '') ||
-                (item.techFeedback && item.techFeedback.trim() !== '') ||
-                (item.suggestions && item.suggestions.trim() !== '')
-            );
-        }
+        loadFeedbackData().then(() => {
+            if (currentPage === 'feedback') updateDashboardUI();
+        });
 
     } catch (err) {
         errorMessage = err.message; isUsingMock = true; 
@@ -157,5 +128,43 @@ async function loadData() {
     } finally {
         document.getElementById('loading-view').classList.add('hidden');
         updateDashboardUI();
+    }
+}
+
+async function loadFeedbackData() {
+    try {
+        // Fetch Feedback Data
+        const fbUrl = `https://docs.google.com/spreadsheets/d/1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM/gviz/tq?tqx=out:csv&sheet=Feedback`;
+        const fbRes = await fetch(fbUrl);
+        if (!fbRes.ok) throw new Error('Cannot fetch feedback data');
+        const fbCsv = await fbRes.text();
+        const parsedFb = parseCSV(fbCsv);
+        feedbackData = parsedFb.slice(1).map(row => ({
+            customerName: row[2] || '',    // Col C
+            company: row[3] || '',         // Col D
+            phone: row[4] || '',           // Col E
+            address: row[7] || '',         // Col H
+            installDate: row[9] || '',     // Col J
+            salesName: row[12] || '',      // Col M (ฝ่ายขาย)
+            week: row[34] || '',           // Col AI
+            surveyDate: row[35] || '',     // Col AJ
+            salesComments: row[36] || '',  // Col AK (คำติชม ฝ่ายขาย)
+            salesFeedback: row[37] || '',  // Col AL (Feedback ฝ่ายขาย)
+            techComments: row[38] || '',   // Col AM (คำติชม ทีมช่าง)
+            techFeedback: row[39] || '',   // Col AN (Feedback ทีมช่าง)
+            suggestions: row[40] || '',    // Col AO (ข้อแนะนำอื่นๆ)
+            technicians: row[41] || ''     // Col AP (รายชื่อช่าง)
+        })).filter(item =>
+            // กรองแสดงเฉพาะรายการที่มีข้อมูลในคอลัมน์ AK ถึง AO เท่านั้น
+            (item.salesComments && item.salesComments.trim() !== '') ||
+            (item.salesFeedback && item.salesFeedback.trim() !== '') ||
+            (item.techComments && item.techComments.trim() !== '') ||
+            (item.techFeedback && item.techFeedback.trim() !== '') ||
+            (item.suggestions && item.suggestions.trim() !== '')
+        );
+        feedbackErrorMessage = null;
+    } catch (fbErr) {
+        feedbackData = [];
+        feedbackErrorMessage = fbErr.message;
     }
 }

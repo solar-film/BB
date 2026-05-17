@@ -5,6 +5,7 @@ let selectedId = '';
 let selectedFeedbackWeek = '';
 let isUsingMock = false;
 let errorMessage = null;
+let feedbackErrorMessage = null;
 let currentPage = 'overview'; // เปลี่ยนค่าเริ่มต้นเป็น overview
 let charts = {};
 
@@ -114,11 +115,12 @@ function updateDashboardUI() {
         'tech': { title: 'ทีมช่างติดตั้ง (อาคาร)', sub: 'วิเคราะห์ประสิทธิภาพงานติดตั้งและบริหารความเสียหาย' },
         'admin': { title: 'SALES ADMIN', sub: 'เจาะลึกการประสานงาน ปริมาณติดต่อ และยอดขายแอดมิน' }
     };
-    document.getElementById('header-title').innerText = pageInfo[currentPage].title;
-    document.getElementById('header-subtitle').innerText = `${pageInfo[currentPage].sub} (ข้อมูลประจำ ${current.week})`;
+    const currentPageInfo = pageInfo[currentPage] || pageInfo.overview;
+    document.getElementById('header-title').innerText = currentPageInfo.title;
+    document.getElementById('header-subtitle').innerText = `${currentPageInfo.sub} (ข้อมูลประจำ ${current.week})`;
 
     const bannerContainer = document.getElementById('error-banner-container');
-    bannerContainer.innerHTML = isUsingMock ? `<div class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center gap-3"><i data-lucide="alert-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0"></i><p class="text-amber-800 text-base"><strong>โหมดสาธิต:</strong> ข้อมูลจำลอง (${errorMessage})</p></div>` : '';
+    bannerContainer.innerHTML = isUsingMock ? `<div class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center gap-3"><i data-lucide="alert-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0"></i><p class="text-amber-800 text-base"><strong>โหมดสาธิต:</strong> ข้อมูลจำลอง (${escapeHTML(errorMessage)})</p></div>` : '';
 
     destroyAllCharts();
     const contentDiv = document.getElementById('dashboard-content');

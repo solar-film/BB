@@ -1,6 +1,8 @@
 // Render: Customer feedback page.
 function renderFeedbackHTML(container) {
     const sourceUrl = 'https://docs.google.com/spreadsheets/d/1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM/edit?gid=1571209798#gid=1571209798';
+    const html = escapeHTML;
+    const attr = escapeAttr;
     const weeks = [...new Set(feedbackData.map(d => d.week).filter(Boolean))];
     const getWeekNum = s => parseInt((s.match(/\d+/) || [0])[0]);
     const sortedWeeks = weeks.sort((a, b) => getWeekNum(b) - getWeekNum(a));
@@ -88,7 +90,7 @@ function renderFeedbackHTML(container) {
                     <div class="flex items-center gap-3">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${accent.rank} text-xs font-black">${index + 1}</span>
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-black text-slate-800">${name}</p>
+                            <p class="truncate text-sm font-black text-slate-800">${html(name)}</p>
                             <div class="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
                                 <span class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-500">รวม ${stat.total}</span>
                                 <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700">ชม ${stat.pos}</span>
@@ -145,7 +147,7 @@ function renderFeedbackHTML(container) {
                         <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
                             <p class="text-xs font-black uppercase text-white/70">ติดตั้งเสร็จ</p>
                             <p class="mt-1 text-3xl font-black">${formatCurrency(weeklyCompletedInstalls)}</p>
-                            <p class="mt-1 text-xs font-bold text-white/70">${activeStatsWeek || '-'}</p>
+                            <p class="mt-1 text-xs font-bold text-white/70">${html(activeStatsWeek || '-')}</p>
                         </div>
                         <div class="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
                             <p class="text-xs font-black uppercase text-white/70">โทรได้</p>
@@ -169,7 +171,7 @@ function renderFeedbackHTML(container) {
                     <label class="text-sm font-black text-white/80">เลือกสัปดาห์ Feedback</label>
                     <select onchange="handleFeedbackWeekChange(event)" class="w-full rounded-2xl border border-white/30 bg-white px-4 py-3 text-base font-black text-slate-800 shadow-sm outline-none focus:ring-4 focus:ring-white/30">
                         <option value="All" ${selectedFeedbackWeek === 'All' ? 'selected' : ''}>สัปดาห์ทั้งหมด (All)</option>
-                        ${sortedWeeks.map(w => `<option value="${w}" ${w === selectedFeedbackWeek ? 'selected' : ''}>${w}</option>`).join('')}
+                        ${sortedWeeks.map(w => `<option value="${attr(w)}" ${w === selectedFeedbackWeek ? 'selected' : ''}>${html(w)}</option>`).join('')}
                     </select>
                     <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-950/20 transition-colors hover:bg-slate-800">
                         <i data-lucide="external-link" class="h-5 w-5"></i>
@@ -263,6 +265,12 @@ function renderFeedbackHTML(container) {
             </div>
         </section>
 
+        ${feedbackErrorMessage ? `
+            <section class="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-5 text-sm font-bold text-amber-800 shrink-0">
+                โหลดข้อมูล Feedback ไม่สำเร็จ: ${html(feedbackErrorMessage)}
+            </section>
+        ` : ''}
+
         <section>
             <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
                 <div>
@@ -308,14 +316,14 @@ function renderFeedbackHTML(container) {
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <h4 class="truncate text-xl font-black ${hasComplaint ? 'text-red-900' : 'text-slate-900'}">${row.customerName || 'ไม่ระบุชื่อ'}</h4>
+                                            <h4 class="truncate text-xl font-black ${hasComplaint ? 'text-red-900' : 'text-slate-900'}">${html(row.customerName || 'ไม่ระบุชื่อ')}</h4>
                                             ${hasComplaint ? '<span class="inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-black text-white"><i data-lucide="alert-triangle" class="h-4 w-4"></i> มีคอมเพลน</span>' : '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700"><i data-lucide="check-circle" class="h-4 w-4"></i> ปกติ</span>'}
                                         </div>
-                                        <p class="mt-2 text-sm font-bold text-slate-500">${row.company || '-'} · ${row.week || '-'}</p>
+                                        <p class="mt-2 text-sm font-bold text-slate-500">${html(row.company || '-')} · ${html(row.week || '-')}</p>
                                     </div>
-                                    <span class="rounded-xl bg-white px-3 py-2 text-xs font-black ${hasComplaint ? 'text-red-700 border border-red-100' : 'text-slate-600'} shadow-sm">วันที่ติดตั้ง : ${row.installDate || '-'}</span>
+                                    <span class="rounded-xl bg-white px-3 py-2 text-xs font-black ${hasComplaint ? 'text-red-700 border border-red-100' : 'text-slate-600'} shadow-sm">วันที่ติดตั้ง : ${html(row.installDate || '-')}</span>
                                 </div>
-                                <p class="mt-3 flex items-start gap-2 text-sm font-bold text-slate-400"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 shrink-0"></i>${row.address || '-'}</p>
+                                <p class="mt-3 flex items-start gap-2 text-sm font-bold text-slate-400"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 shrink-0"></i>${html(row.address || '-')}</p>
                             </div>
 
                             <div class="grid grid-cols-1 gap-4 bg-white p-4 lg:grid-cols-2">
@@ -324,30 +332,30 @@ function renderFeedbackHTML(container) {
                                         <p class="flex items-center gap-2 text-base font-black ${salesTone.heading}"><span class="flex h-9 w-9 items-center justify-center rounded-xl ${salesTone.icon}"><i data-lucide="briefcase" class="h-5 w-5"></i></span> ฝ่ายขาย</p>
                                         ${sentimentPill(sSent)}
                                     </div>
-                                    <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${salesTone.name}">${row.salesName || '-'}</p>
-                                    <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${salesTone.quote}">${row.salesComments && row.salesComments.trim() !== '' ? row.salesComments : 'ไม่มีข้อมูลคำติชม'}</blockquote>
-                                    ${row.salesFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${salesTone.feedback}"><span class="mb-1 block text-base font-black ${salesTone.label}">Feedback / การแก้ไข</span>${row.salesFeedback}</p>` : ''}
+                                    <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${salesTone.name}">${html(row.salesName || '-')}</p>
+                                    <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${salesTone.quote}">${row.salesComments && row.salesComments.trim() !== '' ? html(row.salesComments) : 'ไม่มีข้อมูลคำติชม'}</blockquote>
+                                    ${row.salesFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${salesTone.feedback}"><span class="mb-1 block text-base font-black ${salesTone.label}">Feedback / การแก้ไข</span>${html(row.salesFeedback)}</p>` : ''}
                                 </div>
                                 <div class="rounded-[1.35rem] border p-5 ${techTone.wrap}">
                                     <div class="mb-4 flex items-center justify-between gap-3 border-b border-white/70 pb-3">
                                         <p class="flex items-center gap-2 text-base font-black ${techTone.heading}"><span class="flex h-9 w-9 items-center justify-center rounded-xl ${techTone.icon}"><i data-lucide="wrench" class="h-5 w-5"></i></span> ทีมช่าง</p>
                                         ${sentimentPill(tSent)}
                                     </div>
-                                    <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${techTone.name}">${row.technicians || '-'}</p>
-                                    <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${techTone.quote}">${row.techComments && row.techComments.trim() !== '' ? row.techComments : 'ไม่มีข้อมูลคำติชม'}</blockquote>
-                                    ${row.techFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${techTone.feedback}"><span class="mb-1 block text-base font-black ${techTone.label}">Feedback / การแก้ไข</span>${row.techFeedback}</p>` : ''}
+                                    <p class="inline-flex rounded-xl border px-3 py-2 text-sm font-black ${techTone.name}">${html(row.technicians || '-')}</p>
+                                    <blockquote class="mt-4 rounded-2xl border-l-4 p-4 text-base font-bold leading-relaxed ${techTone.quote}">${row.techComments && row.techComments.trim() !== '' ? html(row.techComments) : 'ไม่มีข้อมูลคำติชม'}</blockquote>
+                                    ${row.techFeedback ? `<p class="mt-4 rounded-2xl border p-4 text-base font-bold leading-relaxed ${techTone.feedback}"><span class="mb-1 block text-base font-black ${techTone.label}">Feedback / การแก้ไข</span>${html(row.techFeedback)}</p>` : ''}
                                 </div>
                             </div>
 
                             ${row.suggestions && row.suggestions !== '-' ? `
                                 <div class="border-t border-amber-100 bg-amber-50 p-5">
                                     <p class="mb-2 flex items-center gap-2 text-sm font-black text-amber-700"><i data-lucide="message-circle" class="h-5 w-5"></i> ข้อเสนอแนะเพิ่มเติม</p>
-                                    <p class="text-base font-bold leading-relaxed text-slate-800">${row.suggestions}</p>
+                                    <p class="text-base font-bold leading-relaxed text-slate-800">${html(row.suggestions)}</p>
                                 </div>
                             ` : ''}
 
                             <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-3 text-xs font-bold text-slate-400">
-                                <span>วันที่สำรวจ: ${row.surveyDate || '-'}</span>
+                                <span>วันที่สำรวจ: ${html(row.surveyDate || '-')}</span>
                                 <span>แหล่งข้อมูล: Feedback Sheet</span>
                             </div>
                         </article>

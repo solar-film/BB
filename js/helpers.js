@@ -16,6 +16,37 @@ function cleanNumber(str) {
     const cleaned = String(str).replace(/[^\d.-]/g, '');
     return parseFloat(cleaned) || 0;
 }
+
+function normalizeSalesRepData(rep) {
+    const derivedMeets = (rep.newMeets || 0) + (rep.oldMeets || 0);
+    const derivedInstalls = (rep.newInstalls || 0) + (rep.oldInstalls || 0);
+    const derivedSales = (rep.newSales || 0) + (rep.oldSales || 0) + (rep.noInstallSales || 0);
+    const meets = derivedMeets > 0 ? derivedMeets : rep.meets;
+    const installsLooksLikeSales = rep.installs > 1000 && derivedInstalls > 0;
+    const installs = installsLooksLikeSales ? derivedInstalls : rep.installs;
+    const sales = rep.sales > 0 ? rep.sales : derivedSales;
+
+    return {
+        ...rep,
+        meets,
+        installs,
+        sales,
+        sr: meets > 0 ? (installs / meets) * 100 : 0
+    };
+}
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+}
+
+const escapeAttr = escapeHTML;
+
 function extractMonthGroup(dateRangeStr) {
     const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     let foundMonth = '';

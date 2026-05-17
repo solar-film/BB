@@ -17,17 +17,20 @@ function renderBuildingSalesHTML(current, m, opt, container) {
     const weeklyTarget = current.gfs.target + current.mhl.target;
     const weeklyProgress = weeklyTarget > 0 ? (weeklyActual / weeklyTarget) * 100 : 0;
 
+    const getRepYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
+    const getProjectYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
+
     const reps = [
-        { id: 'BOM', title: 'Sales Representative', data: b.bom, c: 'blue' },
-        { id: 'Jay', title: 'Sales Representative', data: b.jay, c: 'blue' },
-        { id: 'Saifha', title: 'Sales Representative', data: b.saifha, c: 'blue' },
-        { id: 'Kat', title: 'Sales Representative', data: b.pat, c: 'blue' },
-        { id: 'Image', title: 'Sales Representative', data: b.image, c: 'blue' }
+        { id: 'BOM', title: 'Sales Representative', data: { ...b.bom, ytd: getRepYtdSales('bom') }, c: 'blue' },
+        { id: 'Jay', title: 'Sales Representative', data: { ...b.jay, ytd: getRepYtdSales('jay') }, c: 'blue' },
+        { id: 'Saifha', title: 'Sales Representative', data: { ...b.saifha, ytd: getRepYtdSales('saifha') }, c: 'blue' },
+        { id: 'Kat', title: 'Sales Representative', data: { ...b.pat, ytd: getRepYtdSales('pat') }, c: 'blue' },
+        { id: 'Image', title: 'Sales Representative', data: { ...b.image, ytd: getRepYtdSales('image') }, c: 'blue' }
     ].sort((a,b) => b.data.sales - a.data.sales); 
     
     const projects = [
-        { id: 'YA', title: 'Sales Project', data: b.projYa, c: 'amber' },
-        { id: 'Tung', title: 'Sales Project', data: b.projTung, c: 'amber' }
+        { id: 'YA', title: 'Sales Project', data: { ...b.projYa, ytd: getProjectYtdSales('projYa') }, c: 'amber' },
+        { id: 'Tung', title: 'Sales Project', data: { ...b.projTung, ytd: getProjectYtdSales('projTung') }, c: 'amber' }
     ].sort((a,b) => b.data.sales - a.data.sales);
 
     const topRep = reps.length > 0 ? reps[0] : null;
