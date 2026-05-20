@@ -1,0 +1,606 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunroof Price</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #d9ebfd;
+        }
+
+        #loginScreen {
+            display: none;
+        }
+
+        body.auth-locked > :not(#loginScreen) {
+            display: none !important;
+        }
+
+        body.auth-locked #loginScreen {
+            display: flex;
+        }
+
+        .field {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.65rem;
+            padding: 0.65rem 0.75rem;
+            font-size: 0.95rem;
+            background: #ffffff;
+        }
+
+        .field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+        }
+
+        .quote-box {
+            min-height: 34rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.55;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .sunroof-quote-card {
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.90);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .sunroof-quote-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 1rem 1.25rem;
+        }
+
+        .sunroof-quote-header h2 {
+            color: #0f172a !important;
+        }
+
+        .sunroof-quote-header p {
+            color: #64748b !important;
+        }
+
+        .sunroof-quote-header.tpu {
+            background: linear-gradient(135deg, rgba(254, 240, 138, 0.62), rgba(255, 247, 237, 0.82));
+        }
+
+        .sunroof-quote-header.price {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.16), rgba(147, 197, 253, 0.12));
+        }
+
+        @media (min-width: 640px) {
+            .sunroof-quote-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="apple-style.css?v=20260520-4">
+    <script src="sidebar.js" defer></script>
+</head>
+<body class="text-slate-900 auth-locked">
+    <div id="loginScreen" class="fixed inset-0 z-[9999] min-h-screen items-center justify-center bg-slate-950 px-4">
+        <form id="loginForm" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div class="mb-5">
+                <h1 class="text-2xl font-extrabold text-slate-900">เข้าสู่ระบบ</h1>
+                <p class="mt-1 text-sm text-slate-500">กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="loginUser" class="mb-1 block text-sm font-semibold text-slate-700">User</label>
+                    <input id="loginUser" type="text" autocomplete="username" class="field" required>
+                </div>
+                <div>
+                    <label for="loginPass" class="mb-1 block text-sm font-semibold text-slate-700">Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" class="field" required>
+                </div>
+            </div>
+            <p id="loginError" class="mt-3 hidden text-sm font-semibold text-red-600">User หรือ Password ไม่ถูกต้อง</p>
+            <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <div data-car-crm-sidebar></div>
+
+    <main class="w-full px-4 py-8 sm:px-6 lg:ml-64 lg:w-[calc(100%-16rem)] lg:px-8">
+        <section class="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div>
+                    <div class="mb-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-700">Sunroof Price</div>
+                    <h1 class="text-2xl font-extrabold text-slate-950">ราคาสำหรับกระจก Sunroof</h1>
+                    <p id="lastUpdated" class="mt-1 text-sm text-slate-500">กำลังโหลดข้อมูลจากชีต ราคา_TPU และ Sunroof...</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="sales-dashboard.html" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50">กลับราคาขาย</a>
+                    </div>
+                </div>
+                <div class="grid w-full grid-cols-1 gap-3 lg:max-w-3xl sm:grid-cols-2">
+                    <div class="relative">
+                        <label for="searchInput" class="mb-1 block text-xs font-bold text-slate-600">ค้นหาชื่อรุ่น</label>
+                        <input id="searchInput" type="search" class="field" placeholder="เช่น Toyota Fortuner / Tesla Model Y" autocomplete="off">
+                        <div id="searchResults" class="absolute left-0 right-0 top-full z-50 mt-2 hidden max-h-96 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl"></div>
+                    </div>
+                    <div>
+                        <label for="modelFilter" class="mb-1 block text-xs font-bold text-slate-600">เลือกรุ่นรถยนต์</label>
+                        <select id="modelFilter" class="field">
+                            <option value="">เลือกรุ่นรถ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="loadingMessage" class="rounded-xl border border-slate-200 bg-white px-6 py-12 text-center text-slate-500">
+            <svg class="mx-auto mb-4 h-10 w-10 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-lg font-medium text-slate-700">กำลังโหลดข้อมูล ราคา_TPU และ Sunroof...</p>
+        </div>
+
+        <div id="errorMessage" class="hidden rounded-xl border border-red-200 bg-red-50 px-6 py-10 text-center text-red-600">
+            <p class="text-lg font-semibold">ไม่สามารถโหลดชีต ราคา_TPU หรือ Sunroof ได้</p>
+            <p class="mt-2 text-sm text-slate-700">โปรดตรวจสอบชื่อชีตและการแชร์ Google Sheet แล้วลองใหม่อีกครั้ง</p>
+            <button onclick="fetchSunroofData()" class="mt-4 rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700">ลองใหม่</button>
+        </div>
+
+        <section id="content" class="hidden grid grid-cols-1 gap-5 xl:grid-cols-[360px_1fr]">
+            <aside class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 class="text-lg font-extrabold text-slate-950">รายการที่พบ</h2>
+                <p id="matchSummary" class="mt-1 text-sm text-slate-500">กรุณาค้นหาชื่อรุ่น</p>
+                <div id="matchList" class="mt-4 max-h-[34rem] space-y-2 overflow-y-auto"></div>
+            </aside>
+
+            <div class="grid grid-cols-1 gap-5 2xl:grid-cols-2">
+                <article class="sunroof-quote-card">
+                    <div class="sunroof-quote-header tpu">
+                        <div>
+                            <h2 class="text-xl font-extrabold">ข้อความเสนอราคา TPU Sunroof (ภายนอก)</h2>
+                            <p id="selectedTpuMeta" class="mt-1 text-sm text-slate-300">ยังไม่ได้เลือกรุ่น</p>
+                        </div>
+                        <button id="copyTpuQuoteBtn" type="button" class="rounded-lg bg-white px-4 py-2 text-sm font-extrabold text-slate-950 hover:bg-slate-100">คัดลอก</button>
+                    </div>
+                    <pre id="tpuQuoteBox" class="quote-box p-5 text-[16px]"></pre>
+                </article>
+
+                <article id="sunroofPriceCard" class="sunroof-quote-card">
+                    <div class="sunroof-quote-header price">
+                        <div>
+                            <h2 class="text-xl font-extrabold">ข้อความราคา Sunroof (ภายใน)</h2>
+                            <p id="selectedSunroofMeta" class="mt-1 text-sm text-blue-100">ยังไม่ได้เลือกรุ่น</p>
+                        </div>
+                        <button id="copySunroofQuoteBtn" type="button" class="rounded-lg bg-white px-4 py-2 text-sm font-extrabold text-blue-700 hover:bg-blue-50">คัดลอก</button>
+                    </div>
+                    <pre id="sunroofQuoteBox" class="quote-box p-5 text-[16px]"></pre>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SHEET_ID = '1u__xYWoWZpmrnquc-Fpk19WtpcrckxSd0-_G35NWxXQ';
+        const TPU_SHEET_NAME = 'ราคา_TPU';
+        const SUNROOF_SHEET_NAME = 'Sunroof';
+        const TPU_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TPU_SHEET_NAME)}`;
+        const SUNROOF_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SUNROOF_SHEET_NAME)}`;
+
+        const LOGIN_USER = 'admin';
+        const LOGIN_PASS = 'MHL741mhl+';
+        const LOGIN_KEY = 'carCrmLoggedIn';
+
+        const dom = {};
+        const DOM_IDS = [
+            'loginForm', 'loginUser', 'loginPass', 'loginError', 'lastUpdated',
+            'searchInput', 'searchResults', 'modelFilter', 'loadingMessage',
+            'errorMessage', 'content', 'matchSummary', 'matchList', 'selectedTpuMeta',
+            'selectedSunroofMeta', 'tpuQuoteBox', 'sunroofQuoteBox',
+            'copyTpuQuoteBtn', 'copySunroofQuoteBtn'
+        ];
+
+        let tpuRows = [];
+        let sunroofRows = [];
+        let modelItems = [];
+        let appHasStarted = false;
+
+        function cacheDom() {
+            DOM_IDS.forEach(id => {
+                dom[id] = document.getElementById(id);
+            });
+        }
+
+        function textValue(value, fallback = '') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text === '' ? fallback : text;
+        }
+
+        function escapeHtml(value) {
+            return textValue(value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function normalizeText(value) {
+            return textValue(value).replace(/[\s._\-()（）/]+/g, '').toLowerCase();
+        }
+
+        function findField(row, candidates) {
+            if (!row) return '';
+            const keys = Object.keys(row).filter(key => normalizeText(key));
+            const normalizedCandidates = candidates.map(normalizeText).filter(Boolean);
+            const key = keys.find(item => normalizedCandidates.includes(normalizeText(item))) ||
+                keys.find(item => normalizedCandidates.some(candidate => {
+                    const normalizedItem = normalizeText(item);
+                    if (!normalizedItem || candidate.length < 3 || normalizedItem.length < 3) return false;
+                    return normalizedItem.includes(candidate) || candidate.includes(normalizedItem);
+                }));
+            return key ? textValue(row[key]) : '';
+        }
+
+        function parseCsv(csvText) {
+            return new Promise(resolve => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: header => header.trim(),
+                    complete: results => resolve(results.data)
+                });
+            });
+        }
+
+        function isHtmlResponseText(text) {
+            const trimmedText = text.trim().toLowerCase();
+            return trimmedText.startsWith('<!doctype html>') ||
+                trimmedText.startsWith('<html') ||
+                trimmedText.includes('google.visualization.query.setresponse') ||
+                trimmedText.includes('invalid query');
+        }
+
+        async function fetchCsvText(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const text = await response.text();
+            if (isHtmlResponseText(text)) throw new Error('Permission denied');
+            return text;
+        }
+
+        function parseMoney(value) {
+            const number = parseFloat(textValue(value, '0').replace(/[^\d.-]/g, ''));
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function formatMoney(value) {
+            if (!value) return '....';
+            return value.toLocaleString('th-TH', { maximumFractionDigits: 0 });
+        }
+
+        const SUNROOF_BRANDS = [
+            '3M Crystalline',
+            '3M Ultra Clear',
+            'Hi-Kool Beyond',
+            'Nanotech Promax',
+            'AmericanKing UltraUV400',
+            '3M Absolute',
+            'Hi-Kool Black Night',
+            'Nanotech NCI',
+            '3M Ceramate',
+            'G-TEC Ceramic'
+        ];
+
+        function getModelName(row, index) {
+            return findField(row, [
+                'ชื่อรุ่น', 'ชื่อรุ่นรถ', 'รุ่นรถยนต์', 'รุ่นรถ', 'รุ่น', 'Model', 'Car Model', 'Car_model', 'รถยนต์'
+            ]) || `รายการ ${index + 1}`;
+        }
+
+        function rowToTpuItem(row, index) {
+            const model = getModelName(row, index);
+            let regularPrice = parseMoney(findField(row, [
+                'ราคาปกติ', 'ราคาเต็ม', 'ราคาเต็มก่อนลด', 'ก่อนลด', 'Normal Price', 'Regular Price', 'Regular', 'ปกติ', 'ราคา'
+            ]));
+            let specialPrice = parseMoney(findField(row, [
+                'ราคาพิเศษ', 'ราคาโปรโมชั่น', 'ราคาโปร', 'ราคาโปรโมชัน', 'เหลือเพียง', 'หลังลด', 'ราคา 50%', 'ราคา50%', 'Special Price', 'Sale Price', 'Promotion', 'Promo', 'ลด 50%', 'ลด50'
+            ]));
+
+            if (!regularPrice && specialPrice) regularPrice = specialPrice * 2;
+            if (!specialPrice && regularPrice) specialPrice = Math.round(regularPrice / 2);
+
+            const item = {
+                id: `${index}`,
+                model,
+                regularPrice,
+                specialPrice,
+                raw: row
+            };
+            item.searchText = Object.values(row).join(' ').toLowerCase();
+            return item;
+        }
+
+        function rowToSunroofItem(row, index) {
+            const model = getModelName(row, index);
+            const prices = SUNROOF_BRANDS.reduce((result, brand) => {
+                result[brand] = parseMoney(findField(row, [brand, brand.replace(/-/g, ''), brand.replace(/\s+/g, '')]));
+                return result;
+            }, {});
+
+            const item = {
+                id: `${index}`,
+                model,
+                prices,
+                raw: row
+            };
+            item.searchText = `${model} ${Object.values(row).join(' ')}`.toLowerCase();
+            return item;
+        }
+
+        function buildModelItems() {
+            const map = new Map();
+
+            tpuRows.forEach(item => {
+                const key = normalizeText(item.model);
+                if (!key) return;
+                if (!map.has(key)) map.set(key, { model: item.model, tpuItem: null, sunroofItem: null, searchText: '' });
+                map.get(key).tpuItem = item;
+            });
+
+            sunroofRows.forEach(item => {
+                const key = normalizeText(item.model);
+                if (!key) return;
+                if (!map.has(key)) map.set(key, { model: item.model, tpuItem: null, sunroofItem: null, searchText: '' });
+                map.get(key).sunroofItem = item;
+            });
+
+            modelItems = [...map.values()]
+                .map((item, index) => {
+                    item.id = `${index}`;
+                    item.searchText = [
+                        item.model,
+                        item.tpuItem?.searchText || '',
+                        item.sunroofItem?.searchText || ''
+                    ].join(' ').toLowerCase();
+                    return item;
+                })
+                .sort((a, b) => a.model.localeCompare(b.model, 'th'));
+        }
+
+        function makeTpuQuote(item) {
+            if (!item) {
+                return 'ไม่พบข้อมูลราคา TPU Sunroof ของรุ่นนี้';
+            }
+
+            return `🔥 Special Offer | ลด 50%
+🚘⚡ ${item.model}
+
+🆕 COOPER TPU film :
+💰 ราคาปกติ : ${formatMoney(item.regularPrice)} บาท
+🔥 เหลือเพียง : ${formatMoney(item.specialPrice)}  บาท เท่านั้น!
+
+----------------
+☀️ ซันรูฟ = จุดร้อนอันดับ 1 ของรถ
+🛡️ ติดครั้งเดียว จบทั้ง “ร้อน + เสี่ยงแตก”
+
+🛡️ ฟิล์มปกป้องซันรูฟ ระดับพรีเมี่ยม
+• TPU หนา 7.5mil ยืดหยุ่นสูง ทนแรงกระแทก
+• กันร้อน ลดความร้อนจากด้านบนโดยตรง
+• ป้องกันกระจกแตก / เศษกระจกกระเด็น
+• ใส เคลียร์ ไม่ลดทัศนวิสัย
+• สำหรับติดตั้งภายนอกโดยเฉพาะ
+• ปกป้องรอยขีดข่วน + ยืดอายุซันรูฟ
+• รับประกันคุณภาพ 5 ปีเต็ม
+
+----------------
+⚠️ โปรจำนวนจำกัด รีบจองก่อนเต็ม!
+👉 https://www.mhlcarfilm.com/cooper-tpu-sunroof-protective-film`;
+        }
+
+        function makeSunroofQuote(item, modelName = '') {
+            if (!item) {
+                return 'ไม่พบข้อมูลราคา Sunroof ของรุ่นนี้';
+            }
+
+            const priceLines = SUNROOF_BRANDS
+                .map(brand => `» ${brand} : ${formatMoney(item.prices[brand])} บาท`)
+                .join('\n');
+
+            return `📌 ราคาสำหรับกระจก Sunroof
+(ติดตั้งภายใน)  » 🚗
+====================
+รถรุ่น : ${modelName || item.model}
+====================
+${priceLines}
+
+====================
+ใช้เวลาติดตั้ง ประมาณ 1-2 ชม.`;
+        }
+
+        function getFilteredItems() {
+            const search = dom.searchInput.value.trim().toLowerCase();
+            if (!search) return [];
+            return modelItems.filter(item => item.searchText.includes(search) || item.model.toLowerCase().includes(search));
+        }
+
+        function renderModelOptions() {
+            dom.modelFilter.innerHTML = '<option value="">เลือกรุ่นรถ</option>' + modelItems
+                .map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.model)}</option>`)
+                .join('');
+        }
+
+        function renderSearchResults() {
+            const rows = getFilteredItems().slice(0, 20);
+            dom.searchResults.classList.toggle('hidden', !rows.length);
+            dom.searchResults.innerHTML = rows.map(item => `
+                <button type="button" class="search-result-btn w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-blue-50 last:border-b-0" data-id="${escapeHtml(item.id)}">
+                    <span class="block text-sm font-bold text-slate-900">${escapeHtml(item.model)}</span>
+                    <span class="mt-1 block text-xs text-slate-500">${item.tpuItem ? `TPU ${formatMoney(item.tpuItem.specialPrice)} บาท` : 'ไม่มีราคา TPU'} · ${item.sunroofItem ? 'มีราคา Sunroof' : 'ไม่มีราคา Sunroof'}</span>
+                </button>
+            `).join('');
+            dom.searchResults.querySelectorAll('.search-result-btn').forEach(button => {
+                button.addEventListener('click', () => selectModel(button.dataset.id));
+            });
+        }
+
+        function renderMatchList(rows) {
+            dom.matchSummary.innerText = rows.length
+                ? `พบ ${rows.length.toLocaleString('th-TH')} รายการ`
+                : 'ไม่พบรุ่นรถที่ค้นหา';
+            dom.matchList.innerHTML = rows.map(item => `
+                <button type="button" class="match-btn w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-left hover:border-blue-300 hover:bg-blue-50" data-id="${escapeHtml(item.id)}">
+                    <div class="text-sm font-extrabold text-slate-950">${escapeHtml(item.model)}</div>
+                    <div class="mt-1 text-xs text-slate-500">${item.tpuItem ? `TPU โปร ${formatMoney(item.tpuItem.specialPrice)} บาท` : 'ไม่มีราคา TPU'} · ${item.sunroofItem ? 'มีราคา Sunroof' : 'ไม่มีราคา Sunroof'}</div>
+                </button>
+            `).join('');
+            dom.matchList.querySelectorAll('.match-btn').forEach(button => {
+                button.addEventListener('click', () => selectModel(button.dataset.id));
+            });
+        }
+
+        function selectModel(id) {
+            const item = modelItems.find(row => row.id === id);
+            if (!item) return;
+            dom.modelFilter.value = id;
+            dom.searchInput.value = item.model;
+            dom.searchResults.classList.add('hidden');
+            dom.selectedTpuMeta.innerText = item.tpuItem
+                ? `${item.model} · โปร ${formatMoney(item.tpuItem.specialPrice)} บาท`
+                : `${item.model} · ไม่มีข้อมูล ราคา_TPU`;
+            dom.selectedSunroofMeta.innerText = item.sunroofItem
+                ? `${item.model} · ราคา Sunroof`
+                : `${item.model} · ไม่มีข้อมูล Sunroof`;
+            dom.tpuQuoteBox.innerText = makeTpuQuote(item.tpuItem);
+            dom.sunroofQuoteBox.innerText = makeSunroofQuote(item.sunroofItem, item.model);
+            renderMatchList([item]);
+        }
+
+        function updateSearch() {
+            const rows = getFilteredItems();
+            renderSearchResults();
+            renderMatchList(rows);
+            if (!rows.length) {
+                dom.selectedTpuMeta.innerText = 'ยังไม่ได้เลือกรุ่น';
+                dom.selectedSunroofMeta.innerText = 'ยังไม่ได้เลือกรุ่น';
+                const message = dom.searchInput.value.trim() ? 'ไม่พบรุ่นรถที่ค้นหา' : 'กรุณาค้นหา หรือเลือกรุ่นรถยนต์ก่อน';
+                dom.tpuQuoteBox.innerText = message;
+                dom.sunroofQuoteBox.innerText = message;
+            }
+        }
+
+        async function fetchSunroofData() {
+            dom.loadingMessage.classList.remove('hidden');
+            dom.errorMessage.classList.add('hidden');
+            dom.content.classList.add('hidden');
+
+            try {
+                const [tpuCsvText, sunroofCsvText] = await Promise.all([
+                    fetchCsvText(TPU_CSV_URL),
+                    fetchCsvText(SUNROOF_CSV_URL)
+                ]);
+                const [rows, sunroofRawRows] = await Promise.all([
+                    parseCsv(tpuCsvText),
+                    parseCsv(sunroofCsvText)
+                ]);
+                tpuRows = rows
+                    .map(rowToTpuItem)
+                    .filter(item => Object.values(item.raw).some(value => textValue(value)));
+                sunroofRows = sunroofRawRows
+                    .map(rowToSunroofItem)
+                    .filter(item => Object.values(item.raw).some(value => textValue(value)));
+                buildModelItems();
+
+                renderModelOptions();
+                dom.tpuQuoteBox.innerText = 'กรุณาค้นหา หรือเลือกรุ่นรถยนต์ก่อน';
+                dom.sunroofQuoteBox.innerText = 'กรุณาค้นหา หรือเลือกรุ่นรถยนต์ก่อน';
+                dom.loadingMessage.classList.add('hidden');
+                dom.content.classList.remove('hidden');
+                dom.lastUpdated.innerText = `โหลดข้อมูลแล้ว ราคา_TPU ${tpuRows.length.toLocaleString('th-TH')} รายการ, Sunroof ${sunroofRows.length.toLocaleString('th-TH')} รายการ · อัปเดตล่าสุด ${new Date().toLocaleTimeString('th-TH')} น.`;
+            } catch (error) {
+                console.error(error);
+                dom.loadingMessage.classList.add('hidden');
+                dom.errorMessage.classList.remove('hidden');
+                dom.lastUpdated.innerText = 'โหลดชีต ราคา_TPU หรือ Sunroof ไม่สำเร็จ';
+            }
+        }
+
+        async function copyQuote(id, button) {
+            const text = dom[id].innerText.trim();
+            if (!text || text.startsWith('กรุณาค้นหา') || text.startsWith('ไม่พบ')) return;
+            await navigator.clipboard.writeText(text);
+            const oldText = button.innerText;
+            button.innerText = 'คัดลอกแล้ว';
+            setTimeout(() => {
+                button.innerText = oldText;
+            }, 1400);
+        }
+
+        function initApp() {
+            cacheDom();
+            dom.searchInput.addEventListener('input', updateSearch);
+            dom.modelFilter.addEventListener('change', () => selectModel(dom.modelFilter.value));
+            dom.copyTpuQuoteBtn.addEventListener('click', () => copyQuote('tpuQuoteBox', dom.copyTpuQuoteBtn));
+            dom.copySunroofQuoteBtn.addEventListener('click', () => copyQuote('sunroofQuoteBox', dom.copySunroofQuoteBtn));
+            document.addEventListener('click', event => {
+                if (!event.target.closest('#searchInput') && !event.target.closest('#searchResults')) {
+                    dom.searchResults.classList.add('hidden');
+                }
+            });
+            fetchSunroofData();
+        }
+
+        function startAppOnce() {
+            if (appHasStarted) return;
+            appHasStarted = true;
+            initApp();
+        }
+
+        function unlockPage() {
+            document.body.classList.remove('auth-locked');
+            startAppOnce();
+        }
+
+        function initLogin() {
+            cacheDom();
+            if (localStorage.getItem(LOGIN_KEY) === 'yes') {
+                unlockPage();
+                return;
+            }
+
+            dom.loginForm.addEventListener('submit', event => {
+                event.preventDefault();
+                if (dom.loginUser.value.trim() === LOGIN_USER && dom.loginPass.value === LOGIN_PASS) {
+                    localStorage.setItem(LOGIN_KEY, 'yes');
+                    unlockPage();
+                    return;
+                }
+
+                dom.loginError.classList.remove('hidden');
+                dom.loginPass.value = '';
+                dom.loginPass.focus();
+            });
+
+            dom.loginUser.focus();
+        }
+
+        window.addEventListener('load', initLogin);
+    </script>
+</body>
+</html>
+
+
+
+

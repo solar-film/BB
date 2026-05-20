@@ -1,0 +1,928 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAR CRM - หลังบ้าน</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #dbe3ee;
+            --brand: #1f4fd6;
+            --brand-dark: #183a8a;
+            --accent: #0f9f8f;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(31, 79, 214, 0.12), transparent 32rem),
+                linear-gradient(180deg, #f6f8fc 0%, #eef3f8 100%);
+            min-height: 100vh;
+        }
+
+        .surface {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid var(--line);
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        .soft-panel {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+        }
+
+        .field {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.65rem 0.8rem;
+            font-size: 0.9rem;
+            background: #ffffff;
+            transition: border-color 150ms ease, box-shadow 150ms ease;
+        }
+
+        .field:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(31, 79, 214, 0.14);
+        }
+
+        .label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+
+        .table-wrap {
+            scrollbar-width: thin;
+            scrollbar-color: #94a3b8 transparent;
+        }
+
+        .status-dot {
+            width: 0.55rem;
+            height: 0.55rem;
+            border-radius: 999px;
+            display: inline-block;
+            background: #94a3b8;
+        }
+
+        .status-dot.ok { background: #10b981; }
+        .status-dot.error { background: #ef4444; }
+
+        #loginScreen {
+            display: none;
+        }
+
+        body.auth-locked > :not(#loginScreen) {
+            display: none !important;
+        }
+
+        body.auth-locked #loginScreen {
+            display: flex;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.58;
+        }
+
+        @media (max-width: 640px) {
+            .field {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="apple-style.css?v=20260520-4">
+</head>
+<body class="text-slate-900 auth-locked">
+    <div id="loginScreen" class="fixed inset-0 z-[9999] min-h-screen items-center justify-center bg-slate-950 px-4">
+        <form id="loginForm" class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div class="mb-5">
+                <h1 class="text-2xl font-extrabold text-slate-900">เข้าสู่ระบบ</h1>
+                <p class="mt-1 text-sm text-slate-500">กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="loginUser" class="label">User</label>
+                    <input id="loginUser" type="text" autocomplete="username" class="field" required>
+                </div>
+                <div>
+                    <label for="loginPass" class="label">Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" class="field" required>
+                </div>
+            </div>
+            <p id="loginError" class="hidden mt-3 text-sm font-semibold text-red-600">User หรือ Password ไม่ถูกต้อง</p>
+            <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+    <nav class="bg-gradient-to-r from-[#172b72] via-[#21469c] to-[#2563eb] text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-white/12 border border-white/20 flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h6M8 7h.01M12 7h.01M16 7h.01M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="font-bold text-lg sm:text-xl tracking-tight truncate">CAR CRM หลังบ้าน</div>
+                        <div class="text-[11px] text-blue-100 hidden sm:block">จัดการลูกค้าและคิวติดตั้งฟิล์ม</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="loadDataBtn" class="text-sm bg-white text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors">โหลดข้อมูล</button>
+                    <button id="toggleSettingsBtn" class="text-sm bg-white/12 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-colors">ตั้งค่า</button>
+                    <a href="sales-dashboard.html" class="text-sm bg-white/12 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-colors">ราคาขาย</a>
+                    <a href="index.html" class="text-sm bg-white/12 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-colors">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
+        <section class="surface rounded-2xl p-5 sm:p-6 mb-6">
+            <div class="grid grid-cols-1 gap-6 items-stretch">
+                <div class="flex flex-col justify-between gap-5">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950">ศูนย์จัดการงานหน้าร้าน</h1>
+                        <p class="text-sm text-slate-500 mt-2">เพิ่มลูกค้า จองคิว และแก้ไขรายการที่ส่งกลับ Google Sheet ได้จากหน้าเดียว</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="rounded-xl bg-blue-50 border border-blue-100 p-3">
+                            <div class="text-xs text-blue-700 font-semibold">ลูกค้า</div>
+                            <div id="customerCount" class="text-2xl font-extrabold text-blue-900 mt-1">0</div>
+                        </div>
+                        <div class="rounded-xl bg-teal-50 border border-teal-100 p-3">
+                            <div class="text-xs text-teal-700 font-semibold">คิวทั้งหมด</div>
+                            <div id="bookingCount" class="text-2xl font-extrabold text-teal-900 mt-1">0</div>
+                        </div>
+                        <div class="rounded-xl bg-amber-50 border border-amber-100 p-3">
+                            <div class="text-xs text-amber-700 font-semibold">คิววันนี้</div>
+                            <div id="todayBookingCount" class="text-2xl font-extrabold text-amber-900 mt-1">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="connectionPanel" class="hidden rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">การเชื่อมต่อหลังบ้าน</h2>
+                            <p class="text-xs text-slate-500 mt-1">ระบบจะใช้ค่าล่าสุดให้อัตโนมัติ</p>
+                        </div>
+                        <div id="connectionBadge" class="inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">
+                            <span id="connectionDot" class="status-dot"></span>
+                            <span id="connectionLabel">ยังไม่โหลด</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-[1fr_260px_auto_auto] gap-3 items-end">
+                        <div>
+                            <label class="label" for="apiUrl">Google Apps Script Web App URL</label>
+                            <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/....../exec" class="field">
+                        </div>
+                        <div>
+                            <label class="label" for="apiToken">Token</label>
+                            <input id="apiToken" type="password" placeholder="mhl-2026-admin" class="field">
+                        </div>
+                        <button id="testConnectionBtn" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">ทดสอบ</button>
+                        <button id="saveSettingsBtn" class="px-4 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-colors whitespace-nowrap">บันทึก</button>
+                    </div>
+                    <p id="statusText" class="text-sm text-slate-500 mt-3">พร้อมเชื่อมต่อกับ Apps Script</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="inline-flex bg-white/90 border border-slate-200 rounded-xl p-1 shadow-sm">
+                <button data-tab="customers" class="tab-btn px-5 py-2.5 rounded-lg text-sm font-bold bg-blue-600 text-white shadow-sm">ลูกค้า</button>
+                <button data-tab="bookings" class="tab-btn px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100">จองคิว</button>
+            </div>
+        </section>
+
+        <section id="customersPanel" class="admin-panel grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6">
+            <form id="customerForm" class="soft-panel rounded-2xl p-5 space-y-4">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900">เพิ่ม / แก้ไขลูกค้า</h2>
+                    <p class="text-sm text-slate-500 mt-1">เว้น CustID ได้ ระบบจะสร้างให้ตอนบันทึก</p>
+                </div>
+                <div>
+                    <label class="label">CustID</label>
+                    <input name="CustID" class="field" placeholder="เช่น CUST-260514-001">
+                </div>
+                <div>
+                    <label class="label">ชื่อลูกค้า</label>
+                    <input name="ชื่อลูกค้า" required class="field">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">เพศ</label>
+                        <select name="เพศ" class="field">
+                            <option value="">-</option>
+                            <option>หญิง</option>
+                            <option>ชาย</option>
+                            <option>ไม่ระบุ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">ช่องทางติดต่อ</label>
+                        <select name="ช่องทางติดต่อ" class="field">
+                            <option>Tel</option>
+                            <option>Line</option>
+                            <option>Facebook</option>
+                            <option>Walk-in</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="label">เบอร์โทรศัพท์</label>
+                    <input name="เบอร์โทรศัพท์" class="field" placeholder="08x-xxx-xxxx">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm">บันทึกลูกค้า</button>
+                    <button type="button" id="clearCustomerBtn" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200">ล้าง</button>
+                    <button type="button" id="deleteCustomerBtn" class="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-semibold hover:bg-red-100">ลบ</button>
+                </div>
+            </form>
+
+            <div class="soft-panel rounded-2xl overflow-hidden">
+                <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900">รายชื่อลูกค้า</h2>
+                        <p class="text-xs text-slate-500 mt-1">คลิกแถวเพื่อแก้ไขข้อมูล</p>
+                    </div>
+                    <input id="customerSearch" type="search" placeholder="ค้นหาชื่อ / เบอร์ / CustID" class="field sm:w-80">
+                </div>
+                <div class="overflow-x-auto max-h-[560px] table-wrap">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-100 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">CustID</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ชื่อ</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">เบอร์</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ช่องทาง</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerRows" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="bookingsPanel" class="admin-panel hidden grid grid-cols-1 xl:grid-cols-[520px_1fr] gap-6">
+            <form id="bookingForm" class="soft-panel rounded-2xl p-5 space-y-4">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900">เพิ่ม / แก้ไขคิวติดตั้ง</h2>
+                    <p class="text-sm text-slate-500 mt-1">เว้น JobID ได้ ระบบจะสร้างให้ตอนบันทึก</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">JobID</label>
+                        <input name="JobID" class="field">
+                    </div>
+                    <div>
+                        <label class="label">CustID</label>
+                        <input name="CustID" list="customerIdList" required class="field">
+                        <datalist id="customerIdList"></datalist>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">วันที่ติดตั้ง</label>
+                        <input name="วันที่ติดตั้ง" type="date" required class="field">
+                    </div>
+                    <div>
+                        <label class="label">เวลานัด</label>
+                        <input name="เวลานัด" type="time" required class="field">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">พนง.ขาย</label>
+                        <input name="พนง.ขาย" class="field" placeholder="พี่เมย์">
+                    </div>
+                    <div>
+                        <label class="label">ประเภทลูกค้า</label>
+                        <select name="ประเภทลูกค้า" class="field">
+                            <option>ลูกค้าใหม่</option>
+                            <option>ลูกค้าเคลม</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">รุ่นรถยนต์</label>
+                        <input name="รุ่นรถยนต์" class="field">
+                    </div>
+                    <div>
+                        <label class="label">ทะเบียนรถ</label>
+                        <input name="ทะเบียนรถ" class="field">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">ป้าย</label>
+                        <input name="ป้าย" class="field" placeholder="กราฟฟิก / ป้ายจริง">
+                    </div>
+                    <div>
+                        <label class="label">ยอดขาย</label>
+                        <input name="ยอดขาย" type="number" min="0" step="1" class="field">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label">ยี่ห้อฟิล์ม</label>
+                        <input name="ยี่ห้อฟิล์ม" class="field">
+                    </div>
+                    <div>
+                        <label class="label">การติดตั้ง</label>
+                        <input name="การติดตั้ง" class="field" placeholder="เต็มคัน / บานหน้า">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="label">Pro_ID</label>
+                        <input name="Pro_ID" class="field">
+                    </div>
+                    <div>
+                        <label class="label">Warranty</label>
+                        <input name="Warranty" class="field" value="ร้าน">
+                    </div>
+                    <div>
+                        <label class="label">Status</label>
+                        <select name="Status" class="field">
+                            <option>คิวใหม่</option>
+                            <option>กำลังติดตั้ง</option>
+                            <option>เสร็จสิ้น</option>
+                        </select>
+                    </div>
+                </div>
+                <input name="ColorStatus" type="hidden" value="Orange">
+                <div>
+                    <label class="label">หมายเหตุ</label>
+                    <textarea name="หมายเหตุ" rows="3" class="field"></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm">บันทึกคิว</button>
+                    <button type="button" id="clearBookingBtn" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200">ล้าง</button>
+                    <button type="button" id="deleteBookingBtn" class="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-semibold hover:bg-red-100">ลบ</button>
+                </div>
+            </form>
+
+            <div class="soft-panel rounded-2xl overflow-hidden">
+                <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900">รายการจองคิว</h2>
+                        <p class="text-xs text-slate-500 mt-1">คลิกแถวเพื่อแก้ไขคิว</p>
+                    </div>
+                    <input id="bookingSearch" type="search" placeholder="ค้นหา JobID / CustID / รถ / ทะเบียน" class="field sm:w-96">
+                </div>
+                <div class="overflow-x-auto max-h-[620px] table-wrap">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-100 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">วัน/เวลา</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">JobID</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ลูกค้า</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">รถ</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingRows" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const state = {
+            customers: [],
+            bookings: [],
+            apiUrl: '',
+            token: ''
+        };
+
+        const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbz-4DJP6MgV5G5gFWTVRdhpyeZVNaghsaRaC3x16ykFqpvoHTz9mx_rnNda0P11AtI3/exec';
+        const DEFAULT_API_TOKEN = 'mhl-2026-admin';
+
+        const fields = {
+            customer: ['CustID', 'ชื่อลูกค้า', 'เพศ', 'เบอร์โทรศัพท์', 'ช่องทางติดต่อ'],
+            booking: ['JobID', 'CustID', 'พนง.ขาย', 'วันที่ติดตั้ง', 'เวลานัด', 'ประเภทลูกค้า', 'รุ่นรถยนต์', 'ทะเบียนรถ', 'ป้าย', 'ยี่ห้อฟิล์ม', 'การติดตั้ง', 'ยอดขาย', 'Pro_ID', 'หมายเหตุ', 'Warranty', 'Status', 'ColorStatus']
+        };
+
+        const fieldAliases = {
+            'พนง.ขาย': ['พน.ขาย'],
+            'ยอดขาย': ['ยอดขาย (บาท)'],
+            Pro_ID: ['โปรโมชั่น'],
+            Warranty: ['การรับประกัน'],
+            ColorStatus: ['Colorstatus']
+        };
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function getField(row, name) {
+            const keys = [name, ...(fieldAliases[name] || [])];
+            for (const key of keys) {
+                const value = row?.[key];
+                if (value !== undefined && value !== null && String(value).trim() !== '') return value;
+            }
+            return row?.[name] ?? '';
+        }
+
+        function addAliasValues(data) {
+            Object.entries(fieldAliases).forEach(([name, aliases]) => {
+                if (data[name] === undefined) return;
+                aliases.forEach(alias => {
+                    data[alias] = data[name];
+                });
+            });
+            return data;
+        }
+
+        function showStatus(message, type = 'info') {
+            const colors = {
+                info: 'text-slate-500',
+                ok: 'text-green-600',
+                error: 'text-red-600'
+            };
+            $('statusText').className = `text-sm mt-3 ${colors[type] || colors.info}`;
+            $('statusText').innerText = message;
+            updateConnectionBadge(type, type === 'ok' ? 'เชื่อมต่อแล้ว' : type === 'error' ? 'ต้องตรวจสอบ' : 'กำลังทำงาน');
+        }
+
+        function normalizeApiUrl(value) {
+            const text = String(value || '').trim();
+            if (!text) return '';
+
+            let url;
+            try {
+                url = new URL(text);
+            } catch (err) {
+                throw new Error('Web App URL ไม่ถูกต้อง กรุณาวางลิงก์ที่ลงท้ายด้วย /exec');
+            }
+
+            if (!url.hostname.includes('script.google.com') || !url.pathname.includes('/macros/s/')) {
+                throw new Error('กรุณาใช้ URL จาก Google Apps Script Web App เท่านั้น');
+            }
+
+            url.search = '';
+            url.hash = '';
+            return url.toString().replace(/\/dev$/, '/exec');
+        }
+
+        function loadSettings() {
+            state.apiUrl = localStorage.getItem('carCrmApiUrl') || DEFAULT_API_URL;
+            state.token = localStorage.getItem('carCrmApiToken') || DEFAULT_API_TOKEN;
+            $('apiUrl').value = state.apiUrl;
+            $('apiToken').value = state.token;
+        }
+
+        function saveSettings() {
+            state.apiUrl = normalizeApiUrl($('apiUrl').value);
+            state.token = $('apiToken').value.trim();
+            if (!state.apiUrl) throw new Error('กรุณาใส่ Web App URL');
+            if (!state.token) throw new Error('กรุณาใส่ Token');
+            localStorage.setItem('carCrmApiUrl', state.apiUrl);
+            localStorage.setItem('carCrmApiToken', state.token);
+            $('apiUrl').value = state.apiUrl;
+            showStatus('บันทึกการเชื่อมต่อแล้ว', 'ok');
+        }
+
+        function updateConnectionBadge(type, label) {
+            const badge = $('connectionBadge');
+            const dot = $('connectionDot');
+            const text = $('connectionLabel');
+            const styles = {
+                info: 'inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold',
+                ok: 'inline-flex items-center gap-2 rounded-full bg-green-50 text-green-700 px-3 py-1 text-xs font-semibold border border-green-100',
+                error: 'inline-flex items-center gap-2 rounded-full bg-red-50 text-red-700 px-3 py-1 text-xs font-semibold border border-red-100'
+            };
+            badge.className = styles[type] || styles.info;
+            dot.className = `status-dot ${type === 'ok' ? 'ok' : type === 'error' ? 'error' : ''}`;
+            text.innerText = label;
+        }
+
+        function updateSummary() {
+            $('customerCount').innerText = state.customers.length.toLocaleString();
+            $('bookingCount').innerText = state.bookings.length.toLocaleString();
+            const today = new Date();
+            const thaiToday = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear() + 543}`;
+            const todayCount = state.bookings.filter(row => String(getField(row, 'วันที่ติดตั้ง') || '').includes(thaiToday)).length;
+            $('todayBookingCount').innerText = todayCount.toLocaleString();
+        }
+
+        function requireSettings() {
+            if (!state.apiUrl || !state.token) {
+                throw new Error('กรุณาตั้งค่า Web App URL และ Token ก่อน');
+            }
+        }
+
+        function setBusy(isBusy) {
+            ['loadDataBtn', 'saveSettingsBtn', 'testConnectionBtn', 'deleteCustomerBtn', 'deleteBookingBtn'].forEach(id => {
+                const element = $(id);
+                if (element) element.disabled = isBusy;
+            });
+            document.querySelectorAll('form button[type="submit"]').forEach(button => {
+                button.disabled = isBusy;
+            });
+        }
+
+        function parseApiResponse(text) {
+            const trimmed = String(text || '').trim();
+            if (!trimmed) throw new Error('หลังบ้านไม่ส่งข้อมูลกลับมา');
+
+            try {
+                return JSON.parse(trimmed);
+            } catch (jsonErr) {
+                const jsonpMatch = trimmed.match(/^[\w$.]+\(([\s\S]*)\);?$/);
+                if (!jsonpMatch) throw new Error('รูปแบบข้อมูลจากหลังบ้านไม่ถูกต้อง');
+                return JSON.parse(jsonpMatch[1]);
+            }
+        }
+
+        async function apiRequest(params) {
+            requireSettings();
+
+            let url;
+            try {
+                url = new URL(state.apiUrl);
+            } catch (err) {
+                throw new Error('Web App URL ไม่ถูกต้อง');
+            }
+
+            Object.entries({ ...params, token: state.token }).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) url.searchParams.set(key, value);
+            });
+
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 30000);
+
+            try {
+                const response = await fetch(url.toString(), {
+                    method: 'GET',
+                    cache: 'no-store',
+                    redirect: 'follow',
+                    signal: controller.signal
+                });
+
+                if (!response.ok) throw new Error(`หลังบ้านตอบกลับผิดปกติ (${response.status})`);
+                const data = parseApiResponse(await response.text());
+                if (!data.ok) throw new Error(data.error || 'เชื่อมต่อไม่สำเร็จ');
+                return data;
+            } catch (err) {
+                if (err.name === 'AbortError') throw new Error('เชื่อมต่อหลังบ้านไม่สำเร็จ');
+                throw err;
+            } finally {
+                window.clearTimeout(timeout);
+            }
+        }
+
+        async function apiGet(params) {
+            return apiRequest(params);
+        }
+
+        async function apiPost(action, data = {}) {
+            return apiRequest({
+                action,
+                id: data.id || data.JobID || data.CustID,
+                data: JSON.stringify(data)
+            });
+        }
+
+        async function testConnection() {
+            saveSettings();
+            showStatus('กำลังทดสอบการเชื่อมต่อ...', 'info');
+            const result = await apiGet({ action: 'health' });
+            showStatus(result.message || 'เชื่อมต่อ Apps Script สำเร็จ', 'ok');
+        }
+
+        async function loadData() {
+            try {
+                setBusy(true);
+                showStatus('กำลังโหลดข้อมูล...', 'info');
+                const [customers, bookings] = await Promise.all([
+                    apiGet({ action: 'list', sheet: 'Customer' }),
+                    apiGet({ action: 'list', sheet: 'Bookings' })
+                ]);
+                state.customers = customers.rows || [];
+                state.bookings = bookings.rows || [];
+                renderCustomers();
+                renderBookings();
+                renderCustomerOptions();
+                updateSummary();
+                showStatus(`โหลดข้อมูลแล้ว: ลูกค้า ${state.customers.length} รายการ, คิว ${state.bookings.length} รายการ`, 'ok');
+                return true;
+            } catch (err) {
+                showStatus(err.message, 'error');
+                $('connectionPanel').classList.remove('hidden');
+                return false;
+            } finally {
+                setBusy(false);
+            }
+        }
+
+        function formToData(form, fieldNames) {
+            const data = {};
+            fieldNames.forEach(name => {
+                const element = form.elements[name];
+                data[name] = element ? element.value.trim() : '';
+            });
+
+            if (data['วันที่ติดตั้ง']) data['วันที่ติดตั้ง'] = dateInputToThai(data['วันที่ติดตั้ง']);
+            if (data['เวลานัด']) data['เวลานัด'] = `${data['เวลานัด']}:00`;
+            data.ColorStatus = statusToColor(data.Status);
+            return addAliasValues(data);
+        }
+
+        function fillForm(form, row, fieldNames) {
+            fieldNames.forEach(name => {
+                const element = form.elements[name];
+                if (!element) return;
+                if (name === 'วันที่ติดตั้ง') {
+                    element.value = thaiDateToInput(getField(row, name));
+                } else if (name === 'เวลานัด') {
+                    element.value = timeToInput(getField(row, name));
+                } else {
+                    element.value = getField(row, name);
+                }
+            });
+            if (form.elements.ColorStatus) form.elements.ColorStatus.value = statusToColor(form.elements.Status.value);
+        }
+
+        function resetForm(form) {
+            form.reset();
+            if (form.elements.Warranty) form.elements.Warranty.value = 'ร้าน';
+            if (form.elements.Status) form.elements.Status.value = 'คิวใหม่';
+            if (form.elements.ColorStatus) form.elements.ColorStatus.value = 'Orange';
+        }
+
+        function dateInputToThai(value) {
+            const [year, month, day] = value.split('-').map(Number);
+            if (!year || !month || !day) return value;
+            return `${day}/${month}/${year + 543}`;
+        }
+
+        function thaiDateToInput(value) {
+            const parts = String(value || '').split(/[\/\-]/).map(part => parseInt(part, 10));
+            if (parts.length < 3 || parts.some(Number.isNaN)) return '';
+            const year = parts[2] > 2400 ? parts[2] - 543 : parts[2];
+            return `${year.toString().padStart(4, '0')}-${parts[1].toString().padStart(2, '0')}-${parts[0].toString().padStart(2, '0')}`;
+        }
+
+        function timeToInput(value) {
+            const match = String(value || '').match(/(\d{1,2}):(\d{2})/);
+            return match ? `${match[1].padStart(2, '0')}:${match[2]}` : '';
+        }
+
+        function statusToColor(status) {
+            if (status === 'เสร็จสิ้น') return 'Green';
+            if (status === 'กำลังติดตั้ง') return 'Blue';
+            return 'Orange';
+        }
+
+        function renderCustomerOptions() {
+            $('customerIdList').innerHTML = state.customers.map(customer => {
+                const id = getField(customer, 'CustID') || '';
+                const name = getField(customer, 'ชื่อลูกค้า') || '';
+                return `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`;
+            }).join('');
+        }
+
+        function renderCustomers() {
+            const search = $('customerSearch').value.trim().toLowerCase();
+            const rows = state.customers.filter(row => [getField(row, 'CustID'), getField(row, 'ชื่อลูกค้า'), getField(row, 'เบอร์โทรศัพท์'), getField(row, 'ช่องทางติดต่อ')]
+                .join(' ')
+                .toLowerCase()
+                .includes(search)
+            );
+            $('customerRows').innerHTML = rows.map(row => `
+                <tr class="hover:bg-blue-50 cursor-pointer" data-id="${escapeHtml(getField(row, 'CustID'))}">
+                    <td class="px-4 py-3 text-sm font-medium text-slate-800">${escapeHtml(getField(row, 'CustID'))}</td>
+                    <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'ชื่อลูกค้า'))}</td>
+                    <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'เบอร์โทรศัพท์'))}</td>
+                    <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'ช่องทางติดต่อ'))}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">ไม่พบข้อมูลลูกค้า</td></tr>`;
+        }
+
+        function renderBookings() {
+            const search = $('bookingSearch').value.trim().toLowerCase();
+            const customerById = new Map(state.customers.map(customer => [getField(customer, 'CustID'), customer]));
+            const rows = state.bookings.filter(row => [getField(row, 'JobID'), getField(row, 'CustID'), getField(row, 'รุ่นรถยนต์'), getField(row, 'ทะเบียนรถ'), getField(row, 'Status')]
+                .join(' ')
+                .toLowerCase()
+                .includes(search)
+            );
+            $('bookingRows').innerHTML = rows.map(row => {
+                const customerName = getField(customerById.get(getField(row, 'CustID')), 'ชื่อลูกค้า') || getField(row, 'CustID') || '-';
+                return `
+                    <tr class="hover:bg-blue-50 cursor-pointer" data-id="${escapeHtml(getField(row, 'JobID'))}">
+                        <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'วันที่ติดตั้ง'))}<br><span class="text-slate-500">${escapeHtml(getField(row, 'เวลานัด'))}</span></td>
+                        <td class="px-4 py-3 text-sm font-medium text-slate-800">${escapeHtml(getField(row, 'JobID'))}</td>
+                        <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(customerName)}</td>
+                        <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'รุ่นรถยนต์'))}<br><span class="text-slate-500">${escapeHtml(getField(row, 'ทะเบียนรถ'))}</span></td>
+                        <td class="px-4 py-3 text-sm text-slate-700">${escapeHtml(getField(row, 'Status'))}</td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">ไม่พบข้อมูลคิว</td></tr>`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                const active = button.dataset.tab === tabName;
+                button.className = `tab-btn px-5 py-2.5 rounded-lg text-sm font-bold ${active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`;
+            });
+            $('customersPanel').classList.toggle('hidden', tabName !== 'customers');
+            $('bookingsPanel').classList.toggle('hidden', tabName !== 'bookings');
+        }
+
+        const LOGIN_USER = 'admin';
+        const LOGIN_PASS = 'MHL741mhl+';
+        const LOGIN_KEY = 'carCrmLoggedIn';
+        let appHasStarted = false;
+
+        function startAppOnce() {
+            if (appHasStarted) return;
+            appHasStarted = true;
+            init();
+        }
+
+        function unlockPage() {
+            document.body.classList.remove('auth-locked');
+            startAppOnce();
+        }
+
+        function initLogin() {
+            if (localStorage.getItem(LOGIN_KEY) === 'yes') {
+                unlockPage();
+                return;
+            }
+
+            const form = $('loginForm');
+            const userInput = $('loginUser');
+            const passInput = $('loginPass');
+            const error = $('loginError');
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                if (userInput.value.trim() === LOGIN_USER && passInput.value === LOGIN_PASS) {
+                    localStorage.setItem(LOGIN_KEY, 'yes');
+                    unlockPage();
+                    return;
+                }
+
+                error.classList.remove('hidden');
+                passInput.value = '';
+                passInput.focus();
+            });
+
+            userInput.focus();
+        }
+
+        function init() {
+            loadSettings();
+
+            $('toggleSettingsBtn').addEventListener('click', () => {
+                $('connectionPanel').classList.toggle('hidden');
+            });
+            $('saveSettingsBtn').addEventListener('click', () => {
+                try {
+                    saveSettings();
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                }
+            });
+            $('testConnectionBtn').addEventListener('click', async () => {
+                try {
+                    setBusy(true);
+                    await testConnection();
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                } finally {
+                    setBusy(false);
+                }
+            });
+            $('loadDataBtn').addEventListener('click', loadData);
+            $('customerSearch').addEventListener('input', renderCustomers);
+            $('bookingSearch').addEventListener('input', renderBookings);
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', () => switchTab(button.dataset.tab));
+            });
+
+            $('customerRows').addEventListener('click', event => {
+                const row = event.target.closest('tr[data-id]');
+                if (!row) return;
+                const customer = state.customers.find(item => getField(item, 'CustID') === row.dataset.id);
+                if (customer) fillForm($('customerForm'), customer, fields.customer);
+            });
+
+            $('bookingRows').addEventListener('click', event => {
+                const row = event.target.closest('tr[data-id]');
+                if (!row) return;
+                const booking = state.bookings.find(item => getField(item, 'JobID') === row.dataset.id);
+                if (booking) fillForm($('bookingForm'), booking, fields.booking);
+            });
+
+            $('customerForm').addEventListener('submit', async event => {
+                event.preventDefault();
+                try {
+                    setBusy(true);
+                    showStatus('กำลังบันทึกลูกค้า...', 'info');
+                    const result = await apiPost('customer.save', formToData(event.target, fields.customer));
+                    await loadData();
+                    fillForm(event.target, result.row, fields.customer);
+                    showStatus(`บันทึกลูกค้าแล้ว: ${result.row.CustID}`, 'ok');
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+            $('bookingForm').addEventListener('submit', async event => {
+                event.preventDefault();
+                try {
+                    setBusy(true);
+                    showStatus('กำลังบันทึกคิว...', 'info');
+                    const result = await apiPost('booking.save', formToData(event.target, fields.booking));
+                    await loadData();
+                    fillForm(event.target, result.row, fields.booking);
+                    showStatus(`บันทึกคิวแล้ว: ${result.row.JobID}`, 'ok');
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+            $('clearCustomerBtn').addEventListener('click', () => resetForm($('customerForm')));
+            $('clearBookingBtn').addEventListener('click', () => resetForm($('bookingForm')));
+
+            $('deleteCustomerBtn').addEventListener('click', async () => {
+                const id = $('customerForm').elements.CustID.value.trim();
+                if (!id || !confirm(`ลบลูกค้า ${id} ใช่ไหม?`)) return;
+                try {
+                    setBusy(true);
+                    await apiPost('customer.delete', { id, CustID: id });
+                    resetForm($('customerForm'));
+                    await loadData();
+                    showStatus(`ลบลูกค้าแล้ว: ${id}`, 'ok');
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+            $('deleteBookingBtn').addEventListener('click', async () => {
+                const id = $('bookingForm').elements.JobID.value.trim();
+                if (!id || !confirm(`ลบคิว ${id} ใช่ไหม?`)) return;
+                try {
+                    setBusy(true);
+                    await apiPost('booking.delete', { id, JobID: id });
+                    resetForm($('bookingForm'));
+                    await loadData();
+                    showStatus(`ลบคิวแล้ว: ${id}`, 'ok');
+                } catch (err) {
+                    showStatus(err.message, 'error');
+                    $('connectionPanel').classList.remove('hidden');
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+            resetForm($('bookingForm'));
+            if (state.apiUrl && state.token) loadData();
+        }
+
+        window.addEventListener('load', initLogin);
+    </script>
+</body>
+</html>
+
+
+
+

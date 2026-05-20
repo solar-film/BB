@@ -1,0 +1,615 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปงานฟิล์มรายเดือน</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #d9ebfd;
+        }
+
+        #loginScreen {
+            display: none;
+        }
+
+        body.auth-locked > :not(#loginScreen) {
+            display: none !important;
+        }
+
+        body.auth-locked #loginScreen {
+            display: flex;
+        }
+
+        .summary-table {
+            min-width: 960px;
+        }
+    </style>
+    <link rel="stylesheet" href="apple-style.css?v=20260520-4">
+    <script src="sidebar.js" defer></script>
+</head>
+<body class="text-slate-800 auth-locked">
+    <div id="loginScreen" class="fixed inset-0 z-[9999] min-h-screen items-center justify-center bg-slate-950 px-4">
+        <form id="loginForm" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div class="mb-5">
+                <h1 class="text-2xl font-extrabold text-slate-900">เข้าสู่ระบบ</h1>
+                <p class="mt-1 text-sm text-slate-500">กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="loginUser" class="mb-1 block text-sm font-semibold text-slate-700">User</label>
+                    <input id="loginUser" type="text" autocomplete="username" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="loginPass" class="mb-1 block text-sm font-semibold text-slate-700">Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+            </div>
+            <p id="loginError" class="mt-3 hidden text-sm font-semibold text-red-600">User หรือ Password ไม่ถูกต้อง</p>
+            <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <div data-car-crm-sidebar></div>
+
+    <main class="w-full px-4 py-8 sm:px-6 lg:ml-72 lg:w-[calc(100%-18rem)] lg:px-8">
+        <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-900">สรุปงานฟิล์มรายเดือน</h1>
+                    <p id="lastUpdated" class="mt-1 text-sm text-slate-500">ดึงข้อมูลจากชีต Bookings และ Car_model</p>
+                </div>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <label for="monthFilter" class="text-sm font-semibold text-slate-600">เดือน:</label>
+                    <select id="monthFilter" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-52">
+                        <option value="">ทุกเดือน</option>
+                    </select>
+                    <button type="button" onclick="fetchSummaryData()" class="inline-flex items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-100">
+                        รีเฟรช
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900">กรองข้อมูลที่ต้องการแสดง</h2>
+                    <p class="mt-1 text-sm text-slate-500">ติ๊กเลือกเดือน กลุ่มราคา การติดตั้ง และประเภทงานที่ต้องการดู</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" id="toggleFilterBtn" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">ซ่อนตัวกรอง</button>
+                    <button type="button" id="selectAllColumnsBtn" class="rounded-lg bg-blue-700 px-3 py-2 text-xs font-bold text-white hover:bg-blue-800">เลือกทั้งหมด</button>
+                    <button type="button" id="clearColumnsBtn" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200">ล้างตัวกรอง</button>
+                </div>
+            </div>
+            <div id="filterPanel" class="mt-4 space-y-4">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-xs font-bold text-slate-500">รวมตามที่เลือก</p>
+                        <p id="filterSummaryTotal" class="mt-1 text-2xl font-extrabold text-slate-900">0</p>
+                    </div>
+                    <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                        <p class="text-xs font-bold text-blue-700">รถใหม่</p>
+                        <p id="filterSummaryNew" class="mt-1 text-2xl font-extrabold text-blue-800">0</p>
+                    </div>
+                    <div class="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                        <p class="text-xs font-bold text-rose-700">งานเคลม-ปัญหาฟิล์ม</p>
+                        <p id="filterSummaryClaim" class="mt-1 text-2xl font-extrabold text-rose-800">0</p>
+                    </div>
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <p class="text-xs font-bold text-amber-700">งานแก้(ในวัน)</p>
+                        <p id="filterSummaryFix" class="mt-1 text-2xl font-extrabold text-amber-800">0</p>
+                    </div>
+                </div>
+                <div id="columnSelector" class="grid grid-cols-1 gap-4 xl:grid-cols-4"></div>
+            </div>
+        </section>
+
+        <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div id="loadingMessage" class="px-6 py-12 text-center text-slate-500">
+                <svg class="mx-auto mb-4 h-10 w-10 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-lg font-semibold text-slate-700">กำลังโหลดสรุปจาก Google Sheets...</p>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-50 px-6 py-10 text-center text-red-600">
+                <p class="text-lg font-extrabold">โหลดข้อมูลไม่สำเร็จ</p>
+                <p class="mt-2 text-sm text-slate-600">โปรดตรวจสอบชีต Bookings และ Car_model</p>
+            </div>
+
+            <div id="tableWrap" class="hidden overflow-x-auto">
+                <table class="summary-table min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-100">
+                        <tr id="summaryHead"></tr>
+                    </thead>
+                    <tbody id="summaryBody" class="divide-y divide-slate-200 bg-white"></tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4 text-sm text-slate-500">
+                <span id="connectionStatus">เชื่อมต่อข้อมูลสดเรียบร้อย</span>
+                <span class="font-medium text-slate-600">Bookings.รุ่นรถยนต์ = Car_model.รุ่นรถยนต์</span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SHEET_ID = '1u__xYWoWZpmrnquc-Fpk19WtpcrckxSd0-_G35NWxXQ';
+        const BOOKINGS_SHEET_NAME = 'Bookings';
+        const CAR_MODEL_SHEET_NAME = 'Car_model';
+        const BOOKINGS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(BOOKINGS_SHEET_NAME)}`;
+        const CAR_MODEL_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CAR_MODEL_SHEET_NAME)}`;
+        const LOGIN_USER = 'admin';
+        const LOGIN_PASS = 'MHL741mhl+';
+        const LOGIN_KEY = 'carCrmLoggedIn';
+
+        const CATEGORY_ORDER = ['เต็มคัน+ซันรูฟ', 'เต็มคัน', 'บานหน้า', 'บานหลัง', 'ประตู', 'ซันรูฟ', 'บานฟิก', 'อื่นๆ'];
+        const CUSTOMER_GROUPS = ['รถใหม่', 'งานเคลม-ปัญหาฟิล์ม', 'งานแก้(ในวัน)'];
+        const FILTER_STORAGE_KEY = 'installSummaryFilters';
+        const FILTER_PANEL_STORAGE_KEY = 'installSummaryFilterPanelVisible';
+        const dom = {};
+        const DOM_IDS = [
+            'loginForm', 'loginUser', 'loginPass', 'loginError', 'monthFilter',
+            'summaryTotal', 'summaryNew', 'summaryClaim', 'summaryFix',
+            'filterSummaryTotal', 'filterSummaryNew', 'filterSummaryClaim', 'filterSummaryFix',
+            'filterPanel', 'toggleFilterBtn', 'columnSelector', 'selectAllColumnsBtn', 'clearColumnsBtn',
+            'loadingMessage', 'errorMessage', 'tableWrap', 'summaryHead', 'summaryBody',
+            'lastUpdated', 'connectionStatus'
+        ];
+
+        let summaryRows = [];
+        let appHasStarted = false;
+
+        function cacheDom() {
+            DOM_IDS.forEach(id => {
+                dom[id] = document.getElementById(id);
+            });
+        }
+
+        function textValue(value, fallback = '') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text === '' ? fallback : text;
+        }
+
+        function escapeHtml(value) {
+            return textValue(value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function normalizeText(value) {
+            return textValue(value).replace(/[\s._\-()（）/\\]+/g, '').toLowerCase();
+        }
+
+        function normalizeLookupId(value) {
+            return textValue(value).replace(/[\s._\-–—/\\]+/g, '').toLowerCase();
+        }
+
+        function findField(row, candidates) {
+            if (!row) return '';
+            const keys = Object.keys(row).filter(key => normalizeText(key));
+            const normalizedCandidates = candidates.map(normalizeText).filter(Boolean);
+            const key = keys.find(item => normalizedCandidates.includes(normalizeText(item))) ||
+                keys.find(item => normalizedCandidates.some(candidate => {
+                    const normalizedItem = normalizeText(item);
+                    if (!normalizedItem || candidate.length < 2 || normalizedItem.length < 2) return false;
+                    return normalizedItem.includes(candidate) || candidate.includes(normalizedItem);
+                }));
+            return key ? textValue(row[key]) : '';
+        }
+
+        function parseCsv(csvText) {
+            return new Promise(resolve => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: header => header.trim(),
+                    complete: results => resolve(results.data)
+                });
+            });
+        }
+
+        function isHtmlResponseText(text) {
+            const trimmedText = text.trim().toLowerCase();
+            return trimmedText.startsWith('<!doctype html>') ||
+                trimmedText.startsWith('<html') ||
+                trimmedText.includes('google.visualization.query.setresponse') ||
+                trimmedText.includes('invalid query');
+        }
+
+        async function fetchCsvText(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const text = await response.text();
+            if (isHtmlResponseText(text)) throw new Error('Permission denied');
+            return text;
+        }
+
+        function parseDate(value) {
+            const raw = textValue(value);
+            let match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+            if (match) {
+                let year = parseInt(match[3], 10);
+                if (year < 100) year += 2000;
+                if (year > 2400) year -= 543;
+                const date = new Date(year, parseInt(match[2], 10) - 1, parseInt(match[1], 10));
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+
+            match = raw.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+            if (!match) return null;
+            let year = parseInt(match[1], 10);
+            if (year > 2400) year -= 543;
+            const date = new Date(year, parseInt(match[2], 10) - 1, parseInt(match[3], 10));
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function monthKeyFromDate(date) {
+            if (!date) return 'ไม่ระบุเดือน';
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function monthLabelFromKey(monthKey) {
+            if (!monthKey || monthKey === 'ไม่ระบุเดือน') return 'ไม่ระบุเดือน';
+            const [year, monthNumber] = monthKey.split('-').map(Number);
+            const date = new Date(year, monthNumber - 1, 1);
+            const monthText = date.toLocaleDateString('th-TH', { month: 'short' }).replace('.', '');
+            return `${monthText}. ${String(date.getFullYear()).slice(-2)}`;
+        }
+
+        function uniqueValues(rows, key, labelKey) {
+            return [...new Map(rows.map(row => [row[key], labelKey ? row[labelKey] : row[key]])).entries()]
+                .filter(([key]) => textValue(key))
+                .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'th'));
+        }
+
+        function getFilterOptions() {
+            return [
+                { key: 'month', label: 'เดือน', values: uniqueValues(summaryRows, 'monthKey', 'monthText') },
+                { key: 'priceGroup', label: 'กลุ่มราคา', values: uniqueValues(summaryRows, 'priceGroup') },
+                { key: 'category', label: 'การติดตั้ง', values: uniqueValues(summaryRows, 'category') },
+                { key: 'customerGroup', label: 'ประเภทงาน', values: CUSTOMER_GROUPS.map(group => [group, group]) }
+            ];
+        }
+
+        function getSavedFilters() {
+            try {
+                return JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || '{}');
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveFilters() {
+            const filters = {};
+            dom.columnSelector.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                if (!filters[input.dataset.filter]) filters[input.dataset.filter] = [];
+                if (input.checked) filters[input.dataset.filter].push(input.value);
+            });
+            localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+        }
+
+        function getSelectedFilterValues(filterKey) {
+            return [...dom.columnSelector.querySelectorAll(`input[data-filter="${filterKey}"]:checked`)]
+                .map(input => input.value);
+        }
+
+        function renderColumnSelector() {
+            const savedFilters = getSavedFilters();
+            const filterOptions = getFilterOptions();
+            dom.columnSelector.innerHTML = filterOptions.map(group => {
+                const savedValues = savedFilters[group.key];
+                const activeValues = new Set(Array.isArray(savedValues) ? savedValues : group.values.map(([value]) => value));
+                const optionsHtml = group.values.map(([value, label]) => `
+                    <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700">
+                        <input type="checkbox" data-filter="${escapeHtml(group.key)}" value="${escapeHtml(value)}" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" ${activeValues.has(value) ? 'checked' : ''}>
+                        <span>${escapeHtml(label)}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="mb-2 text-sm font-extrabold text-slate-900">${escapeHtml(group.label)}</div>
+                        <div class="max-h-52 space-y-2 overflow-y-auto pr-1">${optionsHtml || '<div class="text-sm text-slate-400">ยังไม่มีข้อมูล</div>'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            dom.columnSelector.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    saveFilters();
+                    renderSummary();
+                });
+            });
+        }
+
+        function setAllColumns(isChecked) {
+            dom.columnSelector.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                input.checked = isChecked;
+            });
+            saveFilters();
+            renderSummary();
+        }
+
+        function setFilterPanelVisible(isVisible, shouldSave = true) {
+            dom.filterPanel.classList.toggle('hidden', !isVisible);
+            dom.toggleFilterBtn.innerText = isVisible ? 'ซ่อนตัวกรอง' : 'แสดงตัวกรอง';
+            dom.toggleFilterBtn.setAttribute('aria-expanded', String(isVisible));
+            if (shouldSave) {
+                localStorage.setItem(FILTER_PANEL_STORAGE_KEY, isVisible ? '1' : '0');
+            }
+        }
+
+        function createCarModelMap(rows) {
+            return rows.reduce((map, row) => {
+                const model = findField(row, ['รุ่นรถยนต์', 'รุ่นรถ', 'Model']);
+                const priceGroup = findField(row, ['กลุ่มราคา', 'ประเภทรถยนต์', 'Pro_ID']);
+                if (!model) return map;
+                map[normalizeLookupId(model)] = priceGroup || 'ไม่ระบุกลุ่มราคา';
+                return map;
+            }, {});
+        }
+
+        function classifyCustomerGroup(customerType) {
+            const value = normalizeText(customerType);
+            if (value.includes('แก้') || value.includes('ในวัน')) return 'งานแก้(ในวัน)';
+            if (value.includes('เคลม') || value.includes('ปัญหา')) return 'งานเคลม-ปัญหาฟิล์ม';
+            return 'รถใหม่';
+        }
+
+        function classifyInstallCategory(installType) {
+            const value = normalizeText(installType);
+            if (!value) return 'อื่นๆ';
+            const hasSunroof = value.includes('ซันรูฟ') || value.includes('sunroof');
+            const hasFull = value.includes('เต็มคัน') || value.includes('รอบคัน');
+            if (hasFull && hasSunroof) return 'เต็มคัน+ซันรูฟ';
+            if (hasFull) return 'เต็มคัน';
+            if (value.includes('บานหน้า') || value.includes('หน้าเต็ม') || value.includes('กระจกหน้า')) return 'บานหน้า';
+            if (value.includes('บานหลัง') || value.includes('กระจกหลัง')) return 'บานหลัง';
+            if (value.includes('ประตู')) return 'ประตู';
+            if (hasSunroof) return 'ซันรูฟ';
+            if (value.includes('บานฟิก') || value.includes('ฟิก') || value.includes('fix')) return 'บานฟิก';
+            return textValue(installType, 'อื่นๆ');
+        }
+
+        function buildSummaryRows(bookingRows, carModelRows) {
+            const carModelMap = createCarModelMap(carModelRows);
+            const summary = {};
+
+            bookingRows.forEach(booking => {
+                const jobId = findField(booking, ['JobID', 'Job ID', 'รหัสงาน']);
+                if (!jobId) return;
+
+                const date = parseDate(findField(booking, ['วันที่ติดตั้ง', 'วันที่', 'Date']));
+                const customerType = findField(booking, ['ประเภทลูกค้า']);
+                const carModel = findField(booking, ['รุ่นรถยนต์', 'รุ่นรถ', 'Model']);
+                const installType = findField(booking, ['การติดตั้ง', 'ประเภทการติดตั้ง']);
+                const priceGroup = carModelMap[normalizeLookupId(carModel)] || 'ไม่ระบุกลุ่มราคา';
+                const monthKey = monthKeyFromDate(date);
+                const customerGroup = classifyCustomerGroup(customerType);
+                const category = classifyInstallCategory(installType);
+                const summaryKey = `${monthKey}||${priceGroup}||${category}`;
+
+                if (!summary[summaryKey]) {
+                    summary[summaryKey] = {
+                        monthKey,
+                        monthText: monthLabelFromKey(monthKey),
+                        priceGroup,
+                        category,
+                        'รถใหม่': 0,
+                        'งานเคลม-ปัญหาฟิล์ม': 0,
+                        'งานแก้(ในวัน)': 0
+                    };
+                }
+                summary[summaryKey][customerGroup] += 1;
+            });
+
+            return Object.values(summary).sort((a, b) => (
+                b.monthKey.localeCompare(a.monthKey) ||
+                a.priceGroup.localeCompare(b.priceGroup, 'th') ||
+                (CATEGORY_ORDER.includes(a.category) ? CATEGORY_ORDER.indexOf(a.category) : CATEGORY_ORDER.length) -
+                    (CATEGORY_ORDER.includes(b.category) ? CATEGORY_ORDER.indexOf(b.category) : CATEGORY_ORDER.length) ||
+                a.category.localeCompare(b.category, 'th')
+            ));
+        }
+
+        function populateMonthFilter() {
+            const current = dom.monthFilter.value;
+            const months = [...new Map(summaryRows.map(row => [row.monthKey, row.monthText])).entries()]
+                .sort((a, b) => b[0].localeCompare(a[0]));
+            dom.monthFilter.innerHTML = '<option value="">ทุกเดือน</option>' + months
+                .map(([key, label]) => `<option value="${escapeHtml(key)}">${escapeHtml(label)}</option>`)
+                .join('');
+            dom.monthFilter.value = months.some(([key]) => key === current) ? current : '';
+        }
+
+        function filteredRows() {
+            const month = dom.monthFilter.value;
+            return summaryRows
+                .filter(row => !month || row.monthKey === month)
+                .filter(row => isFilterValueSelected('month', row.monthKey))
+                .filter(row => isFilterValueSelected('priceGroup', row.priceGroup))
+                .filter(row => isFilterValueSelected('category', row.category));
+        }
+
+        function isFilterValueSelected(filterKey, rowValue) {
+            const inputs = [...dom.columnSelector.querySelectorAll(`input[data-filter="${filterKey}"]`)];
+            if (!inputs.length) return true;
+            return inputs.some(input => input.checked && input.value === rowValue);
+        }
+
+        function getVisibleCustomerGroups() {
+            const inputs = [...dom.columnSelector.querySelectorAll('input[data-filter="customerGroup"]')];
+            if (!inputs.length) return CUSTOMER_GROUPS;
+            return getSelectedFilterValues('customerGroup');
+        }
+
+        function updateSummaryCards(total, totals) {
+            const values = {
+                summaryTotal: total,
+                summaryNew: totals['รถใหม่'],
+                summaryClaim: totals['งานเคลม-ปัญหาฟิล์ม'],
+                summaryFix: totals['งานแก้(ในวัน)'],
+                filterSummaryTotal: total,
+                filterSummaryNew: totals['รถใหม่'],
+                filterSummaryClaim: totals['งานเคลม-ปัญหาฟิล์ม'],
+                filterSummaryFix: totals['งานแก้(ในวัน)']
+            };
+
+            Object.entries(values).forEach(([id, value]) => {
+                if (dom[id]) dom[id].innerText = value.toLocaleString('th-TH');
+            });
+        }
+
+        function renderSummary() {
+            const rows = filteredRows();
+            const visibleCustomerGroups = getVisibleCustomerGroups();
+            const customerHeaderClasses = {
+                'รถใหม่': 'text-blue-700',
+                'งานเคลม-ปัญหาฟิล์ม': 'text-rose-700',
+                'งานแก้(ในวัน)': 'text-amber-700'
+            };
+            dom.summaryHead.innerHTML = `
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">เดือน</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">กลุ่มราคา</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">การติดตั้ง</th>
+                ${visibleCustomerGroups.map(group => `<th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider ${customerHeaderClasses[group] || 'text-slate-700'}">${escapeHtml(group)}</th>`).join('')}
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-700">รวม</th>
+            `;
+
+            const totals = rows.reduce((sum, row) => {
+                visibleCustomerGroups.forEach(group => {
+                    sum[group] += row[group];
+                });
+                return sum;
+            }, { 'รถใหม่': 0, 'งานเคลม-ปัญหาฟิล์ม': 0, 'งานแก้(ในวัน)': 0 });
+            const total = visibleCustomerGroups.reduce((sum, group) => sum + totals[group], 0);
+
+            updateSummaryCards(total, totals);
+
+            if (!rows.length) {
+                dom.summaryBody.innerHTML = `<tr><td colspan="${visibleCustomerGroups.length + 4}" class="px-6 py-8 text-center text-slate-500">ยังไม่มีข้อมูลตามตัวกรองที่เลือก</td></tr>`;
+                return;
+            }
+
+            let lastMonth = '';
+            dom.summaryBody.innerHTML = rows.map(row => {
+                const rowMonthText = row.monthKey !== lastMonth ? row.monthText : '';
+                lastMonth = row.monthKey;
+                const rowTotal = visibleCustomerGroups.reduce((sum, group) => sum + row[group], 0);
+                const customerCells = visibleCustomerGroups.map(group => `
+                    <td class="px-6 py-4 text-right text-sm font-extrabold ${customerHeaderClasses[group] || 'text-slate-700'}">${row[group].toLocaleString('th-TH')}</td>
+                `).join('');
+
+                return `
+                    <tr class="hover:bg-blue-50/40">
+                        ${rowMonthText ? `<td class="whitespace-nowrap px-6 py-4 text-sm font-extrabold text-slate-900">${escapeHtml(rowMonthText)}</td>` : '<td class="px-6 py-4"></td>'}
+                        <td class="px-6 py-4 text-sm font-bold text-slate-700">${escapeHtml(row.priceGroup)}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-800">${escapeHtml(row.category)}</td>
+                        ${customerCells}
+                        <td class="px-6 py-4 text-right text-sm font-extrabold text-slate-900">${rowTotal.toLocaleString('th-TH')}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function fetchSummaryData() {
+            dom.loadingMessage.classList.remove('hidden');
+            dom.errorMessage.classList.add('hidden');
+            dom.tableWrap.classList.add('hidden');
+            dom.connectionStatus.innerText = 'กำลังโหลดข้อมูลจาก Google Sheets...';
+
+            try {
+                const [bookingText, carModelText] = await Promise.all([
+                    fetchCsvText(BOOKINGS_CSV_URL),
+                    fetchCsvText(CAR_MODEL_CSV_URL)
+                ]);
+                const [bookingRows, carModelRows] = await Promise.all([
+                    parseCsv(bookingText),
+                    parseCsv(carModelText)
+                ]);
+
+                summaryRows = buildSummaryRows(bookingRows, carModelRows);
+                populateMonthFilter();
+                renderColumnSelector();
+                renderSummary();
+
+                dom.loadingMessage.classList.add('hidden');
+                dom.tableWrap.classList.remove('hidden');
+                dom.lastUpdated.innerText = `อัปเดตล่าสุด: ${new Date().toLocaleTimeString('th-TH')} น.`;
+                dom.connectionStatus.innerText = 'เชื่อมต่อข้อมูลสดเรียบร้อย';
+            } catch (error) {
+                console.error(error);
+                dom.loadingMessage.classList.add('hidden');
+                dom.errorMessage.classList.remove('hidden');
+                dom.connectionStatus.innerText = 'โหลดข้อมูลไม่สำเร็จ';
+            }
+        }
+
+        function initApp() {
+            cacheDom();
+            dom.monthFilter.addEventListener('change', renderSummary);
+            setFilterPanelVisible(localStorage.getItem(FILTER_PANEL_STORAGE_KEY) !== '0', false);
+            dom.toggleFilterBtn.addEventListener('click', () => {
+                setFilterPanelVisible(dom.filterPanel.classList.contains('hidden'));
+            });
+            dom.selectAllColumnsBtn.addEventListener('click', () => setAllColumns(true));
+            dom.clearColumnsBtn.addEventListener('click', () => setAllColumns(false));
+            fetchSummaryData();
+        }
+
+        function startAppOnce() {
+            if (appHasStarted) return;
+            appHasStarted = true;
+            initApp();
+        }
+
+        function unlockPage() {
+            document.body.classList.remove('auth-locked');
+            startAppOnce();
+        }
+
+        function setupLogin() {
+            cacheDom();
+            if (sessionStorage.getItem(LOGIN_KEY) === '1') {
+                unlockPage();
+                return;
+            }
+
+            dom.loginForm.addEventListener('submit', event => {
+                event.preventDefault();
+                const user = dom.loginUser.value.trim();
+                const pass = dom.loginPass.value;
+                if (user === LOGIN_USER && pass === LOGIN_PASS) {
+                    sessionStorage.setItem(LOGIN_KEY, '1');
+                    dom.loginError.classList.add('hidden');
+                    unlockPage();
+                    return;
+                }
+
+                dom.loginError.classList.remove('hidden');
+                dom.loginPass.select();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', setupLogin);
+    </script>
+</body>
+</html>
+
+
+
+

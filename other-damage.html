@@ -1,0 +1,682 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ความเสียหายอื่นๆ</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #d9ebfd;
+        }
+
+        #loginScreen {
+            display: none;
+        }
+
+        body.auth-locked > :not(#loginScreen) {
+            display: none !important;
+        }
+
+        body.auth-locked #loginScreen {
+            display: flex;
+        }
+
+        .damage-table {
+            min-width: 1180px;
+        }
+
+        .damage-table th,
+        .damage-table td {
+            vertical-align: top;
+        }
+
+        .money-cell {
+            color: #dc2626;
+            font-weight: 800;
+        }
+    </style>
+    <link rel="stylesheet" href="apple-style.css?v=20260520-4">
+    <script src="sidebar.js" defer></script>
+</head>
+<body class="text-slate-800 auth-locked">
+    <div id="loginScreen" class="fixed inset-0 z-[9999] min-h-screen items-center justify-center bg-slate-950 px-4">
+        <form id="loginForm" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div class="mb-5">
+                <h1 class="text-2xl font-extrabold text-slate-900">เข้าสู่ระบบ</h1>
+                <p class="mt-1 text-sm text-slate-500">กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="loginUser" class="mb-1 block text-sm font-semibold text-slate-700">User</label>
+                    <input id="loginUser" type="text" autocomplete="username" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="loginPass" class="mb-1 block text-sm font-semibold text-slate-700">Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+            </div>
+            <p id="loginError" class="mt-3 hidden text-sm font-semibold text-red-600">User หรือ Password ไม่ถูกต้อง</p>
+            <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <div data-car-crm-sidebar></div>
+
+    <main class="w-full px-4 py-8 sm:px-6 lg:ml-72 lg:w-[calc(100%-18rem)] lg:px-8">
+        <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="mb-2 flex items-center">
+                    <div class="mr-3 rounded-full bg-blue-100 p-2 text-blue-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                    </div>
+                    <p class="text-xs font-medium text-slate-500 sm:text-sm">รายการทั้งหมด</p>
+                </div>
+                <p id="summaryCount" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+
+            <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="mb-2 flex items-center">
+                    <div class="mr-3 rounded-full bg-amber-100 p-2 text-amber-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m-4-4h8"></path></svg>
+                    </div>
+                    <p class="text-xs font-medium text-slate-500 sm:text-sm">รายการมีมูลค่า</p>
+                </div>
+                <p id="summaryValued" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+
+            <div class="flex transform flex-col justify-between rounded-xl border border-red-300 bg-gradient-to-br from-red-500 to-orange-500 p-4 text-white shadow-lg transition duration-300 hover:-translate-y-1">
+                <div class="mb-2 flex items-center">
+                    <div class="mr-3 rounded-full bg-white/20 p-2 text-white shadow-inner">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 10v2"></path></svg>
+                    </div>
+                    <p class="text-xs font-medium text-red-50 sm:text-sm">มูลค่ารวม</p>
+                </div>
+                <p id="summaryAmount" class="text-2xl font-bold sm:text-3xl">฿0</p>
+            </div>
+
+            <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="mb-2 flex items-center">
+                    <div class="mr-3 rounded-full bg-green-100 p-2 text-green-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <p class="text-xs font-medium text-slate-500 sm:text-sm">เดือนที่มีข้อมูล</p>
+                </div>
+                <p id="summaryMonths" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+        </section>
+
+        <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                    <h1 class="text-lg font-semibold text-slate-800">ตารางความเสียหายอื่นๆ</h1>
+                    <p id="lastUpdated" class="mt-1 text-sm text-slate-500">ดึงจากชีต ความเสียหายอื่นๆ, เหตุผลขอตัดฟิล์ม, Bookings และ Customer</p>
+                </div>
+                <div class="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
+                    <div class="relative flex items-center">
+                        <label for="monthFilter" class="mr-2 whitespace-nowrap text-sm font-medium text-slate-600">เดือน:</label>
+                        <select id="monthFilter" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-44">
+                            <option value="">ทุกเดือน</option>
+                        </select>
+                    </div>
+                    <div class="relative flex-grow sm:border-l sm:border-slate-300 sm:pl-3">
+                        <input id="searchInput" type="search" class="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-72" placeholder="ค้นหาชื่อ, ทะเบียน, รายการ, หมายเหตุ...">
+                        <svg class="absolute left-3 top-2.5 h-5 w-5 text-slate-400 sm:left-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <button type="button" onclick="fetchOtherDamageData()" class="flex items-center justify-center whitespace-nowrap rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100">
+                        <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        รีเฟรช
+                    </button>
+                </div>
+            </div>
+
+            <div id="loadingMessage" class="px-6 py-12 text-center text-slate-500">
+                <svg class="mx-auto mb-4 h-10 w-10 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-lg font-medium text-slate-700">กำลังซิงค์ข้อมูลจาก Google Sheet...</p>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-50 px-6 py-10 text-center text-red-500">
+                <svg class="mx-auto mb-3 h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <p class="text-lg font-semibold">ไม่สามารถเข้าถึงชีต ความเสียหายอื่นๆ ได้</p>
+                <p class="mt-2 text-sm text-slate-700">โปรดตรวจสอบว่ามีชีตชื่อ ความเสียหายอื่นๆ และแชร์ Google Sheet แล้ว</p>
+                <button onclick="fetchOtherDamageData()" class="mt-4 rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700">ลองใหม่อีกครั้ง</button>
+            </div>
+
+            <div id="tableWrap" class="hidden overflow-x-auto">
+                <table class="damage-table min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">วันที่</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">ลูกค้า / เคส</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">ข้อมูลรถ</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">มูลค่า</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">รายการความเสียหาย</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-red-600">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="damageTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4 text-sm text-slate-500">
+                <span id="connectionStatus">เชื่อมต่อข้อมูลสดเรียบร้อย</span>
+                <span id="damageStatus" class="font-medium text-slate-600">ดึงจากชีต ความเสียหายอื่นๆ, เหตุผลขอตัดฟิล์ม, Bookings และ Customer</span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SHEET_ID = '1u__xYWoWZpmrnquc-Fpk19WtpcrckxSd0-_G35NWxXQ';
+        const OTHER_DAMAGE_SHEET_NAME = 'ความเสียหายอื่นๆ';
+        const BOOKINGS_SHEET_NAME = 'Bookings';
+        const CUSTOMER_SHEET_NAME = 'Customer';
+        const REASON_SHEET_NAME = 'เหตุผลขอตัดฟิล์ม';
+        const OTHER_DAMAGE_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(OTHER_DAMAGE_SHEET_NAME)}`;
+        const BOOKINGS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(BOOKINGS_SHEET_NAME)}`;
+        const CUSTOMER_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CUSTOMER_SHEET_NAME)}`;
+        const REASON_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(REASON_SHEET_NAME)}`;
+        const LOGIN_USER = 'admin';
+        const LOGIN_PASS = 'MHL741mhl+';
+        const LOGIN_KEY = 'carCrmLoggedIn';
+
+        const dom = {};
+        const DOM_IDS = [
+            'loginForm', 'loginUser', 'loginPass', 'loginError', 'lastUpdated',
+            'monthFilter', 'searchInput', 'summaryCount', 'summaryValued',
+            'summaryAmount', 'summaryMonths', 'loadingMessage', 'errorMessage',
+            'tableWrap', 'damageTableBody', 'connectionStatus', 'damageStatus'
+        ];
+
+        let allRows = [];
+        let appHasStarted = false;
+
+        function cacheDom() {
+            DOM_IDS.forEach(id => {
+                dom[id] = document.getElementById(id);
+            });
+        }
+
+        function textValue(value, fallback = '') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text === '' ? fallback : text;
+        }
+
+        function escapeHtml(value) {
+            return textValue(value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function normalizeFieldName(value) {
+            return textValue(value).replace(/[\s._\-()（）/]+/g, '').toLowerCase();
+        }
+
+        function normalizeLookupId(value) {
+            return textValue(value).replace(/[\s._\-–—/\\]+/g, '').toLowerCase();
+        }
+
+        function findField(row, candidates) {
+            if (!row) return '';
+            const keys = Object.keys(row).filter(key => normalizeFieldName(key));
+            const normalizedCandidates = candidates.map(normalizeFieldName).filter(Boolean);
+            const key = keys.find(item => normalizedCandidates.includes(normalizeFieldName(item))) ||
+                keys.find(item => normalizedCandidates.some(candidate => {
+                    const normalizedItem = normalizeFieldName(item);
+                    if (!normalizedItem || candidate.length < 3 || normalizedItem.length < 3) return false;
+                    return normalizedItem.includes(candidate) || candidate.includes(normalizedItem);
+                }));
+            return key ? textValue(row[key]) : '';
+        }
+
+        function findKey(row, candidates) {
+            if (!row) return '';
+            const keys = Object.keys(row).filter(key => normalizeFieldName(key));
+            const normalizedCandidates = candidates.map(normalizeFieldName).filter(Boolean);
+            return keys.find(item => normalizedCandidates.includes(normalizeFieldName(item))) ||
+                keys.find(item => normalizedCandidates.some(candidate => {
+                    const normalizedItem = normalizeFieldName(item);
+                    if (!normalizedItem || candidate.length < 3 || normalizedItem.length < 3) return false;
+                    return normalizedItem.includes(candidate) || candidate.includes(normalizedItem);
+                })) ||
+                '';
+        }
+
+        function parseCsv(csvText) {
+            return new Promise(resolve => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: header => header.trim(),
+                    complete: results => resolve(results.data)
+                });
+            });
+        }
+
+        function isHtmlResponseText(text) {
+            const trimmedText = text.trim().toLowerCase();
+            return trimmedText.startsWith('<!doctype html>') ||
+                trimmedText.startsWith('<html') ||
+                trimmedText.includes('google.visualization.query.setresponse') ||
+                trimmedText.includes('invalid query');
+        }
+
+        async function fetchCsvText(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const text = await response.text();
+            if (isHtmlResponseText(text)) throw new Error('Permission denied');
+            return text;
+        }
+
+        function parseNumber(value) {
+            const number = parseFloat(textValue(value, '0').replace(/[^\d.-]/g, ''));
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function parseDate(value) {
+            const raw = textValue(value);
+            const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+            if (!match) return null;
+            let year = parseInt(match[3], 10);
+            if (year < 100) year += 2000;
+            if (year > 2400) year -= 543;
+            const date = new Date(year, parseInt(match[2], 10) - 1, parseInt(match[1], 10));
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function monthKeyFromDate(date) {
+            if (!date) return 'ไม่ระบุเดือน';
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function monthLabelFromDate(date) {
+            if (!date) return 'ไม่ระบุเดือน';
+            const month = date.toLocaleDateString('th-TH', { month: 'short' }).replace('.', '');
+            return `${month}. ${String(date.getFullYear()).slice(-2)}`;
+        }
+
+        function formatMoney(value) {
+            return value.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function isUsefulLookupValue(value) {
+            const text = textValue(value);
+            if (!text || text === '-') return false;
+            if (parseDate(text)) return false;
+            return normalizeLookupId(text).length >= 1;
+        }
+
+        function likelyBookingReferenceValues(row) {
+            if (!row) return [];
+            const keys = Object.keys(row).filter(key => normalizeFieldName(key));
+            const likelyKeys = keys.filter(key => {
+                const normalized = normalizeFieldName(key);
+                return normalized === 'jobid' ||
+                    normalized.includes('job') ||
+                    normalized.includes('รหัส') ||
+                    normalized.includes('เลข') ||
+                    normalized === 'id' ||
+                    normalized.includes('reference') ||
+                    normalized.includes('อ้างอิง');
+            });
+
+            const targetKeys = likelyKeys.length ? likelyKeys : keys.slice(0, 2);
+            return targetKeys
+                .map(key => textValue(row[key]))
+                .filter(isUsefulLookupValue);
+        }
+
+        function createBookingLookupMap(rows) {
+            return rows.reduce((map, row) => {
+                const values = likelyBookingReferenceValues(row);
+                values.forEach(value => {
+                    const key = normalizeLookupId(value);
+                    if (key && !map[key]) {
+                        map[key] = {
+                            row,
+                            label: value
+                        };
+                    }
+                });
+                return map;
+            }, {});
+        }
+
+        function findMatchingBooking(row, bookingMap) {
+            const explicitReference = findField(row, [
+                'JobID', 'Job ID', 'Job_ID', 'รหัสงาน', 'เลขงาน',
+                'อ้างอิงงาน', 'Ref งาน', 'Reference งาน', 'อ้างอิง', 'Reference', 'ID'
+            ]);
+
+            const candidates = explicitReference
+                ? [explicitReference]
+                : Object.values(row).filter(isUsefulLookupValue);
+
+            for (const value of candidates) {
+                const match = bookingMap[normalizeLookupId(value)];
+                if (match) {
+                    return {
+                        row: match.row,
+                        reference: explicitReference || match.label || value
+                    };
+                }
+            }
+
+            return {
+                row: {},
+                reference: explicitReference
+            };
+        }
+
+        function createCustomerLookupMap(rows) {
+            return rows.reduce((map, row) => {
+                ['CustID', 'CustomerID', 'ID', 'รหัสลูกค้า', 'ลูกค้า'].forEach(field => {
+                    const value = findField(row, [field]);
+                    const key = normalizeLookupId(value);
+                    if (key && !map[key]) map[key] = row;
+                });
+                return map;
+            }, {});
+        }
+
+        function pickDetailValue(row, candidates, fallback = '') {
+            const value = findField(row, candidates);
+            if (!value) return fallback;
+            if (parseDate(value)) return fallback;
+            return value;
+        }
+
+        function findFieldExcept(row, candidates, excludes = []) {
+            if (!row) return '';
+            const keys = Object.keys(row).filter(key => normalizeFieldName(key));
+            const normalizedCandidates = candidates.map(normalizeFieldName).filter(Boolean);
+            const normalizedExcludes = excludes.map(normalizeFieldName).filter(Boolean);
+            const isExcluded = key => {
+                const normalizedKey = normalizeFieldName(key);
+                return normalizedExcludes.some(exclude => normalizedKey.includes(exclude));
+            };
+            const key = keys.find(item => !isExcluded(item) && normalizedCandidates.includes(normalizeFieldName(item))) ||
+                keys.find(item => !isExcluded(item) && normalizedCandidates.some(candidate => {
+                    const normalizedItem = normalizeFieldName(item);
+                    if (!normalizedItem || candidate.length < 3 || normalizedItem.length < 3) return false;
+                    return normalizedItem.includes(candidate) || candidate.includes(normalizedItem);
+                }));
+            return key ? textValue(row[key]) : '';
+        }
+
+        function pickDamageItem(row, fallback = '') {
+            const value = findFieldExcept(row, [
+                'รายการความเสียหาย', 'รายการความเสียหายอื่นๆ', 'รายการความเสียหายอื่น',
+                'รายละเอียดความเสียหาย', 'ความเสียหาย', 'รายการเสียหาย', 'รายการ',
+                'รายการซ่อม', 'รายการเคลม', 'หัวข้อ', 'เรื่อง', 'สาเหตุ', 'ปัญหา',
+                'อาการ', 'สิ่งที่เสียหาย', 'ชิ้นส่วนที่เสียหาย', 'กระจก', 'งาน'
+            ], [
+                'มูลค่า', 'ยอดเงิน', 'ยอดขาย', 'ราคา', 'จำนวนเงิน', 'amount',
+                'วันที่', 'เวลา', 'date', 'time', 'หมายเหตุ', 'note',
+                'jobid', 'custid', 'customerid', 'รหัส', 'เลขงาน', 'อ้างอิง',
+                'ลูกค้า', 'ชื่อ', 'ทะเบียน', 'รุ่นรถ', 'รถยนต์', 'ข้อมูลรถ'
+            ]);
+            if (!value) return fallback;
+            if (parseDate(value)) return fallback;
+            if (parseNumber(value) > 0 && !/[^\d\s,.฿บาท-]/.test(value)) return fallback;
+            return value;
+        }
+
+        function buildReasonMap(rows) {
+            return rows.reduce((map, row) => {
+                const reasonKey = findKey(row, ['เหตุผลขอตัดฟิล์ม', 'เหตุผล']);
+                const idKey = findKey(row, ['ID', 'รหัส']);
+                const reason = reasonKey ? textValue(row[reasonKey]) : '';
+                const id = idKey ? textValue(row[idKey]) : '';
+                if (reason) {
+                    map[reason] = reason;
+                    map[normalizeLookupId(reason)] = reason;
+                }
+                if (id && reason) {
+                    map[id] = reason;
+                    map[normalizeLookupId(id)] = reason;
+                }
+                return map;
+            }, {});
+        }
+
+        function translateReason(value, reasonMap) {
+            const id = textValue(value);
+            if (!id || id === '-') return '';
+            return reasonMap[id] || reasonMap[normalizeLookupId(id)] || id;
+        }
+
+        function buildRows(rows, bookingRows = [], customerRows = [], reasonRows = []) {
+            const bookingMap = createBookingLookupMap(bookingRows);
+            const customerMap = createCustomerLookupMap(customerRows);
+            const reasonMap = buildReasonMap(reasonRows);
+
+            return rows.map((row, index) => {
+                const dateText = findField(row, ['วันที่', 'วันที่เกิดเหตุ', 'วันที่บันทึก', 'วันที่ติดตั้ง', 'Date']);
+                const date = parseDate(dateText);
+                const amount = parseNumber(findField(row, [
+                    'มูลค่าความเสียหาย', 'มูลค่า', 'ยอดเงิน', 'ยอดขาย', 'ค่าเสียหาย',
+                    'ราคา', 'จำนวนเงิน', 'Amount'
+                ]));
+                const bookingMatch = findMatchingBooking(row, bookingMap);
+                const bookingReference = bookingMatch.reference;
+                const reference = bookingReference || findField(row, [
+                    'JobID', 'รหัสงาน', 'เลขงาน', 'อ้างอิง', 'Reference', 'ID'
+                ]);
+                const bookingRow = bookingMatch.row || {};
+                const custId = findField(row, ['CustID', 'CustomerID', 'รหัสลูกค้า']) ||
+                    findField(bookingRow, ['CustID', 'CustomerID', 'รหัสลูกค้า']);
+                const customerRow = customerMap[normalizeLookupId(custId)] || {};
+                const customerName = findField(row, ['ชื่อลูกค้า', 'ลูกค้า', 'ชื่อ', 'Customer']) ||
+                    findField(customerRow, ['ชื่อลูกค้า', 'ลูกค้า', 'ชื่อ', 'Customer', 'CustomerName']) ||
+                    findField(bookingRow, ['ชื่อลูกค้า', 'ลูกค้า', 'ชื่อ', 'Customer', 'CustomerName']);
+                const plate = findField(row, ['ทะเบียนรถ', 'ทะเบียน', 'ป้ายทะเบียน']) ||
+                    findField(bookingRow, ['ทะเบียนรถ', 'ทะเบียน', 'ป้ายทะเบียน', 'Plate']);
+                const carModel = findField(row, ['รุ่นรถยนต์', 'รุ่นรถ', 'รถยนต์', 'ข้อมูลรถ']) ||
+                    findField(bookingRow, ['รุ่นรถยนต์', 'รุ่นรถ', 'รถยนต์', 'ข้อมูลรถ', 'Model']);
+                const rowNote = findField(row, ['หมายเหตุ', 'Note', 'รายละเอียดเพิ่มเติม']);
+                const bookingNote = findField(bookingRow, ['หมายเหตุ', 'Note', 'รายละเอียดเพิ่มเติม']);
+                const reasonValue = findField(row, ['เหตุผลขอตัดฟิล์ม', 'เหตุผล']) ||
+                    findField(bookingRow, ['เหตุผลขอตัดฟิล์ม', 'เหตุผล']);
+                const damageItem = translateReason(reasonValue, reasonMap);
+                const item = {
+                    dateText,
+                    date,
+                    monthKey: monthKeyFromDate(date),
+                    monthText: monthLabelFromDate(date),
+                    customerName,
+                    reference,
+                    bookingReference,
+                    plate,
+                    carModel,
+                    damageItem,
+                    amount,
+                    note: rowNote || bookingNote,
+                    hasBookingData: Object.values(bookingRow).some(value => textValue(value)),
+                    raw: row,
+                    fallbackNo: index + 1
+                };
+                item.searchText = Object.values(item).join(' ').toLowerCase();
+                return item;
+            }).filter(item => Object.values(item.raw).some(value => textValue(value)));
+        }
+
+        function populateMonthFilter() {
+            const current = dom.monthFilter.value;
+            const months = [...new Map(allRows.map(row => [row.monthKey, row.monthText])).entries()]
+                .sort((a, b) => b[0].localeCompare(a[0]));
+            dom.monthFilter.innerHTML = '<option value="">ทุกเดือน</option>' + months
+                .map(([key, label]) => `<option value="${escapeHtml(key)}">${escapeHtml(label)}</option>`)
+                .join('');
+            dom.monthFilter.value = months.some(([key]) => key === current) ? current : '';
+        }
+
+        function getFilteredRows() {
+            const search = dom.searchInput.value.trim().toLowerCase();
+            const month = dom.monthFilter.value;
+            return allRows
+                .filter(row => !month || row.monthKey === month)
+                .filter(row => !search || row.searchText.includes(search))
+                .sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
+        }
+
+        function renderSummary(rows) {
+            const amountTotal = rows.reduce((sum, row) => sum + row.amount, 0);
+            const valued = rows.filter(row => row.amount > 0).length;
+            const months = new Set(rows.map(row => row.monthKey).filter(Boolean));
+
+            dom.summaryCount.innerText = rows.length.toLocaleString('th-TH');
+            dom.summaryValued.innerText = valued.toLocaleString('th-TH');
+            dom.summaryAmount.innerText = `฿${formatMoney(amountTotal)}`;
+            dom.summaryMonths.innerText = months.size.toLocaleString('th-TH');
+        }
+
+        function renderRows() {
+            const rows = getFilteredRows();
+            renderSummary(rows);
+
+            if (!rows.length) {
+                dom.damageTableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-500">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+                return;
+            }
+
+            const groups = rows.reduce((map, row) => {
+                if (!map[row.monthKey]) map[row.monthKey] = [];
+                map[row.monthKey].push(row);
+                return map;
+            }, {});
+
+            dom.damageTableBody.innerHTML = Object.entries(groups).map(([monthKey, groupRows]) => {
+                const label = groupRows[0]?.monthText || monthKey;
+                const groupTotal = groupRows.reduce((sum, row) => sum + row.amount, 0);
+                const body = groupRows.map(row => `
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <div class="text-sm font-medium text-slate-900">${escapeHtml(row.dateText || '-')}</div>
+                            <div class="text-sm text-slate-500">${escapeHtml(row.monthText)}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="whitespace-nowrap text-sm font-semibold text-slate-900">${escapeHtml(row.customerName || '-')}</div>
+                            <div class="mt-1 whitespace-nowrap text-xs font-medium text-blue-700">${escapeHtml(row.reference || `รายการ ${row.fallbackNo}`)}</div>
+                            ${row.reference && !row.hasBookingData ? '<div class="mt-1 inline-flex rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700">ไม่พบ Booking อ้างอิง</div>' : ''}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="whitespace-nowrap text-sm font-medium text-slate-900">${escapeHtml(row.plate || '-')}</div>
+                            <div class="mt-1 text-xs text-slate-500">${escapeHtml(row.carModel || '-')}</div>
+                        </td>
+                        <td class="money-cell whitespace-nowrap px-6 py-4 text-right text-sm">฿${formatMoney(row.amount)}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-800">${escapeHtml(row.damageItem || '-')}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-red-600">${escapeHtml(row.note || '-')}</td>
+                    </tr>
+                `).join('');
+
+                return `
+                    ${body}
+                    <tr class="bg-slate-100 font-extrabold text-slate-900">
+                        <td colspan="3" class="px-6 py-3">${escapeHtml(label)} รวม</td>
+                        <td class="money-cell px-6 py-3 text-right">฿${formatMoney(groupTotal)}</td>
+                        <td colspan="2" class="px-6 py-3"></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function fetchOtherDamageData() {
+            dom.loadingMessage.classList.remove('hidden');
+            dom.errorMessage.classList.add('hidden');
+            dom.tableWrap.classList.add('hidden');
+            dom.connectionStatus.innerText = 'กำลังซิงค์ข้อมูลจาก Google Sheets...';
+            dom.damageStatus.innerText = 'กำลังโหลดข้อมูลความเสียหายอื่นๆ';
+
+            try {
+                const [csvText, bookingsText, customerText, reasonText] = await Promise.all([
+                    fetchCsvText(OTHER_DAMAGE_CSV_URL),
+                    fetchCsvText(BOOKINGS_CSV_URL),
+                    fetchCsvText(CUSTOMER_CSV_URL),
+                    fetchCsvText(REASON_CSV_URL)
+                ]);
+                const [rows, bookingRows, customerRows, reasonRows] = await Promise.all([
+                    parseCsv(csvText),
+                    parseCsv(bookingsText),
+                    parseCsv(customerText),
+                    parseCsv(reasonText)
+                ]);
+                allRows = buildRows(rows, bookingRows, customerRows, reasonRows);
+                populateMonthFilter();
+                renderRows();
+
+                dom.loadingMessage.classList.add('hidden');
+                dom.tableWrap.classList.remove('hidden');
+                dom.lastUpdated.innerText = `อัปเดตล่าสุด: ${new Date().toLocaleTimeString('th-TH')} น.`;
+                dom.connectionStatus.innerText = 'เชื่อมต่อข้อมูลสดเรียบร้อย';
+                dom.damageStatus.innerText = 'ดึงจากชีต ความเสียหายอื่นๆ, เหตุผลขอตัดฟิล์ม, Bookings และ Customer';
+            } catch (error) {
+                console.error(error);
+                dom.loadingMessage.classList.add('hidden');
+                dom.errorMessage.classList.remove('hidden');
+                dom.connectionStatus.innerText = 'เชื่อมต่อข้อมูลไม่สำเร็จ';
+                dom.damageStatus.innerText = 'ยังโหลดข้อมูลไม่สำเร็จ';
+            }
+        }
+
+        function initApp() {
+            cacheDom();
+            dom.monthFilter.addEventListener('change', renderRows);
+            dom.searchInput.addEventListener('input', renderRows);
+            fetchOtherDamageData();
+        }
+
+        function startAppOnce() {
+            if (appHasStarted) return;
+            appHasStarted = true;
+            initApp();
+        }
+
+        function unlockPage() {
+            document.body.classList.remove('auth-locked');
+            startAppOnce();
+        }
+
+        function initLogin() {
+            cacheDom();
+            if (localStorage.getItem(LOGIN_KEY) === 'yes') {
+                unlockPage();
+                return;
+            }
+
+            dom.loginForm.addEventListener('submit', event => {
+                event.preventDefault();
+                if (dom.loginUser.value.trim() === LOGIN_USER && dom.loginPass.value === LOGIN_PASS) {
+                    localStorage.setItem(LOGIN_KEY, 'yes');
+                    unlockPage();
+                    return;
+                }
+
+                dom.loginError.classList.remove('hidden');
+                dom.loginPass.value = '';
+                dom.loginPass.focus();
+            });
+
+            dom.loginUser.focus();
+        }
+
+        window.addEventListener('load', initLogin);
+    </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,294 @@
+@media screen {
+    :root {
+        --apple-bg: #f2f2f7;
+        --apple-surface: rgba(255, 255, 255, 0.92);
+        --apple-surface-solid: #ffffff;
+        --apple-soft: #f7f9fc;
+        --apple-text: #101828;
+        --apple-muted: #667085;
+        --apple-border: rgba(15, 23, 42, 0.10);
+        --apple-border-strong: rgba(15, 23, 42, 0.14);
+        --apple-blue: #007aff;
+        --apple-blue-dark: #0a63d8;
+        --apple-green: #34c759;
+        --apple-red: #ff3b30;
+        --apple-orange: #ff9500;
+        --apple-shadow: 0 22px 60px rgba(16, 24, 40, 0.11);
+        --apple-shadow-soft: 0 12px 34px rgba(16, 24, 40, 0.08);
+    }
+
+    html {
+        background: var(--apple-bg);
+    }
+
+    body {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 18% 0%, rgba(0, 122, 255, 0.16), transparent 24rem),
+            radial-gradient(circle at 95% 12%, rgba(52, 199, 89, 0.10), transparent 24rem),
+            linear-gradient(180deg, #ffffff 0%, var(--apple-bg) 46%, #edf4ff 100%) !important;
+        color: var(--apple-text) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Prompt", "Segoe UI", sans-serif !important;
+        letter-spacing: 0 !important;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+    }
+
+    main,
+    body > .w-full {
+        min-height: 100vh;
+        padding-top: 1.5rem !important;
+    }
+
+    @media (min-width: 1024px) {
+        main,
+        body > .w-full {
+            padding-top: 1.75rem !important;
+        }
+    }
+
+    @media (max-width: 1023px) {
+        main,
+        body > .w-full {
+            padding-top: 2.5rem !important;
+        }
+    }
+
+    h1,
+    h2,
+    h3,
+    .text-slate-950,
+    .text-slate-900,
+    .text-slate-800 {
+        color: var(--apple-text) !important;
+    }
+
+    .text-slate-700,
+    .text-slate-600,
+    .text-slate-500 {
+        color: var(--apple-muted) !important;
+    }
+
+    .bg-white,
+    section.bg-white,
+    div.bg-white,
+    form.bg-white {
+        background: var(--apple-surface) !important;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    section,
+    form,
+    .bg-white,
+    .soft-panel,
+    .surface {
+        border: 1px solid rgba(255, 255, 255, 0.70) !important;
+        outline: 1px solid rgba(15, 23, 42, 0.08);
+        outline-offset: -1px;
+    }
+
+    .bg-slate-50,
+    .bg-slate-100 {
+        background: rgba(247, 249, 252, 0.88) !important;
+    }
+
+    .border,
+    .border-slate-200,
+    .border-slate-300,
+    .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+        border-color: var(--apple-border) !important;
+    }
+
+    .shadow-sm,
+    .shadow,
+    .shadow-lg,
+    .shadow-xl,
+    .shadow-2xl {
+        box-shadow: var(--apple-shadow-soft) !important;
+    }
+
+    section,
+    form,
+    .rounded-xl,
+    .rounded-2xl {
+        border-radius: 22px !important;
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 160ms ease !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .field {
+        border-color: rgba(15, 23, 42, 0.14) !important;
+        border-radius: 14px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        color: var(--apple-text) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    .field:focus {
+        border-color: rgba(0, 122, 255, 0.62) !important;
+        box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.14) !important;
+        outline: none !important;
+    }
+
+    button,
+    a[class*="bg-blue"],
+    a[class*="bg-slate-900"],
+    a[class*="border"],
+    .rounded-lg {
+        border-radius: 12px !important;
+    }
+
+    .bg-blue-700,
+    .bg-blue-600,
+    .from-blue-500,
+    .to-blue-600 {
+        background: var(--apple-blue) !important;
+        background-image: none !important;
+    }
+
+    .hover\:bg-blue-800:hover,
+    .hover\:bg-blue-700:hover {
+        background: var(--apple-blue-dark) !important;
+    }
+
+    .bg-slate-900,
+    .hover\:bg-slate-700:hover {
+        background: #111827 !important;
+    }
+
+    .text-blue-700,
+    .text-blue-800,
+    .text-blue-600 {
+        color: var(--apple-blue) !important;
+    }
+
+    .bg-blue-50,
+    .bg-blue-100 {
+        background: rgba(0, 122, 255, 0.12) !important;
+    }
+
+    .bg-green-50,
+    .bg-green-100,
+    .bg-emerald-50,
+    .bg-emerald-100 {
+        background: rgba(52, 199, 89, 0.12) !important;
+    }
+
+    .text-green-600,
+    .text-emerald-600,
+    .text-emerald-700 {
+        color: var(--apple-green) !important;
+    }
+
+    .bg-red-50,
+    .bg-red-100,
+    .bg-rose-50,
+    .bg-rose-100 {
+        background: rgba(255, 59, 48, 0.10) !important;
+    }
+
+    .text-red-600,
+    .text-red-700,
+    .text-rose-600,
+    .text-rose-700,
+    .money-cell {
+        color: var(--apple-red) !important;
+    }
+
+    .bg-amber-50,
+    .bg-amber-100,
+    .bg-orange-50,
+    .bg-orange-100 {
+        background: rgba(255, 149, 0, 0.12) !important;
+    }
+
+    .text-amber-600,
+    .text-amber-700,
+    .text-orange-600 {
+        color: #c46d00 !important;
+    }
+
+    .bg-gradient-to-br {
+        background-image: linear-gradient(135deg, #ff453a, #ff9f0a) !important;
+    }
+
+    table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+
+    thead,
+    thead.bg-slate-100,
+    .price-preview-table th {
+        background: rgba(242, 244, 247, 0.96) !important;
+    }
+
+    th {
+        color: #475467 !important;
+        font-weight: 700 !important;
+    }
+
+    tbody tr {
+        background: rgba(255, 255, 255, 0.74);
+    }
+
+    tbody tr:hover {
+        background: rgba(0, 122, 255, 0.06) !important;
+    }
+
+    main > section,
+    body > .w-full > div,
+    body > .w-full > section,
+    main > div {
+        box-shadow: var(--apple-shadow-soft);
+    }
+
+    td,
+    th {
+        border-color: rgba(15, 23, 42, 0.08) !important;
+    }
+
+    #loginScreen {
+        background:
+            radial-gradient(circle at 25% 20%, rgba(0, 122, 255, 0.22), transparent 26rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+    }
+
+    #loginScreen form {
+        border: 1px solid rgba(255, 255, 255, 0.82) !important;
+        box-shadow: var(--apple-shadow) !important;
+    }
+
+    ::selection {
+        background: rgba(0, 122, 255, 0.18);
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.22);
+        border: 3px solid transparent;
+        border-radius: 999px;
+        background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}

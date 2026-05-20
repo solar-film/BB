@@ -1,0 +1,1120 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ราคาขายฟิล์มรถยนต์</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #d9ebfd;
+        }
+
+        #loginScreen {
+            display: none;
+        }
+
+        body.auth-locked > :not(#loginScreen) {
+            display: none !important;
+        }
+
+        body.auth-locked #loginScreen {
+            display: flex;
+        }
+
+        .field {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.65rem;
+            padding: 0.65rem 0.75rem;
+            font-size: 0.95rem;
+            background: #ffffff;
+        }
+
+        .field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+        }
+
+        .quote-box {
+            min-height: 34rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.45;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .quote-card {
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.07);
+        }
+
+        .quote-card-title {
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 0.7rem 1rem;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .quote-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 0.7rem;
+            background: rgba(255, 255, 255, 0.52);
+        }
+
+        .quote-card.full .quote-card-title {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(99, 102, 241, 0.10));
+            color: #5b21b6;
+        }
+
+        .quote-card.sunroof .quote-card-title {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(20, 184, 166, 0.10));
+            color: #047857;
+        }
+
+        .quote-card.front .quote-card-title {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.14), rgba(147, 197, 253, 0.12));
+            color: #075985;
+        }
+
+        .quote-card.rear .quote-card-title {
+            background: linear-gradient(135deg, rgba(52, 199, 89, 0.14), rgba(187, 247, 208, 0.13));
+            color: #166534;
+        }
+
+        .price-preview-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 980px;
+            font-size: 0.82rem;
+        }
+
+        .price-preview-table th,
+        .price-preview-table td {
+            border-right: 1px solid #ffffff;
+            border-bottom: 1px solid #ffffff;
+            padding: 0.38rem 0.55rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .price-preview-table th {
+            background: #e5e7eb;
+            color: #020617;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .price-preview-table th.base-head {
+            background: #020617;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .price-preview-table td.base-cell {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .price-preview-table tr.regular-row td {
+            background: #d1d5db;
+        }
+
+        .price-preview-table tr.promo-row td {
+            background: #fdebd3;
+            font-weight: 700;
+        }
+
+        .price-preview-table tr.campaign-row td {
+            background: #020617;
+            color: #facc15;
+            font-weight: 800;
+        }
+    </style>
+    <link rel="stylesheet" href="apple-style.css?v=20260520-4">
+    <script src="sidebar.js" defer></script>
+</head>
+<body class="text-slate-900 auth-locked">
+    <div id="loginScreen" class="fixed inset-0 z-[9999] min-h-screen items-center justify-center bg-slate-950 px-4">
+        <form id="loginForm" class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div class="mb-5">
+                <h1 class="text-2xl font-extrabold text-slate-900">เข้าสู่ระบบ</h1>
+                <p class="mt-1 text-sm text-slate-500">กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="loginUser" class="block text-sm font-semibold text-slate-700 mb-1">User</label>
+                    <input id="loginUser" type="text" autocomplete="username" class="field" required>
+                </div>
+                <div>
+                    <label for="loginPass" class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" class="field" required>
+                </div>
+            </div>
+            <p id="loginError" class="hidden mt-3 text-sm font-semibold text-red-600">User หรือ Password ไม่ถูกต้อง</p>
+            <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <div data-car-crm-sidebar></div>
+
+
+    <main class="w-full px-4 py-8 sm:px-6 lg:ml-72 lg:w-[calc(100%-18rem)] lg:px-8">
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-950">เสนอราคาจากรุ่นรถยนต์</h1>
+                    <p id="lastUpdated" class="text-sm text-slate-500 mt-1">กำลังโหลดข้อมูลจากชีต Car_model และ ราคาขาย...</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="sunroof.html" class="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-extrabold text-white shadow-sm hover:bg-slate-700">
+                            TPU Sunroof
+                        </a>
+                        <a href="sunroof.html" class="inline-flex items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-extrabold text-blue-700 hover:bg-blue-100">
+                            Sunroof Price
+                        </a>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:max-w-3xl">
+                    <div class="relative">
+                        <label for="searchInput" class="block text-xs font-bold text-slate-600 mb-1">ค้นหารุ่นรถยนต์</label>
+                        <input id="searchInput" type="search" class="field" placeholder="เช่น Toyota Prius / Tesla Model Y" autocomplete="off">
+                        <div id="searchResults" class="hidden absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl"></div>
+                    </div>
+                    <div>
+                        <label for="modelFilter" class="block text-xs font-bold text-slate-600 mb-1">เลือกรุ่นรถยนต์</label>
+                        <select id="modelFilter" class="field">
+                            <option value="">เลือกรุ่นรถ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="loadingMessage" class="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center text-slate-500">
+            <svg class="animate-spin h-10 w-10 mx-auto mb-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="font-medium text-lg text-slate-700">กำลังโหลดข้อมูลราคา...</p>
+        </div>
+
+        <div id="errorMessage" class="hidden bg-red-50 border border-red-200 rounded-xl px-6 py-10 text-center text-red-600">
+            <p class="font-semibold text-lg">ไม่สามารถโหลดชีต Car_model หรือ ราคาขาย ได้</p>
+            <p class="text-sm mt-2 text-slate-700">โปรดตรวจสอบการแชร์ Google Sheet แล้วลองใหม่อีกครั้ง</p>
+            <button onclick="fetchPriceData()" class="mt-4 px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700">ลองใหม่</button>
+        </div>
+
+        <section id="quoteContent" class="hidden">
+            <div id="emptyMessage" class="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center text-slate-500">
+                กรุณาค้นหา หรือเลือกรุ่นรถยนต์ก่อน
+            </div>
+
+            <div id="multiMatchMessage" class="hidden bg-amber-50 rounded-xl border border-amber-200 px-6 py-5 text-amber-900 font-semibold mb-6"></div>
+
+            <section id="filmSelector" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-950">เลือกรุ่นฟิล์มที่ต้องการแสดง</h2>
+                        <p class="text-sm text-slate-500 mt-1">ติ๊กเฉพาะรุ่นฟิล์มที่ต้องการให้แสดงในข้อความเสนอราคา</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" id="toggleFilmSelectorBtn" class="px-3 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800" aria-expanded="false">แสดงตัวเลือก</button>
+                    </div>
+                </div>
+                <div id="filmSelectorBody" class="hidden mt-4">
+                    <div class="flex justify-end gap-2 mb-4">
+                        <button type="button" id="selectAllFilmsBtn" class="px-3 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">เลือกทั้งหมด</button>
+                        <button type="button" id="clearFilmsBtn" class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200">ล้าง</button>
+                    </div>
+                    <div id="filmOptions" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2"></div>
+                </div>
+            </section>
+
+            <section id="pricePreviewCard" class="hidden bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-950">ตารางราคาตามรุ่นฟิล์มที่เลือก</h2>
+                        <p class="text-sm text-slate-500 mt-1">แสดงเฉพาะคอลัมน์ฟิล์มที่เลือกไว้ด้านบน</p>
+                    </div>
+                    <button type="button" id="togglePricePreviewBtn" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-700" aria-expanded="false">แสดงตาราง</button>
+                </div>
+                <div id="pricePreviewBody" class="hidden mt-4 overflow-x-auto rounded-lg border border-slate-200">
+                    <div id="pricePreviewTable"></div>
+                </div>
+            </section>
+
+            <div id="quoteGrid" class="hidden grid grid-cols-1 gap-5 xl:grid-cols-4">
+                <article class="quote-card full">
+                    <div class="quote-card-title">เต็มคัน (ไม่รวมซันรูฟ)</div>
+                    <div class="quote-toolbar">
+                        <button data-copy="standardQuote" class="copy-btn px-3 py-1.5 rounded-md bg-slate-900 text-white text-xs font-bold hover:bg-slate-700">คัดลอก</button>
+                    </div>
+                    <pre id="standardQuote" class="quote-box p-3 text-[15px] overflow-auto"></pre>
+                </article>
+
+                <article id="sunroofCard" class="quote-card sunroof">
+                    <div class="quote-card-title">รถไฟฟ้า + ซันรูฟ</div>
+                    <div class="quote-toolbar">
+                        <button data-copy="sunroofQuote" class="copy-btn px-3 py-1.5 rounded-md bg-slate-900 text-white text-xs font-bold hover:bg-slate-700">คัดลอก</button>
+                    </div>
+                    <pre id="sunroofQuote" class="quote-box p-3 text-[15px] overflow-auto"></pre>
+                </article>
+
+                <article class="quote-card front">
+                    <div class="quote-card-title">เฉพาะบานหน้า</div>
+                    <div class="quote-toolbar">
+                        <button data-copy="frontQuote" class="copy-btn px-3 py-1.5 rounded-md bg-slate-900 text-white text-xs font-bold hover:bg-slate-700">คัดลอก</button>
+                    </div>
+                    <pre id="frontQuote" class="quote-box p-3 text-[15px] overflow-auto"></pre>
+                </article>
+
+                <article class="quote-card rear">
+                    <div class="quote-card-title">เฉพาะบานหลัง</div>
+                    <div class="quote-toolbar">
+                        <button data-copy="rearQuote" class="copy-btn px-3 py-1.5 rounded-md bg-slate-900 text-white text-xs font-bold hover:bg-slate-700">คัดลอก</button>
+                    </div>
+                    <pre id="rearQuote" class="quote-box p-3 text-[15px] overflow-auto"></pre>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SHEET_ID = '1u__xYWoWZpmrnquc-Fpk19WtpcrckxSd0-_G35NWxXQ';
+        const CAR_MODEL_SHEET_NAME = 'Car_model';
+        const PRICE_SHEET_NAME = 'ราคาขาย';
+        const CAR_MODEL_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CAR_MODEL_SHEET_NAME)}`;
+        const PRICE_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PRICE_SHEET_NAME)}`;
+
+        const LOGIN_USER = 'admin';
+        const LOGIN_PASS = 'MHL741mhl+';
+        const LOGIN_KEY = 'carCrmLoggedIn';
+
+        const PRICE_PROMO_COLUMNS = ['Pro_ID', 'โปรโมชั่น'];
+        const PRICE_KEY_COLUMNS = ['กลุ่มราคา', 'ประเภทรถยนต์'];
+        const PRICE_POSITION_COLUMN = 'ตำแหน่งติดตั้ง';
+        const PRICE_BASE_COLUMNS = [...PRICE_PROMO_COLUMNS, ...PRICE_KEY_COLUMNS, PRICE_POSITION_COLUMN, 'W', 'H', 'พท.'];
+        const HIDDEN_FILM_BRANDS = new Set(['Pro_ID']);
+        const PRICE_PREVIEW_POSITION_ORDER = [
+            'บานหน้า',
+            'บานหลัง',
+            'ประตู-หน้าซ้าย',
+            'ประตู-หน้าขวา',
+            'ประตู-หลังซ้าย',
+            'ประตู-หลังขวา',
+            'บานฟิก-ซ้าย',
+            'บานฟิก-ขวา',
+            'บานฟิก-ซ้าย(1)',
+            'บานฟิก-ขวา(1)',
+            'ซันรูฟ',
+            'ราคาปกติ',
+            'โปรโมชั่นเต็มคัน',
+            'โปรโมชั่นเต็มคัน+ซันรูฟ',
+            'แคมเปญพิเศษ!!'
+        ];
+        const HIGHLIGHT_BRANDS = [
+            { key: '3M Ultra Clear', label: '3M Ultra Clear', detail: '"ความใส เคลียร์ สบายตา ระดับสากล"' },
+            { key: 'Hi-Kool Beyond (BY)', label: 'Hi-Kool Beyond', detail: '"กันร้อนขั้นสุด รุ่นท็อปที่สุดของ Hi-Kool"' }
+        ];
+        const QUALITY_BRAND = { key: '3M Crystalline', label: '3M Crystalline' };
+        const CERAMIC_BRANDS = [
+            { key: 'Nanotech Promax', label: 'Nanotech Promax' },
+            { key: 'AmericanKing UltraUV400', label: 'AmericanKing UltraUV400' },
+            { key: '3M Absolute (AS)', label: '3M Absolute' },
+            { key: 'Nanotech NCI', label: 'Nanotech NCI' },
+            { key: 'Hi-Kool Black Night', label: 'Hi-Kool Black Night' },
+            { key: '3M Ceramate (CRM)', label: '3M Ceramate' },
+            { key: 'G-TEC Ceramic', label: 'G-TEC Ceramic' }
+        ];
+        const GENERAL_BRANDS = [
+            { key: 'FX-HP', label: 'FX-HP' },
+            { key: 'Hi-Kool R-resies', label: 'Hi-Kool R-resies' },
+            { key: 'IZY-KOOL', label: 'IZY-KOOL' },
+            { key: 'Cooper', label: 'Cooper' }
+        ];
+        const GLASS_BRANDS = [
+            { key: '3M Crystalline', label: '3M Crystalline' },
+            { key: '3M Ultra Clear', label: '3M Ultra Clear', recommend: true },
+            { key: 'Hi-Kool Beyond (BY)', label: 'Hi-Kool Beyond' },
+            { key: 'Nanotech Promax', label: 'Nanotech Promax' },
+            { key: 'AmericanKing UltraUV400', label: 'AmericanKing UltraUV400' },
+            { key: '3M Absolute (AS)', label: '3M Absolute' },
+            { key: 'Hi-Kool Black Night', label: 'Hi-Kool Black Night' },
+            { key: 'Nanotech NCI', label: 'Nanotech NCI' },
+            { key: '3M Ceramate (CRM)', label: '3M Ceramate' },
+            { key: 'G-TEC Ceramic', label: 'G-TEC Ceramic' }
+        ];
+
+        let carModels = [];
+        let priceRows = [];
+        let filmBrands = [];
+        let selectableFilmBrands = [];
+        let selectedFilmBrands = new Set();
+        let isFilmSelectorOpen = false;
+        let isPricePreviewOpen = false;
+        let appHasStarted = false;
+
+        const dom = {};
+        const DOM_IDS = [
+            'loginForm', 'loginUser', 'loginPass', 'loginError',
+            'loadingMessage', 'errorMessage', 'quoteContent', 'lastUpdated',
+            'searchInput', 'modelFilter', 'searchResults', 'emptyMessage',
+            'multiMatchMessage', 'filmSelector', 'toggleFilmSelectorBtn',
+            'filmSelectorBody', 'filmOptions', 'selectAllFilmsBtn',
+            'clearFilmsBtn', 'pricePreviewCard', 'togglePricePreviewBtn',
+            'pricePreviewBody', 'pricePreviewTable', 'quoteGrid',
+            'standardQuote', 'sunroofCard', 'sunroofQuote', 'frontQuote',
+            'rearQuote'
+        ];
+
+        function cacheDom() {
+            DOM_IDS.forEach(id => {
+                dom[id] = document.getElementById(id);
+            });
+        }
+
+        function parseCsv(csvText) {
+            return new Promise(resolve => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: header => cleanText(header),
+                    complete: results => resolve(results.data)
+                });
+            });
+        }
+
+        function textValue(value, fallback = '') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text === '' ? fallback : text;
+        }
+
+        function cleanText(value) {
+            return textValue(value).replace(/^\uFEFF/, '').replace(/\u200B/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+        }
+
+        function lookupKey(value) {
+            return cleanText(value).replace(/[\s._\-–—/\\]+/g, '').toLowerCase();
+        }
+
+        function parsePrice(value) {
+            const number = parseFloat(textValue(value, '0').replace(/[^\d.-]/g, ''));
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function formatBaht(value) {
+            const price = typeof value === 'number' ? value : parsePrice(value);
+            return price ? price.toLocaleString('th-TH') : '';
+        }
+
+        function getPrice(row, brandKey) {
+            return row ? parsePrice(row[brandKey]) : 0;
+        }
+
+        function normalizeRows(rows) {
+            return rows.map(row => {
+                const item = {};
+                const values = [];
+                Object.entries(row).forEach(([key, value], index) => {
+                    const cleanKey = cleanText(key);
+                    const cleanValue = textValue(value);
+                    values.push(cleanValue);
+                    item[cleanKey] = cleanValue;
+                    if (index === 0) {
+                        Object.defineProperty(item, '__firstColumnValue', {
+                            value: cleanValue,
+                            enumerable: false
+                        });
+                    }
+                });
+                Object.defineProperty(item, '__values', {
+                    value: values,
+                    enumerable: false
+                });
+                return item;
+            });
+        }
+
+        function normalizeCarModels(rows) {
+            return normalizeRows(rows).map(row => {
+                const values = row.__values || [];
+                const model = textValue(row['รุ่นรถยนต์'] || row.Model || values[2] || values[1]);
+                const priceGroup = textValue(row['กลุ่มราคา'] || row['ประเภทรถยนต์'] || row.Pro_ID || values[3] || values[2] || model);
+                return {
+                    id: textValue(row.ID || values[0]),
+                    brand: textValue(row['ยี่ห้อรถยนต์'] || row.Brand || values[1]),
+                    model,
+                    priceGroup,
+                    lookupValues: [...new Set([model, priceGroup, row.Pro_ID, row['กลุ่มราคา'], row['ประเภทรถยนต์'], ...values]
+                        .map(textValue)
+                        .filter(Boolean))]
+                };
+            }).filter(item => item.model);
+        }
+
+        function normalizePriceRows(rows) {
+            return normalizeRows(rows).filter(row => getPriceKey(row) || textValue(row[PRICE_POSITION_COLUMN]));
+        }
+
+        function getPriceKey(row) {
+            return PRICE_KEY_COLUMNS.map(key => textValue(row?.[key])).find(Boolean) ||
+                textValue(row?.__values?.[1]);
+        }
+
+        function isHiddenFilmBrand(key) {
+            return HIDDEN_FILM_BRANDS.has(cleanText(key));
+        }
+
+        function detectFilmBrands(rows) {
+            const sample = rows[0] || {};
+            return Object.keys(sample).filter(key => (
+                !PRICE_BASE_COLUMNS.includes(key) &&
+                key !== Object.keys(sample)[0] &&
+                key.trim() !== '' &&
+                !isHiddenFilmBrand(key)
+            ));
+        }
+
+        function uniqueSorted(values) {
+            return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+        }
+
+        function populateModelInputs() {
+            const models = uniqueSorted(carModels.map(car => car.model));
+            dom.modelFilter.innerHTML = '<option value="">เลือกรุ่นรถ</option>' + models.map(model => (
+                `<option value="${model.replaceAll('"', '&quot;')}">${model}</option>`
+            )).join('');
+        }
+
+        function buildSelectableFilmBrands() {
+            const preferred = [
+                ...HIGHLIGHT_BRANDS,
+                QUALITY_BRAND,
+                ...CERAMIC_BRANDS,
+                ...GLASS_BRANDS,
+                ...GENERAL_BRANDS
+            ];
+            const seen = new Set();
+            const brands = preferred.filter(brand => {
+                if (seen.has(brand.key) || !filmBrands.includes(brand.key) || isHiddenFilmBrand(brand.key)) return false;
+                seen.add(brand.key);
+                return true;
+            });
+
+            filmBrands.forEach(key => {
+                if (!seen.has(key) && !isHiddenFilmBrand(key)) {
+                    brands.push({ key, label: key });
+                    seen.add(key);
+                }
+            });
+
+            return brands;
+        }
+
+        function renderFilmOptions() {
+            dom.filmOptions.innerHTML = selectableFilmBrands.map(brand => `
+                <label class="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 cursor-pointer hover:bg-blue-50">
+                    <input type="checkbox" class="film-option rounded border-slate-300 text-blue-700 focus:ring-blue-500" value="${brand.key.replaceAll('"', '&quot;')}" ${selectedFilmBrands.has(brand.key) ? 'checked' : ''}>
+                    <span>${brand.label}</span>
+                </label>
+            `).join('');
+
+            dom.filmOptions.querySelectorAll('.film-option').forEach(input => {
+                input.addEventListener('change', () => {
+                    if (input.checked) {
+                        selectedFilmBrands.add(input.value);
+                    } else {
+                        selectedFilmBrands.delete(input.value);
+                    }
+                    renderPricePreviewForCurrentCar();
+                    renderQuotes();
+                });
+            });
+        }
+
+        function updateCollapsibleSections() {
+            dom.filmSelectorBody.classList.toggle('hidden', !isFilmSelectorOpen);
+            dom.toggleFilmSelectorBtn.innerText = isFilmSelectorOpen ? 'ซ่อนตัวเลือก' : 'แสดงตัวเลือก';
+            dom.toggleFilmSelectorBtn.setAttribute('aria-expanded', String(isFilmSelectorOpen));
+
+            dom.pricePreviewBody.classList.toggle('hidden', !isPricePreviewOpen);
+            dom.togglePricePreviewBtn.innerText = isPricePreviewOpen ? 'ซ่อนตาราง' : 'แสดงตาราง';
+            dom.togglePricePreviewBtn.setAttribute('aria-expanded', String(isPricePreviewOpen));
+        }
+
+        function pricePreviewRowClass(row) {
+            const position = cleanText(row[PRICE_POSITION_COLUMN]);
+            if (position.includes('แคมเปญ')) return 'campaign-row';
+            if (position.includes('โปรโมชั่น')) return 'promo-row';
+            if (position.includes('ราคาปกติ')) return 'regular-row';
+            return '';
+        }
+
+        function formatPreviewValue(row, key) {
+            const raw = textValue(row[key]);
+            if (!raw) return '';
+            const number = parsePrice(raw);
+            if (number) return number.toLocaleString('th-TH');
+            return raw;
+        }
+
+        function orderPricePreviewRows(rows) {
+            return [...rows].sort((a, b) => {
+                const aPosition = cleanText(a[PRICE_POSITION_COLUMN]);
+                const bPosition = cleanText(b[PRICE_POSITION_COLUMN]);
+                const aIndex = PRICE_PREVIEW_POSITION_ORDER.indexOf(aPosition);
+                const bIndex = PRICE_PREVIEW_POSITION_ORDER.indexOf(bPosition);
+                const safeAIndex = aIndex === -1 ? PRICE_PREVIEW_POSITION_ORDER.length : aIndex;
+                const safeBIndex = bIndex === -1 ? PRICE_PREVIEW_POSITION_ORDER.length : bIndex;
+                return safeAIndex - safeBIndex;
+            });
+        }
+
+        function orderBrandsByFullPromoPrice(brands, rows) {
+            const promoRow = findPosition(rows, 'โปรโมชั่นเต็มคัน');
+            if (!promoRow) return brands;
+
+            const originalOrder = new Map(brands.map((brand, index) => [brand.key, index]));
+            return [...brands].sort((a, b) => {
+                const bPrice = getPrice(promoRow, b.key);
+                const aPrice = getPrice(promoRow, a.key);
+                return bPrice - aPrice || originalOrder.get(a.key) - originalOrder.get(b.key);
+            });
+        }
+
+        function renderPricePreview(rows) {
+            const selectedBrands = orderBrandsByFullPromoPrice(
+                selectableFilmBrands.filter(brand => selectedFilmBrands.has(brand.key)),
+                rows
+            );
+
+            if (!rows.length) {
+                dom.pricePreviewTable.innerHTML = '<div class="p-4 text-sm text-slate-500">เลือกรุ่นรถก่อนเพื่อดูตารางราคา</div>';
+                return;
+            }
+
+            if (!selectedBrands.length) {
+                dom.pricePreviewTable.innerHTML = '<div class="p-4 text-sm text-slate-500">เลือกรุ่นฟิล์มอย่างน้อย 1 รุ่นเพื่อแสดงตารางราคา</div>';
+                return;
+            }
+
+            const headerCells = [
+                '<th class="base-head">กลุ่มราคา</th>',
+                '<th class="base-head">รายการ</th>',
+                ...selectedBrands.map(brand => `<th>${escapeHtml(brand.label)}</th>`)
+            ].join('');
+
+            const bodyRows = orderPricePreviewRows(rows).map(row => {
+                const brandCells = selectedBrands.map(brand => (
+                    `<td>${escapeHtml(formatPreviewValue(row, brand.key))}</td>`
+                )).join('');
+
+                return `
+                    <tr class="${pricePreviewRowClass(row)}">
+                        <td class="base-cell">${escapeHtml(getPriceKey(row))}</td>
+                        <td class="base-cell">${escapeHtml(textValue(row[PRICE_POSITION_COLUMN]))}</td>
+                        ${brandCells}
+                    </tr>
+                `;
+            }).join('');
+
+            dom.pricePreviewTable.innerHTML = `
+                <table class="price-preview-table w-full">
+                    <thead><tr>${headerCells}</tr></thead>
+                    <tbody>${bodyRows}</tbody>
+                </table>
+            `;
+        }
+
+        function renderPricePreviewForCurrentCar() {
+            const { car } = findSelectedCar();
+            const rows = car ? getPriceRowsForCar(car) : [];
+            dom.pricePreviewCard.classList.toggle('hidden', !rows.length);
+            renderPricePreview(rows);
+        }
+
+        function isFilmSelected(key) {
+            return selectedFilmBrands.has(key);
+        }
+
+        function getPriceRowsForCar(car) {
+            const lookupValues = (car.lookupValues?.length ? car.lookupValues : [car.model, car.priceGroup])
+                .map(lookupKey)
+                .filter(Boolean);
+            return priceRows.filter(row => lookupValues.includes(lookupKey(getPriceKey(row))));
+        }
+
+        function findPosition(rows, positionName) {
+            return rows.find(row => cleanText(row[PRICE_POSITION_COLUMN]) === positionName) || null;
+        }
+
+        function findSelectedCar() {
+            const selectedModel = dom.modelFilter.value;
+            if (selectedModel) {
+                return { car: carModels.find(car => car.model === selectedModel), count: 1, autoSelected: false };
+            }
+
+            const search = lookupKey(dom.searchInput.value);
+            if (!search) return { car: null, count: 0, autoSelected: false };
+            if (search.length < 2) return { car: null, count: 0, autoSelected: false, tooShort: true };
+
+            const exact = carModels.find(car => lookupKey(car.model) === search);
+            if (exact) return { car: exact, count: 1, autoSelected: false };
+
+            const matches = carModels.filter(car => lookupKey(car.model).includes(search));
+            return { car: null, count: matches.length, autoSelected: false };
+        }
+
+        function getSearchMatches() {
+            const search = lookupKey(dom.searchInput.value);
+            if (!search) return [];
+            if (search.length < 2) return [];
+
+            return carModels
+                .filter(car => lookupKey(car.model).includes(search))
+                .sort((a, b) => {
+                    const aModel = lookupKey(a.model);
+                    const bModel = lookupKey(b.model);
+                    const aFull = lookupKey(`${a.brand} ${a.model}`);
+                    const bFull = lookupKey(`${b.brand} ${b.model}`);
+                    const score = (model, full) => {
+                        if (model === search) return 0;
+                        if (model.startsWith(search)) return 1;
+                        if (full.startsWith(search)) return 2;
+                        return 3;
+                    };
+                    return score(aModel, aFull) - score(bModel, bFull) || a.model.localeCompare(b.model, 'th');
+                });
+        }
+
+        function selectCarModel(model) {
+            dom.modelFilter.value = model;
+            dom.searchInput.value = model;
+            dom.searchResults.classList.add('hidden');
+            renderQuotes();
+        }
+
+        function renderSearchResults() {
+            const search = lookupKey(dom.searchInput.value);
+            const matches = getSearchMatches();
+            if (!dom.searchInput.value.trim()) {
+                dom.searchResults.classList.add('hidden');
+                dom.searchResults.innerHTML = '';
+                return;
+            }
+
+            if (search.length < 2) {
+                dom.searchResults.classList.remove('hidden');
+                dom.searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">พิมพ์อย่างน้อย 2 ตัวอักษรเพื่อค้นหารุ่นรถ</div>';
+                return;
+            }
+
+            if (!matches.length) {
+                dom.searchResults.classList.remove('hidden');
+                dom.searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">ไม่พบรุ่นรถยนต์</div>';
+                return;
+            }
+
+            dom.searchResults.classList.remove('hidden');
+            dom.searchResults.innerHTML = matches.slice(0, 12).map(car => `
+                <button type="button" class="search-result-btn w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-slate-100 last:border-b-0" data-model="${car.model.replaceAll('"', '&quot;')}">
+                    <div class="font-bold text-slate-950">${formatModelLine(car)}</div>
+                </button>
+            `).join('');
+
+            dom.searchResults.querySelectorAll('.search-result-btn').forEach(button => {
+                button.addEventListener('click', () => selectCarModel(button.dataset.model));
+            });
+        }
+
+        function carIcon(car) {
+            const text = `${car.brand} ${car.model}`.toLowerCase();
+            return text.includes('tesla') || text.includes('ev') || text.includes('electric') ? '🚘⚡' : '🚗';
+        }
+
+        function formatModelLine(car) {
+            const brand = car.brand && !lookupKey(car.model).includes(lookupKey(car.brand)) ? `${car.brand} ` : '';
+            return `${brand}${car.model}`.replace(/\s+/g, ' ').trim();
+        }
+
+        function line(char = '-', count = 17) {
+            return char.repeat(count);
+        }
+
+        function normalPlusSunroof(regularRow, sunroofRow, brandKey) {
+            return getPrice(regularRow, brandKey) + getPrice(sunroofRow, brandKey);
+        }
+
+        function specialPrice(campaignRow, packageRow, brandKey) {
+            return getPrice(campaignRow, brandKey) || getPrice(packageRow, brandKey);
+        }
+
+        function makeHighlightLines(packageRow, regularRow, campaignRow, sunroofRow, isSunroof) {
+            return HIGHLIGHT_BRANDS.filter(brand => isFilmSelected(brand.key)).map(brand => {
+                const special = isSunroof
+                    ? getPrice(packageRow, brand.key)
+                    : specialPrice(campaignRow, packageRow, brand.key);
+                const regular = isSunroof
+                    ? normalPlusSunroof(regularRow, sunroofRow, brand.key)
+                    : getPrice(regularRow, brand.key);
+
+                if (!special) return '';
+
+                return [
+                    `🏆รุ่น : ${brand.label} ${brand.detail}`,
+                    `    ✅ พิเศษ ${formatBaht(special)} บาท`,
+                    regular ? `    ❌ ปกติ ${formatBaht(regular)} บาท` : ''
+                ].filter(Boolean).join('\n');
+            }).filter(Boolean).join('\n\n');
+        }
+
+        function makeCeramicLines(packageRow, isSunroof) {
+            return CERAMIC_BRANDS
+                .filter(brand => isFilmSelected(brand.key))
+                .map(brand => {
+                    const price = getPrice(packageRow, brand.key);
+                    return price ? `   » ${brand.label} : ${formatBaht(price)}฿` : '';
+                })
+                .filter(Boolean)
+                .join('\n');
+        }
+
+        function makeGeneralLines(packageRow) {
+            return GENERAL_BRANDS
+                .filter(brand => isFilmSelected(brand.key))
+                .map(brand => {
+                    const price = getPrice(packageRow, brand.key);
+                    return price ? `   » ${brand.label} : ${formatBaht(price)}฿` : '';
+                })
+                .filter(Boolean)
+                .join('\n');
+        }
+
+        function makeFullQuote(car, rows, isSunroof) {
+            const regularRow = findPosition(rows, 'ราคาปกติ');
+            const promoRow = findPosition(rows, 'โปรโมชั่นเต็มคัน');
+            const campaignRow = findPosition(rows, 'แคมเปญพิเศษ!!');
+            const sunroofRow = findPosition(rows, 'ซันรูฟ');
+            const sunroofPackageRow = findPosition(rows, 'โปรโมชั่นเต็มคัน+ซันรูฟ');
+            const packageRow = isSunroof ? sunroofPackageRow : promoRow;
+
+            if (!packageRow || (isSunroof && !sunroofRow)) return '';
+
+            const highlightLines = makeHighlightLines(packageRow, regularRow, campaignRow, sunroofRow, isSunroof);
+            const qualityPrice = isFilmSelected(QUALITY_BRAND.key) ? getPrice(packageRow, QUALITY_BRAND.key) : 0;
+            const ceramicLines = makeCeramicLines(packageRow, isSunroof);
+            const generalLines = makeGeneralLines(packageRow);
+            const noteLine = isSunroof ? '• รอบคัน+หน้าเต็ม+รวมซันรูฟ' : '• รอบคัน+หน้าเต็ม';
+            const sunroofNote = isSunroof ? '' : '• ไม่รวมซันรูฟ (มีค่าใช้จ่ายเพิ่ม*)\n';
+            const sunroofRecommend = isSunroof ? [
+                '',
+                '---',
+                '🆕แนะนำ ฟิล์มนิรภัยสำหรับซันรูฟ',
+                '',
+                '🔝TPU Sunroof Film 7.5mil (ติดภายนอก)☀️🛡️ปกป้องซันรูฟ กันร้อน',
+                'กันแตก มั่นใจทุกการขับขี่ คลิก 👉',
+                'https://www.mhlcarfilm.com/cooper-tpu-sunroof-protective-film'
+            ].join('\n') : '';
+
+            return [
+                '✨ ดีลพิเศษ...เฉพาะคันนี้!',
+                `${carIcon(car)}  ${formatModelLine(car)}`,
+                line(),
+                '🔥🔥โปรโมชั่นเดือนนี้!🔥🔥',
+                '',
+                highlightLines,
+                '',
+                qualityPrice ? line() : '',
+                qualityPrice ? '👑 Best Quality | กันร้อนเหนือระดับ 💎' : '',
+                qualityPrice ? `${QUALITY_BRAND.label} : ${formatBaht(qualityPrice)} บาท` : '',
+                qualityPrice ? line() : '',
+                '',
+                ceramicLines ? '💎 #ฟิล์มเกรดเซรามิค' : '',
+                ceramicLines,
+                ceramicLines ? line() : '',
+                generalLines ? '🔹 #ฟิล์มเกรดทั่วไป' : '',
+                generalLines,
+                generalLines ? line() : '',
+                '📌หมายเหตุ :',
+                noteLine,
+                sunroofNote + '• ฟรี! ค่าลอกฟิล์มเก่า',
+                '• ฟรี! ค่าธรรมเนียมบัตรเครดิต',
+                '',
+                '🎁 พิเศษ! ลูกค้าออนไลน์',
+                '• ฟรี! คูปองล้างรถ (ใช้สำหรับก่อนติดฟิล์มเท่านั้น)',
+                '• ฟรี! อบโอโซนฆ่าเชื้อโรคในห้องโดยสาร',
+                '• ฟรี! เคลือบน้ำยากันหยดน้ำ 3M (*สำหรับ 3M Ceramate)',
+                '• ส่วนลดเพิ่ม 200 บาท เพียงรีวิวความประทับใจ',
+                '',
+                line(),
+                '⏱ ติดตั้งรวดเร็ว 2-3 ชม. มีห้องรับรองระดับ VIP พร้อมบริการ',
+                '',
+                '📅 วันนี้ - 31 พ.ค. 69 เท่านั้น!',
+                sunroofRecommend
+            ].filter(lineText => lineText !== '').join('\n');
+        }
+
+        function makeGlassQuote(car, rows, positionName) {
+            const row = findPosition(rows, positionName);
+            if (!row) return '';
+
+            const glassLabel = positionName === 'บานหน้า' ? 'เฉพาะบานหน้า' : 'เฉพาะบานหลัง';
+            const prices = GLASS_BRANDS.filter(brand => isFilmSelected(brand.key)).map(brand => {
+                const price = getPrice(row, brand.key);
+                if (!price) return '';
+                const recommend = brand.recommend ? ' (แนะนำ)' : '';
+                return `» ${brand.label} : ${formatBaht(price)}บ.${recommend}`;
+            }).filter(Boolean).join('\n');
+            const generalPrices = GENERAL_BRANDS.filter(brand => isFilmSelected(brand.key)).map(brand => {
+                const price = getPrice(row, brand.key);
+                return price ? `» ${brand.label} : ${formatBaht(price)}บ.` : '';
+            }).filter(Boolean).join('\n');
+
+            return [
+                `📌 ราคาฟิล์มเกรดเซรามิค`,
+                `(${glassLabel}) สำหรับ »`,
+                '====================',
+                `${carIcon(car)} รถรุ่น : ${formatModelLine(car)}`,
+                '====================',
+                prices,
+                generalPrices ? '====================' : '',
+                generalPrices ? 'ฟิล์มเกรดทั่วไป' : '',
+                generalPrices,
+                '====================',
+                'ใช้เวลาติดตั้ง ประมาณ 1 ชม.'
+            ].join('\n');
+        }
+
+        function renderQuotes() {
+            const { car, count, autoSelected, tooShort } = findSelectedCar();
+
+            dom.multiMatchMessage.classList.add('hidden');
+            dom.quoteGrid.classList.add('hidden');
+            dom.pricePreviewCard.classList.add('hidden');
+            dom.emptyMessage.classList.remove('hidden');
+
+            if (!dom.searchInput.value.trim() && !dom.modelFilter.value) {
+                dom.emptyMessage.innerText = 'กรุณาค้นหา หรือเลือกรุ่นรถยนต์ก่อน';
+                return;
+            }
+
+            if (tooShort) {
+                dom.emptyMessage.innerText = 'กรุณาพิมพ์อย่างน้อย 2 ตัวอักษรเพื่อค้นหารุ่นรถ';
+                return;
+            }
+
+            if (!car) {
+                dom.emptyMessage.innerText = count > 1
+                    ? `พบ ${count.toLocaleString()} รุ่น กรุณาเลือกรุ่นจากรายการที่แสดงใต้ช่องค้นหา`
+                    : 'ไม่พบรุ่นรถยนต์ที่ค้นหา';
+                return;
+            }
+
+            const rows = getPriceRowsForCar(car);
+            if (!rows.length) {
+                const lookupText = (car.lookupValues || [car.model, car.priceGroup])
+                    .filter(Boolean)
+                    .slice(0, 5)
+                    .join(' / ');
+                dom.emptyMessage.innerText = `ไม่พบราคาขายของรุ่นรถยนต์นี้ (คีย์ที่ใช้หา: ${lookupText || '-'})`;
+                return;
+            }
+
+            renderPricePreview(rows);
+            dom.pricePreviewCard.classList.remove('hidden');
+
+            if (selectedFilmBrands.size === 0) {
+                dom.emptyMessage.innerText = 'กรุณาเลือกรุ่นฟิล์มอย่างน้อย 1 รุ่น';
+                return;
+            }
+
+            if (autoSelected) {
+                dom.multiMatchMessage.innerText = `พบ ${count.toLocaleString()} รุ่น กำลังแสดง ${formatModelLine(car)} หากไม่ใช่รุ่นที่ต้องการให้เลือกจากรายการด้านบน`;
+                dom.multiMatchMessage.classList.remove('hidden');
+            }
+
+            const standardQuote = makeFullQuote(car, rows, false);
+            const sunroofQuote = makeFullQuote(car, rows, true);
+            const frontQuote = makeGlassQuote(car, rows, 'บานหน้า');
+            const rearQuote = makeGlassQuote(car, rows, 'บานหลัง');
+
+            dom.standardQuote.innerText = standardQuote || 'ไม่มีข้อมูลราคาเต็มคัน';
+            dom.sunroofQuote.innerText = sunroofQuote || 'ไม่มีข้อมูลราคาแบบรวมซันรูฟ';
+            dom.frontQuote.innerText = frontQuote || 'ไม่มีข้อมูลราคาบานหน้า';
+            dom.rearQuote.innerText = rearQuote || 'ไม่มีข้อมูลราคาบานหลัง';
+            dom.sunroofCard.classList.toggle('hidden', !sunroofQuote);
+
+            dom.emptyMessage.classList.add('hidden');
+            dom.quoteGrid.classList.remove('hidden');
+        }
+
+        async function copyQuote(id, button) {
+            const text = document.getElementById(id)?.innerText || '';
+            if (!text.trim()) return;
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                textarea.remove();
+            }
+            const oldText = button.innerText;
+            button.innerText = 'คัดลอกแล้ว';
+            window.setTimeout(() => {
+                button.innerText = oldText;
+            }, 1200);
+        }
+
+        async function fetchPriceData() {
+            dom.loadingMessage.classList.remove('hidden');
+            dom.errorMessage.classList.add('hidden');
+            dom.quoteContent.classList.add('hidden');
+
+            try {
+                const [carResponse, priceResponse] = await Promise.all([
+                    fetch(CAR_MODEL_CSV_URL),
+                    fetch(PRICE_CSV_URL)
+                ]);
+                if (!carResponse.ok || !priceResponse.ok) throw new Error('Network response was not ok');
+
+                const [carCsvText, priceCsvText] = await Promise.all([
+                    carResponse.text(),
+                    priceResponse.text()
+                ]);
+                const [carRows, parsedPriceRows] = await Promise.all([
+                    parseCsv(carCsvText),
+                    parseCsv(priceCsvText)
+                ]);
+
+                carModels = normalizeCarModels(carRows);
+                priceRows = normalizePriceRows(parsedPriceRows);
+                filmBrands = detectFilmBrands(priceRows);
+                selectableFilmBrands = buildSelectableFilmBrands();
+                selectedFilmBrands = new Set(
+                    selectableFilmBrands
+                        .filter(brand => !GENERAL_BRANDS.some(general => general.key === brand.key))
+                        .map(brand => brand.key)
+                );
+
+                populateModelInputs();
+                renderFilmOptions();
+                renderQuotes();
+
+                dom.loadingMessage.classList.add('hidden');
+                dom.quoteContent.classList.remove('hidden');
+                dom.lastUpdated.innerText = `อัปเดตล่าสุด: ${new Date().toLocaleTimeString('th-TH')} น.`;
+            } catch (error) {
+                console.error(error);
+                dom.loadingMessage.classList.add('hidden');
+                dom.errorMessage.classList.remove('hidden');
+            }
+        }
+
+        function initApp() {
+            cacheDom();
+            dom.searchInput.addEventListener('input', () => {
+                dom.modelFilter.value = '';
+                renderSearchResults();
+                renderQuotes();
+            });
+            dom.modelFilter.addEventListener('change', () => {
+                if (dom.modelFilter.value) dom.searchInput.value = dom.modelFilter.value;
+                dom.searchResults.classList.add('hidden');
+                renderQuotes();
+            });
+            dom.selectAllFilmsBtn.addEventListener('click', () => {
+                selectedFilmBrands = new Set(selectableFilmBrands.map(brand => brand.key));
+                renderFilmOptions();
+                renderQuotes();
+            });
+            dom.clearFilmsBtn.addEventListener('click', () => {
+                selectedFilmBrands.clear();
+                renderFilmOptions();
+                renderQuotes();
+            });
+            dom.toggleFilmSelectorBtn.addEventListener('click', () => {
+                isFilmSelectorOpen = !isFilmSelectorOpen;
+                updateCollapsibleSections();
+            });
+            dom.togglePricePreviewBtn.addEventListener('click', () => {
+                isPricePreviewOpen = !isPricePreviewOpen;
+                updateCollapsibleSections();
+            });
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', () => copyQuote(button.dataset.copy, button));
+            });
+            updateCollapsibleSections();
+            fetchPriceData();
+        }
+
+        function startAppOnce() {
+            if (appHasStarted) return;
+            appHasStarted = true;
+            initApp();
+        }
+
+        function unlockPage() {
+            document.body.classList.remove('auth-locked');
+            startAppOnce();
+        }
+
+        function initLogin() {
+            cacheDom();
+            if (localStorage.getItem(LOGIN_KEY) === 'yes') {
+                unlockPage();
+                return;
+            }
+
+            dom.loginForm.addEventListener('submit', event => {
+                event.preventDefault();
+                if (dom.loginUser.value.trim() === LOGIN_USER && dom.loginPass.value === LOGIN_PASS) {
+                    localStorage.setItem(LOGIN_KEY, 'yes');
+                    unlockPage();
+                    return;
+                }
+
+                dom.loginError.classList.remove('hidden');
+                dom.loginPass.value = '';
+                dom.loginPass.focus();
+            });
+
+            dom.loginUser.focus();
+        }
+
+        window.addEventListener('load', initLogin);
+    </script>
+</body>
+</html>
+
+
+
+
