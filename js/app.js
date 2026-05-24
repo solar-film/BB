@@ -19,6 +19,7 @@ let buildingTrendFilter = 'total';
 let adminTrendFilter = 'total';
 let techTrendFilter = 'total'; 
 let repChartTimeframe = 'monthly'; 
+let carTrendTimeframe = 'weekly';
 
 let isDesktopSidebarCollapsed = false;
 
@@ -76,6 +77,7 @@ window.changeBuildingTrendFilter = (t) => { buildingTrendFilter = t; updateDashb
 window.changeAdminTrendFilter = (t) => { adminTrendFilter = t; updateDashboardUI(); };
 window.changeTechTrendFilter = (t) => { techTrendFilter = t; updateDashboardUI(); };
 window.changeRepChartTimeframe = (t) => { repChartTimeframe = t; updateDashboardUI(); };
+window.changeCarTrendTimeframe = (t) => { carTrendTimeframe = t; updateDashboardUI(); };
 
 window.changePage = (page) => {
     currentPage = page;

@@ -12,6 +12,14 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
     const ytdProgressVsTarget = ytdCarTarget > 0 ? (ytdCarActual / ytdCarTarget) * 100 : 0;
     const ytdProgressVsYearly = (ytdCarActual / YEARLY_CAR_TARGET) * 100;
 
+    // Monthly car sales (เดือนตามสัปดาห์ที่เลือก)
+    const monthGroup = extractMonthGroup(current.dateRange);
+    const monthlyCarData = dashboardData.filter(d => extractMonthGroup(d.dateRange) === monthGroup);
+    const monthlyCarActual = monthlyCarData.reduce((sum, d) => sum + d.carDetail.sales.actual, 0);
+    const monthlyCarTarget = monthlyCarData.reduce((sum, d) => sum + d.carDetail.sales.target, 0);
+    const monthlyCarProgress = monthlyCarTarget > 0 ? (monthlyCarActual / monthlyCarTarget) * 100 : 0;
+    const isMonthlyOverTarget = monthlyCarActual >= monthlyCarTarget;
+
     const sales = cd.sales;
     const salesProgress = sales.target > 0 ? (sales.actual / sales.target) * 100 : 0;
     const isSalesOverTarget = sales.actual >= sales.target;
@@ -53,7 +61,31 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
             <div class="h-px bg-slate-200 flex-1 ml-2"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 shrink-0">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 shrink-0">
+            <!-- 0. Monthly Sales vs Target -->
+            <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none"><i data-lucide="calendar" class="w-40 h-40 text-violet-600"></i></div>
+                <div class="flex justify-between items-center mb-1 relative z-10">
+                    <p class="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-violet-500"></i> ยอดขายรายเดือน</p>
+                    <span class="px-3 py-1 bg-violet-50 text-violet-700 rounded-lg text-sm font-black border border-violet-100">${monthGroup}</span>
+                </div>
+                <h3 class="text-5xl font-black ${isMonthlyOverTarget ? 'text-emerald-500' : 'text-violet-600'} mt-2 mb-1 relative z-10 tracking-tighter">${isMonthlyOverTarget ? '⭐ ' : ''}${monthlyCarProgress.toFixed(1)}%</h3>
+                <p class="text-2xl font-black text-slate-800 mb-3 relative z-10">฿${formatCurrency(monthlyCarActual)}</p>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden relative z-10 mb-4">
+                    <div class="${isMonthlyOverTarget ? 'bg-emerald-500' : 'bg-violet-500'} h-full rounded-full transition-all" style="width:${Math.min(monthlyCarProgress, 100)}%"></div>
+                </div>
+                <div class="flex justify-between items-center border-t border-slate-100 pt-3 relative z-10">
+                    <div>
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-0.5">เป้าเดือนนี้</p>
+                        <p class="text-base font-black text-slate-700">฿${formatCurrency(monthlyCarTarget)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-0.5">${monthlyCarActual >= monthlyCarTarget ? 'ทะลุเป้า' : 'ขาดอีก'}</p>
+                        <p class="text-base font-black ${isMonthlyOverTarget ? 'text-emerald-500' : 'text-rose-500'}">฿${formatCurrency(Math.abs(monthlyCarTarget - monthlyCarActual))}</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. YTD Sales -->
             <div class="bg-gradient-to-br from-emerald-600 to-teal-800 rounded-[2rem] p-8 shadow-sm flex flex-col justify-center relative overflow-hidden text-white">
                 <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none"><i data-lucide="wallet" class="w-40 h-40"></i></div>
@@ -126,16 +158,16 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 </div>
                 <div class="space-y-3 mt-auto">
                     <div class="flex justify-between items-center px-4 py-3 bg-white rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-50">
-                        <span class="flex items-center gap-3 text-sm font-bold text-slate-600"><i data-lucide="phone" class="w-4 h-4 text-slate-500"></i> โทรเข้า</span>
-                        <span class="text-lg font-black text-slate-900">${formatCurrency(contacts.tel)}</span>
+                        <span class="flex items-center gap-3 text-base font-bold text-slate-600"><i data-lucide="phone" class="w-4 h-4 text-slate-500"></i> โทรเข้า</span>
+                        <span class="text-2xl font-black text-slate-900">${formatCurrency(contacts.tel)}</span>
                     </div>
                     <div class="flex justify-between items-center px-4 py-3 bg-white rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-50">
-                        <span class="flex items-center gap-3 text-sm font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-emerald-500"></div> Line OA</span>
-                        <span class="text-lg font-black text-slate-900">${formatCurrency(contacts.line)}</span>
+                        <span class="flex items-center gap-3 text-base font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-emerald-500"></div> Line OA</span>
+                        <span class="text-2xl font-black text-slate-900">${formatCurrency(contacts.line)}</span>
                     </div>
                     <div class="flex justify-between items-center px-4 py-3 bg-white rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-50">
-                        <span class="flex items-center gap-3 text-sm font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-blue-500"></div> FB Chat</span>
-                        <span class="text-lg font-black text-slate-900">${formatCurrency(contacts.fb)}</span>
+                        <span class="flex items-center gap-3 text-base font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-blue-500"></div> FB Chat</span>
+                        <span class="text-2xl font-black text-slate-900">${formatCurrency(contacts.fb)}</span>
                     </div>
                 </div>
             </div>
@@ -156,12 +188,12 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-auto">
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.line)}</span></div>
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.fb)}</span></div>
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> โทร</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.tel)}</span></div>
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4 text-slate-400"></i> Walk-In</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.walkin)}</span></div>
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><i data-lucide="store" class="w-4 h-4 text-slate-400"></i> ShowRoom</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.showroom)}</span></div>
-                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-xs font-bold text-slate-700 flex items-center gap-2"><i data-lucide="more-horizontal" class="w-4 h-4 text-slate-400"></i> อื่นๆ</span><span class="text-base font-black text-slate-900">${formatCurrency(installs.other)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.line)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.fb)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> โทร</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.tel)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4 text-slate-400"></i> Walk-In</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.walkin)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><i data-lucide="store" class="w-4 h-4 text-slate-400"></i> ShowRoom</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.showroom)}</span></div>
+                    <div class="bg-slate-50 px-4 py-3.5 rounded-xl flex justify-between items-center"><span class="text-sm font-bold text-slate-700 flex items-center gap-2"><i data-lucide="more-horizontal" class="w-4 h-4 text-slate-400"></i> อื่นๆ</span><span class="text-xl font-black text-slate-900">${formatCurrency(installs.other)}</span></div>
                 </div>
             </div>
 
@@ -186,12 +218,12 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <p class="text-xs font-bold text-slate-500 uppercase mb-1">จากฟิล์ม</p>
-                            <p class="text-xl font-black text-slate-800 mb-1">${formatCurrency(tech.filmIssueCount)} <span class="text-sm font-normal">บาน/ครั้ง</span></p>
+                            <p class="text-xl font-black text-slate-800 mb-1">${formatCurrency(tech.filmIssueCount)} <span class="text-sm font-normal">บาน</span></p>
                             <p class="text-sm font-bold text-rose-500">฿${formatCurrency(tech.filmIssueValue)}</p>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <p class="text-xs font-bold text-slate-500 uppercase mb-1">จากช่าง</p>
-                            <p class="text-xl font-black text-slate-800 mb-1">${formatCurrency(tech.techIssueCount)} <span class="text-sm font-normal">บาน/ครั้ง</span></p>
+                            <p class="text-xl font-black text-slate-800 mb-1">${formatCurrency(tech.techIssueCount)} <span class="text-sm font-normal">บาน</span></p>
                             <p class="text-sm font-bold text-rose-500">฿${formatCurrency(tech.techIssueValue)}</p>
                         </div>
                     </div>
@@ -211,7 +243,11 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
             <div class="lg:col-span-2 bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm flex flex-col shrink-0">
                 <div class="flex items-center justify-between gap-6 mb-6 pb-4 border-b border-slate-100 overflow-x-auto custom-scrollbar w-full">
                     <div class="flex items-center gap-4 shrink-0">
-                        <h3 class="font-black text-slate-800 uppercase tracking-tight text-base whitespace-nowrap m-0 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 text-emerald-500 mr-2"></i> แนวโน้มยอดขายฟิล์มรถยนต์ (12 สัปดาห์)</h3>
+                        <h3 class="font-black text-slate-800 uppercase tracking-tight text-base whitespace-nowrap m-0 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 text-emerald-500 mr-2"></i> ${carTrendTimeframe === 'monthly' ? 'ยอดขายรายเดือนเทียบเป้า' : 'แนวโน้มยอดขายฟิล์มรถยนต์ (12 สัปดาห์)'}</h3>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 bg-slate-100 p-1 rounded-full">
+                        <button onclick="changeCarTrendTimeframe('weekly')" class="px-4 py-1.5 rounded-full text-sm font-black transition-all ${carTrendTimeframe === 'weekly' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}">12 สัปดาห์</button>
+                        <button onclick="changeCarTrendTimeframe('monthly')" class="px-4 py-1.5 rounded-full text-sm font-black transition-all ${carTrendTimeframe === 'monthly' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}">รายเดือนเทียบเป้า</button>
                     </div>
                 </div>
                 <div class="flex-1 w-full min-h-[350px] relative"><canvas id="carTrendChartCanvas"></canvas></div>
@@ -265,14 +301,50 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
         const ctx = document.getElementById('carTrendChartCanvas')?.getContext('2d');
         if(!ctx) return;
         if (charts['carTrend']) charts['carTrend'].destroy();
-        const recentData = dashboardData.filter(d => d.carDetail.sales.actual > 0).slice(-12);
+        let labels = [];
+        let actualData = [];
+        let targetData = [];
+        let actualLabel = 'ยอดขายจริง (฿)';
+        let targetLabel = 'เป้าหมายสัปดาห์ (฿)';
+
+        if (carTrendTimeframe === 'monthly') {
+            const monthlyDataMap = {};
+            const monthsOrder = [];
+
+            dashboardData.forEach(d => {
+                if (!d.carDetail?.sales) return;
+                const monthGroup = extractMonthGroup(d.dateRange);
+                if (!monthlyDataMap[monthGroup]) {
+                    monthlyDataMap[monthGroup] = { label: monthGroup, actual: 0, target: 0 };
+                    monthsOrder.push(monthGroup);
+                }
+                monthlyDataMap[monthGroup].actual += d.carDetail.sales.actual || 0;
+                monthlyDataMap[monthGroup].target += d.carDetail.sales.target || 0;
+            });
+
+            const monthlyData = monthsOrder
+                .map(month => monthlyDataMap[month])
+                .filter(d => (d.actual + d.target) > 0);
+
+            labels = monthlyData.map(d => d.label);
+            actualData = monthlyData.map(d => d.actual);
+            targetData = monthlyData.map(d => d.target);
+            actualLabel = 'ยอดขายจริงรายเดือน (฿)';
+            targetLabel = 'เป้าหมายรายเดือน (฿)';
+        } else {
+            const recentData = dashboardData.filter(d => d.carDetail?.sales?.actual > 0).slice(-12);
+            labels = recentData.map(d => d.week);
+            actualData = recentData.map(d => d.carDetail.sales.actual);
+            targetData = recentData.map(d => d.carDetail.sales.target);
+        }
+
         charts['carTrend'] = new Chart(ctx, {
             type: 'bar',
             data: { 
-                labels: recentData.map(d => d.week), 
+                labels, 
                 datasets: [
-                    { type: 'bar', label: 'ยอดขายจริง (฿)', data: recentData.map(d => d.carDetail.sales.actual), backgroundColor: '#10b981', borderRadius: 4, barPercentage: 0.6, order: 2 }, 
-                    { type: 'line', label: 'เป้าหมายสัปดาห์ (฿)', data: recentData.map(d => d.carDetail.sales.target), borderColor: '#94a3b8', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], tension: 0.1, order: 1 }
+                    { type: 'bar', label: actualLabel, data: actualData, backgroundColor: '#10b981', borderRadius: 4, barPercentage: 0.6, order: 2 }, 
+                    { type: 'line', label: targetLabel, data: targetData, borderColor: '#94a3b8', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#94a3b8', tension: 0.1, order: 1 }
                 ] 
             },
             options: { 

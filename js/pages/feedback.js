@@ -284,7 +284,7 @@ function renderFeedbackHTML(container) {
             </div>
             <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
                 ${filtered.length === 0 ? '<div class="col-span-full rounded-[1.5rem] border border-slate-200 bg-white p-12 text-center font-bold text-slate-400">ไม่พบข้อมูล Feedback ในช่วงเวลาที่เลือก</div>' : ''}
-                ${filtered.map(row => {
+                ${filtered.map((row, idx) => {
                     const sSent = getFeedbackSentiment(row.salesComments, row.salesFeedback);
                     const tSent = getFeedbackSentiment(row.techComments, row.techFeedback);
                     const hasComplaint = sSent === 'negative' || tSent === 'negative';
@@ -316,6 +316,7 @@ function renderFeedbackHTML(container) {
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
+                                            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${hasComplaint ? 'bg-red-500 text-white' : 'bg-slate-800 text-white'} text-2xl font-black shadow-md">${idx + 1}</span>
                                             <h4 class="truncate text-xl font-black ${hasComplaint ? 'text-red-900' : 'text-slate-900'}">${html(row.customerName || 'ไม่ระบุชื่อ')}</h4>
                                             ${hasComplaint ? '<span class="inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-black text-white"><i data-lucide="alert-triangle" class="h-4 w-4"></i> มีคอมเพลน</span>' : '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700"><i data-lucide="check-circle" class="h-4 w-4"></i> ปกติ</span>'}
                                         </div>
@@ -323,7 +324,7 @@ function renderFeedbackHTML(container) {
                                     </div>
                                     <span class="rounded-xl bg-white px-3 py-2 text-xs font-black ${hasComplaint ? 'text-red-700 border border-red-100' : 'text-slate-600'} shadow-sm">วันที่ติดตั้ง : ${html(row.installDate || '-')}</span>
                                 </div>
-                                <p class="mt-3 flex items-start gap-2 text-sm font-bold text-slate-400"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 shrink-0"></i>${html(row.address || '-')}</p>
+                                <p class="mt-3 flex items-start gap-2 text-base font-bold text-slate-500"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 shrink-0"></i>${html(row.address || '-')}</p>
                             </div>
 
                             <div class="grid grid-cols-1 gap-4 bg-white p-4 lg:grid-cols-2">
