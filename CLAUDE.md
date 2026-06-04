@@ -1,0 +1,1 @@
+เป็นการดึงข้อมูลจาก https://docs.google.com/spreadsheets/d/12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo/edit?gid=702501167#gid=702501167 ชีต BB-2026  มาแสดง
