@@ -66,12 +66,15 @@ function renderBasicTrendChart(current) {
             if (!monthlyDataMap[monthGroup]) {
                 monthlyDataMap[monthGroup] = {
                     label: monthGroup,
+                    total: { actual: 0, target: 0 },
                     gfs: { actual: 0, target: 0 },
                     mhl: { actual: 0, target: 0 },
                     car: { actual: 0, target: 0 }
                 };
                 monthsOrder.push(monthGroup);
             }
+            monthlyDataMap[monthGroup].total.actual += getTotalSalesActual(d);
+            monthlyDataMap[monthGroup].total.target += getTotalSalesTarget(d);
             monthlyDataMap[monthGroup].gfs.actual += d.gfs.actual;
             monthlyDataMap[monthGroup].gfs.target += d.gfs.target;
             monthlyDataMap[monthGroup].mhl.actual += d.mhl.actual;
@@ -81,28 +84,28 @@ function renderBasicTrendChart(current) {
         });
 
         // 2. ดึงข้อมูลรายเดือนที่มีการดำเนินงาน (ยอดรวม > 0)
-        const recentData = monthsOrder.map(m => monthlyDataMap[m]).filter(d => (d.gfs.actual + d.mhl.actual + d.car.actual + d.gfs.target + d.mhl.target + d.car.target) > 0);
+        const recentData = monthsOrder.map(m => monthlyDataMap[m]).filter(d => (d.total.actual + d.total.target) > 0);
 
         labels = recentData.map(d => d.label);
         dAct = recentData.map(d => {
-            if(activeChartTab === 'total') return d.gfs.actual + d.mhl.actual + d.car.actual;
+            if(activeChartTab === 'total') return d.total.actual;
             return d[activeChartTab].actual;
         });
         dTar = recentData.map(d => {
-            if(activeChartTab === 'total') return d.gfs.target + d.mhl.target + d.car.target;
+            if(activeChartTab === 'total') return d.total.target;
             return d[activeChartTab].target;
         });
     } else {
         // ดึงเฉพาะสัปดาห์ที่มีการดำเนินงาน (12 สัปดาห์ล่าสุด)
-        const recentData = dashboardData.filter(d => (d.gfs.actual + d.mhl.actual + d.car.actual) > 0).slice(-12);
+        const recentData = dashboardData.filter(d => getTotalSalesActual(d) > 0).slice(-12);
         
         labels = recentData.map(d => d.week);
         dAct = recentData.map(d => {
-            if(activeChartTab === 'total') return d.gfs.actual + d.mhl.actual + d.car.actual;
+            if(activeChartTab === 'total') return getTotalSalesActual(d);
             return d[activeChartTab].actual;
         });
         dTar = recentData.map(d => {
-            if(activeChartTab === 'total') return d.gfs.target + d.mhl.target + d.car.target;
+            if(activeChartTab === 'total') return getTotalSalesTarget(d);
             return d[activeChartTab].target;
         });
     }

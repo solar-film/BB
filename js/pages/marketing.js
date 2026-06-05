@@ -4,7 +4,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
     const tSpend = current.marketing.gfs.actual + current.marketing.mhl.actual + current.marketing.car.actual;
     const tCont = current.admin.contacts.total + (current.carDetail ? current.carDetail.contacts.total : 0);
     const tLeads = current.admin.leads.actual + (current.admin.leads.car || 0);
-    const tSales = current.gfs.actual + current.mhl.actual + current.car.actual;
+    const tSales = getTotalSalesActual(current);
     
     const costCont = tCont > 0 ? (tSpend / tCont) : 0;
     const costLead = tLeads > 0 ? (tSpend / tLeads) : 0;
@@ -19,7 +19,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
     let prevSpend = 0, prevSales = 0, prevRoas = 0;
     if (prev) {
         prevSpend = prev.marketing.gfs.actual + prev.marketing.mhl.actual + prev.marketing.car.actual;
-        prevSales = prev.gfs.actual + prev.mhl.actual + prev.car.actual;
+        prevSales = getTotalSalesActual(prev);
         prevRoas = prevSpend > 0 ? (prevSales / prevSpend).toFixed(1) : 0;
     }
     const roasDiff = totalRoas - prevRoas;

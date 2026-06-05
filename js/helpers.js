@@ -11,10 +11,26 @@ function parseCSV(text) {
 }
 
 function formatCurrency(value) { return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value); }
+function formatPercent(value) { const num = parseFloat(value); if (isNaN(num) || !isFinite(num)) return '0.0%'; return num.toFixed(1) + '%'; }
+function formatNumber(value) { return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(value)); }
 function cleanNumber(str) {
     if (!str) return 0;
     const cleaned = String(str).replace(/[^\d.-]/g, '');
     return parseFloat(cleaned) || 0;
+}
+
+function hasFiniteNumber(value) {
+    return typeof value === 'number' && Number.isFinite(value);
+}
+
+function getTotalSalesTarget(data) {
+    if (hasFiniteNumber(data?.salesTargetTotal)) return data.salesTargetTotal;
+    return (data?.gfs?.target || 0) + (data?.mhl?.target || 0) + (data?.car?.target || 0);
+}
+
+function getTotalSalesActual(data) {
+    if (hasFiniteNumber(data?.salesActualTotal)) return data.salesActualTotal;
+    return (data?.gfs?.actual || 0) + (data?.mhl?.actual || 0) + (data?.car?.actual || 0);
 }
 
 function normalizeSalesRepData(rep) {
@@ -66,23 +82,26 @@ function destroyAllCharts() {
 
 function calculateMetrics(current) {
     const YEARLY_TARGET = 100000000;
-    let ytdActual = dashboardData.reduce((s, d) => s + d.gfs.actual + d.mhl.actual + d.car.actual, 0);
+    const cIdx = dashboardData.findIndex(d => d.id === selectedId);
+    // ยอดขายสะสมปีนี้ = ผลรวมยอดขายทุกเดือน ถึง Week ที่เลือก
+    const ytdData = dashboardData.slice(0, cIdx + 1);
+    let ytdActual = ytdData.reduce((s, d) => s + getTotalSalesActual(d), 0);
     const monthGroup = extractMonthGroup(current.dateRange);
     let mTarget = 0, mActual = 0;
     dashboardData.forEach(d => {
         if (extractMonthGroup(d.dateRange) === monthGroup) {
-            mTarget += (d.gfs.target + d.mhl.target + d.car.target);
-            mActual += (d.gfs.actual + d.mhl.actual + d.car.actual);
+            mTarget += getTotalSalesTarget(d);
+            mActual += getTotalSalesActual(d);
         }
     });
-    const cIdx = dashboardData.findIndex(d => d.id === selectedId);
     const prev = cIdx > 0 ? dashboardData[cIdx - 1] : null;
-    const wA = current.gfs.actual + current.mhl.actual + current.car.actual;
-    const pA = prev ? (prev.gfs.actual + prev.mhl.actual + prev.car.actual) : 0;
+    const wT = getTotalSalesTarget(current);
+    const wA = getTotalSalesActual(current);
+    const pA = prev ? getTotalSalesActual(prev) : 0;
     const growth = pA > 0 ? ((wA - pA) / pA) * 100 : 0;
     const mkS = current.marketing.gfs.actual + current.marketing.mhl.actual + current.marketing.car.actual;
     
-    return { ytd: { t: YEARLY_TARGET, a: ytdActual, p: (ytdActual/YEARLY_TARGET)*100 }, monthly: { t: mTarget, a: mActual, p: mTarget > 0 ? (mActual/mTarget)*100 : 0, label: monthGroup }, weekly: { t: current.gfs.target+current.mhl.target+current.car.target, a: wA, p: (wA/(current.gfs.target+current.mhl.target+current.car.target || 1))*100, g: growth, r: mkS > 0 ? (wA/mkS).toFixed(1) : 0 } };
+    return { ytd: { t: YEARLY_TARGET, a: ytdActual, p: (ytdActual/YEARLY_TARGET)*100 }, monthly: { t: mTarget, a: mActual, p: mTarget > 0 ? (mActual/mTarget)*100 : 0, label: monthGroup }, weekly: { t: wT, a: wA, p: (wA/(wT || 1))*100, g: growth, r: mkS > 0 ? (wA/mkS).toFixed(1) : 0 } };
 }
 
 function getStatusBadge(prog) {

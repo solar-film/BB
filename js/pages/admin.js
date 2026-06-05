@@ -40,31 +40,31 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
         <!-- Section 1: Funnel KPIs (4 Cards in a row) -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 shrink-0">
             <!-- 1. Contacts -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center">
-                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="message-square" class="w-5 h-5 text-blue-500"></i> ปริมาณการติดต่อ</p>
-                <h3 class="text-5xl font-black text-slate-900">${formatCurrency(current.admin.contacts.total)}</h3>
-                <p class="text-sm font-bold text-slate-400 mt-2 border-t border-slate-100 pt-3">ลูกค้าทักแชท / โทรเข้า</p>
+            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> ปริมาณการติดต่อ</p>
+                <h3 class="text-4xl lg:text-5xl font-black text-blue-600 leading-tight">${formatCurrency(current.admin.contacts.total)}</h3>
+                <p class="text-xs font-bold text-slate-400 mt-3 border-t border-slate-100 pt-2">ลูกค้าทักแชท / โทรเข้า</p>
             </div>
             
             <!-- 2. Leads (ส่งงาน) -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute -right-4 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none"><i data-lucide="send" class="w-32 h-32 text-indigo-600"></i></div>
-                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="send" class="w-5 h-5 text-indigo-500"></i> ส่งงานให้เซลล์</p>
-                <h3 class="text-5xl font-black text-indigo-600 relative z-10">${formatCurrency(current.admin.leads.actual)}</h3>
-                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 relative z-10">
-                    <span class="text-sm font-bold text-slate-400">เป้าหมาย: ${current.admin.leads.target}</span>
-                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-black">Conv. ${convRate.toFixed(1)}%</span>
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10"><i data-lucide="send" class="w-4 h-4 text-indigo-500"></i> ส่งงานให้เซลล์</p>
+                <h3 class="text-4xl lg:text-5xl font-black text-indigo-600 relative z-10 leading-tight">${formatNumber(current.admin.leads.actual)}</h3>
+                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 relative z-10 text-xs gap-2">
+                    <span class="font-bold text-slate-500">เป้า: ${current.admin.leads.target} งาน</span>
+                    <span class="px-2 py-1 ${convRate >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} rounded-lg text-xs font-black">Conv. ${formatPercent(convRate)}</span>
                 </div>
             </div>
 
             <!-- 3. Installs (ปิดการขาย) -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute -right-4 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none"><i data-lucide="check-circle" class="w-32 h-32 text-emerald-600"></i></div>
-                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i> ปิดการขายได้</p>
-                <h3 class="text-5xl font-black text-emerald-600 relative z-10">${formatCurrency(current.admin.sales.totalInstalls)}</h3>
-                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 relative z-10">
-                    <span class="text-sm font-bold text-slate-400">งานติดตั้ง</span>
-                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black">Close Rate ${closeRate.toFixed(1)}%</span>
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> ปิดการขายได้</p>
+                <h3 class="text-4xl lg:text-5xl font-black text-emerald-600 relative z-10 leading-tight">${formatNumber(current.admin.sales.totalInstalls)}</h3>
+                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 relative z-10 text-xs gap-2">
+                    <span class="font-bold text-slate-500">งานติดตั้ง</span>
+                    <span class="px-2 py-1 ${closeRate >= 15 ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'} rounded-lg text-xs font-black">Close ${formatPercent(closeRate)}</span>
                 </div>
             </div>
 
@@ -87,56 +87,56 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
             
             <!-- GFS Card -->
             <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col">
-                <div class="flex justify-between items-center mb-5 pb-5 border-b border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-base border border-blue-100">GFS</div>
-                        <div><h4 class="font-black text-slate-800 text-lg leading-none">ฟิล์มอาคาร GFS</h4></div>
+                <div class="flex justify-between items-start mb-4 pb-4 border-b border-slate-100 gap-4">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm border border-blue-100 flex-shrink-0">GFS</div>
+                        <div class="min-w-0"><h4 class="font-black text-slate-800 text-base leading-tight">ฟิล์มอาคาร</h4><p class="text-xs text-slate-500 font-bold">GFS</p></div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-shrink-0">
                         <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-0.5">ส่งงาน / ติดต่อ</p>
-                        <p class="text-xl font-black text-blue-600">${formatCurrency(gfsLeads)} <span class="text-sm font-bold text-slate-400">/ ${formatCurrency(gfsContacts)}</span></p>
+                        <p class="text-sm lg:text-base font-black text-blue-600">${formatNumber(gfsLeads)} <span class="text-xs font-bold text-slate-400">/ ${formatNumber(gfsContacts)}</span></p>
                     </div>
                 </div>
-                <div class="space-y-3 mt-auto">
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><div class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></div> LINE OA</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.gfs.line)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.gfs.line)}</span></div>
+                <div class="space-y-2 mt-auto">
+                    <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100/50 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-emerald-700"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE OA</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.line)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.line)}</span></div>
                     </div>
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><div class="w-3 h-3 rounded-full bg-blue-500 shadow-sm"></div> Facebook</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.gfs.fb)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.gfs.fb)}</span></div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-100/50 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-blue-700"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.fb)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.fb)}</span></div>
                     </div>
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> โทรเข้า</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.gfs.tel)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.gfs.tel)}</span></div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4"></i> โทรเข้า</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.tel)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.tel)}</span></div>
                     </div>
                 </div>
             </div>
             
             <!-- MHL Card -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col">
-                <div class="flex justify-between items-center mb-5 pb-5 border-b border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center font-black text-base border border-amber-100">MHL</div>
-                        <div><h4 class="font-black text-slate-800 text-lg leading-none">ฟิล์มอาคาร MHL</h4></div>
+            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col">
+                <div class="flex justify-between items-start mb-4 pb-4 border-b border-slate-100 gap-4">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-black text-sm border border-amber-100 flex-shrink-0">MHL</div>
+                        <div class="min-w-0"><h4 class="font-black text-slate-800 text-base leading-tight">ฟิล์มอาคาร</h4><p class="text-xs text-slate-500 font-bold">MHL</p></div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-shrink-0">
                         <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-0.5">ส่งงาน / ติดต่อ</p>
-                        <p class="text-xl font-black text-amber-600">${formatCurrency(mhlLeads)} <span class="text-sm font-bold text-slate-400">/ ${formatCurrency(mhlContacts)}</span></p>
+                        <p class="text-sm lg:text-base font-black text-amber-600">${formatNumber(mhlLeads)} <span class="text-xs font-bold text-slate-400">/ ${formatNumber(mhlContacts)}</span></p>
                     </div>
                 </div>
-                <div class="space-y-3 mt-auto">
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><div class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></div> LINE OA</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.mhl.line)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.mhl.line)}</span></div>
+                <div class="space-y-2 mt-auto">
+                    <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100/50 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-emerald-700"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE OA</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.line)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.line)}</span></div>
                     </div>
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><div class="w-3 h-3 rounded-full bg-blue-500 shadow-sm"></div> Facebook</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.mhl.fb)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.mhl.fb)}</span></div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-100/50 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-blue-700"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.fb)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.fb)}</span></div>
                     </div>
-                    <div class="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="flex items-center gap-2.5 text-sm font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> โทรเข้า</span>
-                        <div class="text-right"><span class="text-base font-black text-slate-900">${formatCurrency(current.admin.leads.mhl.tel)}</span> <span class="text-xs text-slate-400 font-bold ml-1">/ ${formatCurrency(current.admin.contacts.mhl.tel)}</span></div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs lg:text-sm">
+                        <span class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4"></i> โทรเข้า</span>
+                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.tel)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.tel)}</span></div>
                     </div>
                 </div>
             </div>

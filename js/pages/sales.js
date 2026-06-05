@@ -7,7 +7,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
     const cIdx = dashboardData.findIndex(d => d.id === current.id);
     const ytdData = dashboardData.slice(0, cIdx + 1);
     
-    // ยอดขายสะสมปีนี้ (YTD) = ยอดรวมทุก Week ของแถว 14 (gfs.actual) + แถว 20 (mhl.actual)
+    // ยอดขายสะสมปีนี้ (YTD) = ผลรวมยอดขายทุกเดือน (รวมทุก Week ของ GFS + MHL)
     const ytdActual = ytdData.reduce((sum, d) => sum + d.gfs.actual + d.mhl.actual, 0);
     
     // เป้ายอดขายปีนี้ 90 ล้าน
@@ -19,18 +19,21 @@ function renderBuildingSalesHTML(current, m, opt, container) {
 
     const getRepYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
     const getProjectYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
+    // ใช้ YTD จาก Sheet โดยตรง (ถ้ามี), ถ้าไม่มี fallback เป็นผลรวมรายสัปดาห์
+    const getYtd = (key) => b[key]?.ytd > 0 ? b[key].ytd : getRepYtdSales(key);
 
     const reps = [
-        { id: 'BOM', title: 'Sales Representative', data: { ...b.bom, ytd: getRepYtdSales('bom') }, c: 'blue' },
-        { id: 'Jay', title: 'Sales Representative', data: { ...b.jay, ytd: getRepYtdSales('jay') }, c: 'blue' },
-        { id: 'Saifha', title: 'Sales Representative', data: { ...b.saifha, ytd: getRepYtdSales('saifha') }, c: 'blue' },
-        { id: 'Kat', title: 'Sales Representative', data: { ...b.pat, ytd: getRepYtdSales('pat') }, c: 'blue' },
-        { id: 'Image', title: 'Sales Representative', data: { ...b.image, ytd: getRepYtdSales('image') }, c: 'blue' }
+        { id: 'BOM', title: 'Sales Representative', data: { ...b.bom, ytd: getYtd('bom') }, c: 'blue' },
+        { id: 'Jay', title: 'Sales Representative', data: { ...b.jay, ytd: getYtd('jay') }, c: 'blue' },
+        { id: 'Saifha', title: 'Sales Representative', data: { ...b.saifha, ytd: getYtd('saifha') }, c: 'blue' },
+        { id: 'Kat', title: 'Sales Representative', data: { ...b.pat, ytd: getYtd('pat') }, c: 'blue' },
+        { id: 'Image', title: 'Sales Representative', data: { ...b.image, ytd: getYtd('image') }, c: 'blue' }
     ].sort((a,b) => b.data.sales - a.data.sales); 
     
     const projects = [
-        { id: 'YA', title: 'Sales Project', data: { ...b.projYa, ytd: getProjectYtdSales('projYa') }, c: 'amber' },
-        { id: 'Tung', title: 'Sales Project', data: { ...b.projTung, ytd: getProjectYtdSales('projTung') }, c: 'amber' }
+        { id: 'YA', title: 'Sales Project', data: { ...b.projYa, ytd: getYtd('projYa') }, c: 'amber' },
+        { id: 'Tung', title: 'Sales Project', data: { ...b.projTung, ytd: getYtd('projTung') }, c: 'amber' },
+        { id: 'Tukta', title: 'Sales Project', data: { ...b.projTukta, ytd: getYtd('projTukta') }, c: 'amber' }
     ].sort((a,b) => b.data.sales - a.data.sales);
 
     const topRep = reps.length > 0 ? reps[0] : null;
@@ -41,60 +44,58 @@ function renderBuildingSalesHTML(current, m, opt, container) {
         <h3 class="font-black text-slate-800 flex items-center gap-3 text-2xl uppercase tracking-tight leading-none mb-6 shrink-0"><i data-lucide="target" class="text-blue-500 w-7 h-7"></i>ยอดขายทีมอาคาร (Team Sales Performance))</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 shrink-0">
-            <!-- การ์ด 1: ยอดขายสัปดาห์นี้ (Weekly Sales) และ % เทียบเป้า -->
+            <!-- การ์ด 1: ยอดขายสัปดาห์นี้ = ยอดรวมแต่ละแผนก -->
             <div class="bg-blue-50 rounded-[2rem] p-6 border border-blue-100 shadow-sm flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="wallet" class="w-32 h-32 text-blue-600"></i></div>
                 <p class="text-sm font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1.5 relative z-10"><i data-lucide="wallet" class="w-5 h-5"></i> ยอดขายสัปดาห์นี้ (Weekly Sales)</p>
-                <h3 class="text-4xl lg:text-5xl font-black text-blue-700 leading-none mt-2 mb-4 relative z-10">฿${formatCurrency(weeklyActual)}</h3>
-                <div class="relative z-10 flex justify-between items-end border-t border-blue-200/50 pt-3">
-                    <div>
-                        <p class="text-xs text-blue-500 font-bold uppercase">เป้าสัปดาห์นี้ (Weekly Target)</p>
-                        <p class="text-lg font-black text-blue-700">฿${formatCurrency(weeklyTarget)}</p>
+                <h3 class="text-4xl lg:text-5xl font-black text-blue-700 leading-none mt-2 mb-4 relative z-10">฿${formatCurrency(b.totalRepSales + b.totalProjSales + b.totalAdminSales)}</h3>
+                <div class="relative z-10 space-y-1.5 border-t border-blue-200/50 pt-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-500">👤 Sales Representative</span>
+                        <span class="text-sm font-black text-blue-700">฿${formatCurrency(b.totalRepSales)}</span>
                     </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-black ${weeklyProgress >= 100 ? 'text-emerald-500' : 'text-blue-600'}">${weeklyProgress >= 100 ? '⭐ ' : ''}${weeklyProgress.toFixed(1)}%</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-500">💼 Sales Project</span>
+                        <span class="text-sm font-black text-blue-700">฿${formatCurrency(b.totalProjSales)}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-500">🖥️ Sales Admin</span>
+                        <span class="text-sm font-black text-blue-700">฿${formatCurrency(b.totalAdminSales)}</span>
                     </div>
                 </div>
             </div>
             
-            <!-- การ์ด 2: ยอดขายแยกแต่ละแผนก -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center relative">
-                <p class="text-sm font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2 flex items-center gap-2"><i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i> ยอดขายแยกแต่ละแผนก</p>
-                <div class="space-y-2.5 flex-1 flex flex-col justify-center">
-                    <div class="flex justify-between items-center px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-sm font-bold text-slate-600 flex items-center gap-2">👤 Sales Representative</span>
-                        <span class="text-lg font-black text-slate-800">฿${formatCurrency(b.totalRepSales)}</span>
+            <!-- การ์ด 2: 🏆 Top Sales สัปดาห์นี้ -->
+            <div class="bg-white rounded-[2rem] p-6 border border-amber-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="trophy" class="w-32 h-32 text-amber-500"></i></div>
+                <p class="text-sm font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="trophy" class="w-5 h-5"></i> Top Sales สัปดาห์นี้</p>
+                <div class="flex items-center gap-4 mb-4 relative z-10">
+                    <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-black text-xl shrink-0">${topRep ? topRep.id.substring(0,2).toUpperCase() : '-'}</div>
+                    <div>
+                        <h4 class="text-2xl font-black text-slate-800">${topRep ? topRep.id : '-'}</h4>
+                        <p class="text-sm text-slate-500 font-bold">${topRep ? topRep.title : ''}</p>
                     </div>
-                    <div class="flex justify-between items-center px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-sm font-bold text-slate-600 flex items-center gap-2">💼 Sales Project</span>
-                        <span class="text-lg font-black text-slate-800">฿${formatCurrency(b.totalProjSales)}</span>
-                    </div>
-                    <div class="flex justify-between items-center px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-sm font-bold text-slate-600 flex items-center gap-2">🖥️ Sales Admin</span>
-                        <span class="text-lg font-black text-slate-800">฿${formatCurrency(b.totalAdminSales)}</span>
-                    </div>
+                </div>
+                <div class="relative z-10 border-t border-amber-100 pt-3">
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-1">ยอดขายสัปดาห์</p>
+                    <p class="text-3xl font-black text-amber-600">฿${topRep ? formatCurrency(topRep.data.sales) : '0'}</p>
                 </div>
             </div>
 
-            <!-- การ์ด 3: % ยอดขายเทียบเป้าทั้งปี -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col justify-center">
-                <div class="flex justify-between items-center mb-1">
-                    <p class="text-sm font-black text-slate-400 uppercase tracking-widest">% ยอดขายเทียบเป้าทั้งปี</p>
-                    <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-sm font-black">เป้า 90M</span>
-                </div>
-                <h3 class="text-5xl font-black ${ytdProgressVsYearly >= 100 ? 'text-emerald-500' : 'text-indigo-600'} leading-none mt-2 mb-3">${ytdProgressVsYearly >= 100 ? '⭐ ' : ''}${ytdProgressVsYearly.toFixed(1)}%</h3>
-                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-1 mb-4">
-                    <div class="${ytdProgressVsYearly >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'} h-full rounded-full" style="width:${Math.min(ytdProgressVsYearly,100)}%"></div>
-                </div>
-                <div class="flex justify-between items-center border-t border-slate-100 pt-3 mt-auto">
+            <!-- การ์ด 3: 🌟 Top Sales สะสม YTD -->
+            <div class="bg-white rounded-[2rem] p-6 border border-indigo-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="star" class="w-32 h-32 text-indigo-500"></i></div>
+                <p class="text-sm font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="star" class="w-5 h-5"></i> Top Sales สะสม YTD</p>
+                <div class="flex items-center gap-4 mb-4 relative z-10">
+                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl shrink-0">${topYtdRep ? topYtdRep.id.substring(0,2).toUpperCase() : '-'}</div>
                     <div>
-                        <p class="text-xs text-slate-400 font-bold uppercase mb-0.5">ยอดขายสะสม (YTD)</p>
-                        <p class="text-base font-black text-slate-800">฿${formatCurrency(ytdActual)}</p>
+                        <h4 class="text-2xl font-black text-slate-800">${topYtdRep ? topYtdRep.id : '-'}</h4>
+                        <p class="text-sm text-slate-500 font-bold">${topYtdRep ? topYtdRep.title : ''}</p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xs text-slate-400 font-bold uppercase mb-0.5">เป้ายอดขายปีนี้</p>
-                        <p class="text-base font-black text-slate-800">฿${formatCurrency(YEARLY_BUILDING_TARGET)}</p>
-                    </div>
+                </div>
+                <div class="relative z-10 border-t border-indigo-100 pt-3">
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-1">ยอดขายสะสม YTD</p>
+                    <p class="text-3xl font-black text-indigo-600">฿${topYtdRep ? formatCurrency(topYtdRep.data.ytd) : '0'}</p>
                 </div>
             </div>
         </div>
@@ -103,7 +104,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 shrink-0">
             ${reps.map(r => `
             <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden"><div class="absolute -right-4 -top-4 opacity-5"><i data-lucide="user" class="w-32 h-32 text-${r.c}-600"></i></div><div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 relative z-10"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-${r.c}-100 text-${r.c}-600 flex items-center justify-center font-black text-lg">${r.id.substring(0,2).toUpperCase()}</div><div><h4 class="font-black text-slate-800 text-xl leading-none">${r.id}</h4><p class="text-sm text-slate-500 font-bold">YTD: ฿${formatCurrency(r.data.ytd)}</p></div></div><div class="text-right"><p class="text-sm text-slate-400 font-bold uppercase tracking-widest">ยอดขายสัปดาห์</p><p class="text-3xl font-black text-${r.c}-600">฿${formatCurrency(r.data.sales)}</p></div></div>
-            <div class="grid grid-cols-2 gap-3 mb-4 relative z-10"><div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-sm text-slate-500 font-bold mb-1">🏃 พบลูกค้า</p><p class="text-2xl font-black text-slate-800">${r.data.meets} <span class="text-base font-normal">ราย</span></p></div><div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-sm text-slate-500 font-bold mb-1">🛠️ ติดตั้ง</p><p class="text-2xl font-black text-slate-800">${r.data.installs} <span class="text-base font-normal">งาน</span></p></div></div>
+            <div class="grid grid-cols-2 gap-3 mb-4 relative z-10"><div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><p class="text-xs text-slate-500 font-bold mb-1">🏃 พบลูกค้า</p><p class="text-lg font-black text-slate-800">${formatNumber(r.data.meets)} <span class="text-sm font-normal">ราย</span></p></div><div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><p class="text-xs text-slate-500 font-bold mb-1">🛠️ ติดตั้ง</p><p class="text-lg font-black text-slate-800">${formatNumber(r.data.installs)} <span class="text-sm font-normal">งาน</span></p></div></div>
             <div class="space-y-3 mt-auto relative z-10"><div class="flex justify-between items-center text-sm p-3 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700 font-medium"><span>🆕 ลค.ใหม่ (พบ/ติด): ${r.data.newMeets}/${r.data.newInstalls}</span><span class="font-bold text-base">฿${formatCurrency(r.data.newSales)}</span></div><div class="flex justify-between items-center text-sm p-3 bg-amber-50 border border-amber-100 rounded-lg text-amber-700 font-medium"><span>🔙 ลค.เก่า (พบ/ติด): ${r.data.oldMeets}/${r.data.oldInstalls}</span><span class="font-bold text-base">฿${formatCurrency(r.data.oldSales)}</span></div><div class="flex justify-between items-center text-sm p-3 bg-red-50 border border-red-100 rounded-lg text-red-700 font-medium"><span>❌ ไม่ติดตั้ง: ${r.data.noInstalls} งาน</span><span class="font-bold text-base">฿${formatCurrency(r.data.noInstallSales)}</span></div></div>
             <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center"><span class="text-sm font-bold text-slate-500 uppercase">% สำเร็จติดตั้ง/พบ</span><span class="text-base font-black text-blue-600">${r.data.sr.toFixed(1)}%</span></div></div>`).join('')}
         </div>
@@ -142,7 +143,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-blue-200 transition-colors">
                         <div>
                             <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">สำเร็จเทียบเป้าสัปดาห์</p>
-                            <p class="text-2xl font-black ${weeklyProgress >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${weeklyProgress.toFixed(1)}%</p>
+                            <p class="text-xl font-black ${weeklyProgress >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${formatPercent(weeklyProgress)}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl ${weeklyProgress >= 100 ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'} flex items-center justify-center shrink-0"><i data-lucide="target" class="w-6 h-6"></i></div>
                     </div>

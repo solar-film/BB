@@ -8,9 +8,9 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
     const prev = cIdx > 0 ? dashboardData[cIdx - 1] : null;
     const ytdData = dashboardData.slice(0, cIdx + 1);
     
-    const ytdInstalls = ytdData.reduce((sum, d) => sum + d.tech.installs.actual, 0);
-    const ytdArea = ytdData.reduce((sum, d) => sum + d.tech.area.actual, 0);
-    const ytdDamageValue = ytdData.reduce((sum, d) => sum + d.tech.damage.totalValue, 0);
+    const ytdInstalls = t.installs.ytd != null ? t.installs.ytd : ytdData.reduce((sum, d) => sum + d.tech.installs.actual, 0);
+    const ytdArea = t.area.ytd != null ? t.area.ytd : ytdData.reduce((sum, d) => sum + d.tech.area.actual, 0);
+    const ytdDamageValue = t.damage.ytd != null ? t.damage.ytd : ytdData.reduce((sum, d) => sum + d.tech.damage.totalValue, 0);
     
     const ytdInstallPercent = (ytdInstalls / YEARLY_INSTALL_TARGET) * 100;
     const ytdAreaPercent = (ytdArea / YEARLY_AREA_TARGET) * 100;

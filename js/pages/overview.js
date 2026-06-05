@@ -9,8 +9,8 @@ function renderOverviewHTML(current, m, opt, container) {
     const adminLeads = current.admin.leads.actual;
     const leadConv = adminContacts > 0 ? (adminLeads / adminContacts) * 100 : 0;
 
-    const totalSales = current.gfs.actual + current.mhl.actual + current.car.actual;
-    const totalTarget = current.gfs.target + current.mhl.target + current.car.target;
+    const totalSales = m.weekly.a;
+    const totalTarget = m.weekly.t;
     const totalSalesProgress = totalTarget > 0 ? (totalSales / totalTarget) * 100 : 0;
 
     const buildingSales = current.gfs.actual + current.mhl.actual;
@@ -28,7 +28,10 @@ function renderOverviewHTML(current, m, opt, container) {
             mhl: sum.mhl + d.mhl.actual,
             car: sum.car + d.car.actual
         }), { gfs: 0, mhl: 0, car: 0 });
-    const ytdSalesByCompany = dashboardData.reduce((sum, d) => ({
+    // ยอดขายสะสมปีนี้ = ผลรวมยอดขายทุกเดือน ถึง Week ที่เลือก
+    const cIdx = dashboardData.findIndex(d => d.id === current.id);
+    const ytdWeeks = dashboardData.slice(0, cIdx + 1);
+    const ytdSalesByCompany = ytdWeeks.reduce((sum, d) => ({
         gfs: sum.gfs + d.gfs.actual,
         mhl: sum.mhl + d.mhl.actual,
         car: sum.car + d.car.actual

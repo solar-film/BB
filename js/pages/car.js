@@ -28,18 +28,13 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
     const salesGrowth = prevSales > 0 ? ((sales.actual - prevSales) / prevSales) * 100 : 0;
 
     const installs = cd.installs;
-    const totalInstalls = installs.line + installs.fb + installs.tel + installs.walkin + installs.showroom + installs.other;
+    const totalInstalls = installs.total || (installs.line + installs.fb + installs.tel + installs.walkin + installs.showroom + installs.other);
     const contacts = cd.contacts;
     const convRate = contacts.total > 0 ? (totalInstalls / contacts.total) * 100 : 0;
     
     const tech = cd.tech;
     const totalDamageValue = tech.techIssueValue + tech.filmIssueValue;
-    let techDamagePercentSales = tech.damagePercent;
-    if (techDamagePercentSales > 0 && techDamagePercentSales < 1 && tech.techIssueValue > 0) {
-        techDamagePercentSales = techDamagePercentSales * 100;
-    } else if (techDamagePercentSales === 0 && tech.techIssueValue > 0) {
-         techDamagePercentSales = sales.actual > 0 ? (tech.techIssueValue / sales.actual) * 100 : 0;
-    }
+    const techDamagePercentSales = sales.actual > 0 ? (tech.techIssueValue / sales.actual) * 100 : 0;
     const damagePercentSales = sales.actual > 0 ? (totalDamageValue / sales.actual) * 100 : 0;
     const isDamageOverLimit = techDamagePercentSales > 5;
 
@@ -69,7 +64,7 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     <p class="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-violet-500"></i> ยอดขายรายเดือน</p>
                     <span class="px-3 py-1 bg-violet-50 text-violet-700 rounded-lg text-sm font-black border border-violet-100">${monthGroup}</span>
                 </div>
-                <h3 class="text-5xl font-black ${isMonthlyOverTarget ? 'text-emerald-500' : 'text-violet-600'} mt-2 mb-1 relative z-10 tracking-tighter">${isMonthlyOverTarget ? '⭐ ' : ''}${monthlyCarProgress.toFixed(1)}%</h3>
+                <h3 class="text-4xl lg:text-5xl font-black ${isMonthlyOverTarget ? 'text-emerald-500' : 'text-violet-600'} mt-2 mb-1 relative z-10 tracking-tighter">${isMonthlyOverTarget ? '⭐ ' : ''}${formatPercent(monthlyCarProgress)}</h3>
                 <p class="text-2xl font-black text-slate-800 mb-3 relative z-10">฿${formatCurrency(monthlyCarActual)}</p>
                 <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden relative z-10 mb-4">
                     <div class="${isMonthlyOverTarget ? 'bg-emerald-500' : 'bg-violet-500'} h-full rounded-full transition-all" style="width:${Math.min(monthlyCarProgress, 100)}%"></div>
@@ -152,8 +147,8 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 <div class="bg-[#eff6ff] rounded-2xl p-6 flex flex-col items-center justify-center mb-6 border border-blue-100">
                     <p class="text-sm font-black text-blue-600 mb-1">ปริมาณการติดต่อรวม</p>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-5xl font-black text-blue-600 tracking-tighter">${formatCurrency(contacts.total)}</span>
-                        <span class="text-base font-bold text-blue-400">Contacts</span>
+                        <span class="text-4xl lg:text-5xl font-black text-blue-600 tracking-tighter">${formatNumber(contacts.total)}</span>
+                        <span class="text-sm font-bold text-blue-500">ติดต่อ</span>
                     </div>
                 </div>
                 <div class="space-y-3 mt-auto">
@@ -184,7 +179,7 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     </div>
                     <div class="text-right">
                         <p class="text-sm font-black text-slate-400 mb-1 tracking-widest">% ความสำเร็จ</p>
-                        <p class="text-2xl font-black text-[#5c50e6]">${convRate.toFixed(1)}%</p>
+                        <p class="text-xl lg:text-2xl font-black ${convRate >= 25 ? 'text-emerald-600' : 'text-amber-600'}">${formatPercent(convRate)}</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-auto">
@@ -229,8 +224,8 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     </div>
                 </div>
                 <div class="relative z-10 mt-auto pt-6">
-                    <div class="flex justify-between items-center bg-${isDamageOverLimit?'red':'emerald'}-50 p-4 rounded-xl">
-                        <span class="text-xs font-bold ${isDamageOverLimit?'text-red-600':'text-emerald-700'} uppercase">% ความเสียหายจากช่าง</span>
+                    <div class="bg-${isDamageOverLimit?'red':'emerald'}-50 p-4 rounded-xl border ${isDamageOverLimit?'border-red-200':'border-emerald-200'}">
+                        <span class="text-xs font-bold ${isDamageOverLimit?'text-red-600':'text-emerald-700'} uppercase block mb-1">% ความเสียหายจากช่าง</span>
                         <span class="text-xl font-black ${isDamageOverLimit?'text-red-600':'text-emerald-600'}">${techDamagePercentSales.toFixed(2)}%</span>
                     </div>
                 </div>
@@ -264,7 +259,7 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-emerald-200 transition-colors">
                         <div>
                             <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Growth (เทียบวีคก่อน)</p>
-                            <p class="text-2xl font-black ${salesGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}">${salesGrowth >= 0 ? '↑' : '↓'} ${Math.abs(salesGrowth).toFixed(1)}%</p>
+                            <p class="text-xl lg:text-2xl font-black ${salesGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}">${salesGrowth >= 0 ? '↑' : '↓'} ${formatPercent(Math.abs(salesGrowth))}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl ${salesGrowth >= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'} flex items-center justify-center shrink-0"><i data-lucide="trending-${salesGrowth >= 0 ? 'up' : 'down'}" class="w-6 h-6"></i></div>
                     </div>
@@ -280,7 +275,7 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-emerald-200 transition-colors">
                         <div>
                             <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">% ความเสียหาย (ยอดขาย)</p>
-                            <p class="text-2xl font-black ${isDamageOverLimit ? 'text-red-600' : 'text-emerald-600'}">${techDamagePercentSales.toFixed(2)}%</p>
+                            <p class="text-xl lg:text-2xl font-black ${isDamageOverLimit ? 'text-red-600' : 'text-emerald-600'}">${techDamagePercentSales.toFixed(2)}%</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl ${isDamageOverLimit ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'} flex items-center justify-center shrink-0"><i data-lucide="shield-alert" class="w-6 h-6"></i></div>
                     </div>
