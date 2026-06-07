@@ -17,10 +17,22 @@ function renderBuildingSalesHTML(current, m, opt, container) {
     const weeklyTarget = current.gfs.target + current.mhl.target;
     const weeklyProgress = weeklyTarget > 0 ? (weeklyActual / weeklyTarget) * 100 : 0;
 
-    const getRepYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
-    const getProjectYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
+    const getWeeklyYtdSales = (key) => ytdData.reduce((sum, d) => sum + (d.buildingSales?.[key]?.sales || 0), 0);
+    const getPreviousSheetYtd = (key) => [...ytdData]
+        .slice(0, -1)
+        .reverse()
+        .find(d => (d.buildingSales?.[key]?.ytd || 0) > 0)
+        ?.buildingSales?.[key]?.ytd || 0;
     // ใช้ YTD จาก Sheet โดยตรง (ถ้ามี), ถ้าไม่มี fallback เป็นผลรวมรายสัปดาห์
-    const getYtd = (key) => b[key]?.ytd > 0 ? b[key].ytd : getRepYtdSales(key);
+    const getYtd = (key) => {
+        const sheetYtd = b[key]?.ytd || 0;
+        const previousSheetYtd = getPreviousSheetYtd(key);
+        const weeklySales = b[key]?.sales || 0;
+
+        if (sheetYtd > 0 && sheetYtd >= previousSheetYtd) return sheetYtd;
+        if (previousSheetYtd > 0) return previousSheetYtd + weeklySales;
+        return getWeeklyYtdSales(key);
+    };
 
     const reps = [
         { id: 'BOM', title: 'Sales Representative', data: { ...b.bom, ytd: getYtd('bom') }, c: 'blue' },
@@ -36,8 +48,9 @@ function renderBuildingSalesHTML(current, m, opt, container) {
         { id: 'Tukta', title: 'Sales Project', data: { ...b.projTukta, ytd: getYtd('projTukta') }, c: 'amber' }
     ].sort((a,b) => b.data.sales - a.data.sales);
 
-    const topRep = reps.length > 0 ? reps[0] : null;
-    const topYtdRep = [...reps].sort((a,b) => b.data.ytd - a.data.ytd)[0] || null;
+    const allSalesPeople = [...reps, ...projects];
+    const topSalesPerson = allSalesPeople.filter(r => r.data.sales > 0).sort((a,b) => b.data.sales - a.data.sales)[0] || null;
+    const topYtdSalesPerson = allSalesPeople.filter(r => r.data.ytd > 0).sort((a,b) => b.data.ytd - a.data.ytd)[0] || null;
 
     container.innerHTML = `
         <div class="flex items-center gap-2 mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm shrink-0"><i data-lucide="filter" class="w-5 h-5 text-slate-400"></i><span class="text-base font-bold text-slate-600 mr-2">เลือกสัปดาห์:</span><select onchange="handleWeekChange(event)" class="ml-auto bg-blue-50 border border-blue-200 text-blue-700 text-base rounded-xl p-2 w-72 cursor-pointer font-bold">${opt}</select></div>
@@ -70,15 +83,15 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 <div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="trophy" class="w-32 h-32 text-amber-500"></i></div>
                 <p class="text-sm font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="trophy" class="w-5 h-5"></i> Top Sales สัปดาห์นี้</p>
                 <div class="flex items-center gap-4 mb-4 relative z-10">
-                    <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-black text-xl shrink-0">${topRep ? topRep.id.substring(0,2).toUpperCase() : '-'}</div>
+                    <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-black text-xl shrink-0">${topSalesPerson ? topSalesPerson.id.substring(0,2).toUpperCase() : '-'}</div>
                     <div>
-                        <h4 class="text-2xl font-black text-slate-800">${topRep ? topRep.id : '-'}</h4>
-                        <p class="text-sm text-slate-500 font-bold">${topRep ? topRep.title : ''}</p>
+                        <h4 class="text-2xl font-black text-slate-800">${topSalesPerson ? topSalesPerson.id : '-'}</h4>
+                        <p class="text-sm text-slate-500 font-bold">${topSalesPerson ? topSalesPerson.title : ''}</p>
                     </div>
                 </div>
                 <div class="relative z-10 border-t border-amber-100 pt-3">
                     <p class="text-xs text-slate-400 font-bold uppercase mb-1">ยอดขายสัปดาห์</p>
-                    <p class="text-3xl font-black text-amber-600">฿${topRep ? formatCurrency(topRep.data.sales) : '0'}</p>
+                    <p class="text-3xl font-black text-amber-600">฿${topSalesPerson ? formatCurrency(topSalesPerson.data.sales) : '0'}</p>
                 </div>
             </div>
 
@@ -87,15 +100,15 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 <div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="star" class="w-32 h-32 text-indigo-500"></i></div>
                 <p class="text-sm font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="star" class="w-5 h-5"></i> Top Sales สะสม YTD</p>
                 <div class="flex items-center gap-4 mb-4 relative z-10">
-                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl shrink-0">${topYtdRep ? topYtdRep.id.substring(0,2).toUpperCase() : '-'}</div>
+                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl shrink-0">${topYtdSalesPerson ? topYtdSalesPerson.id.substring(0,2).toUpperCase() : '-'}</div>
                     <div>
-                        <h4 class="text-2xl font-black text-slate-800">${topYtdRep ? topYtdRep.id : '-'}</h4>
-                        <p class="text-sm text-slate-500 font-bold">${topYtdRep ? topYtdRep.title : ''}</p>
+                        <h4 class="text-2xl font-black text-slate-800">${topYtdSalesPerson ? topYtdSalesPerson.id : '-'}</h4>
+                        <p class="text-sm text-slate-500 font-bold">${topYtdSalesPerson ? topYtdSalesPerson.title : ''}</p>
                     </div>
                 </div>
                 <div class="relative z-10 border-t border-indigo-100 pt-3">
                     <p class="text-xs text-slate-400 font-bold uppercase mb-1">ยอดขายสะสม YTD</p>
-                    <p class="text-3xl font-black text-indigo-600">฿${topYtdRep ? formatCurrency(topYtdRep.data.ytd) : '0'}</p>
+                    <p class="text-3xl font-black text-indigo-600">฿${topYtdSalesPerson ? formatCurrency(topYtdSalesPerson.data.ytd) : '0'}</p>
                 </div>
             </div>
         </div>
@@ -151,20 +164,20 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-blue-200 transition-colors">
                         <div>
                             <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">🏆 Top Sales สัปดาห์นี้</p>
-                            <p class="text-xl font-black text-blue-600">${topRep ? topRep.id : '-'}</p>
+                            <p class="text-xl font-black text-blue-600">${topSalesPerson ? topSalesPerson.id : '-'}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black text-slate-800">฿${topRep ? formatCurrency(topRep.data.sales) : '0'}</p>
+                            <p class="text-lg font-black text-slate-800">฿${topSalesPerson ? formatCurrency(topSalesPerson.data.sales) : '0'}</p>
                         </div>
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-blue-200 transition-colors">
                         <div>
                             <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">🌟 Top Sales สะสม YTD</p>
-                            <p class="text-xl font-black text-indigo-600">${topYtdRep ? topYtdRep.id : '-'}</p>
+                            <p class="text-xl font-black text-indigo-600">${topYtdSalesPerson ? topYtdSalesPerson.id : '-'}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black text-slate-800">฿${topYtdRep ? formatCurrency(topYtdRep.data.ytd) : '0'}</p>
+                            <p class="text-lg font-black text-slate-800">฿${topYtdSalesPerson ? formatCurrency(topYtdSalesPerson.data.ytd) : '0'}</p>
                         </div>
                     </div>
                 </div>
