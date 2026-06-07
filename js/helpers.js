@@ -24,13 +24,19 @@ function hasFiniteNumber(value) {
 }
 
 function getTotalSalesTarget(data) {
-    if (hasFiniteNumber(data?.salesTargetTotal)) return data.salesTargetTotal;
-    return (data?.gfs?.target || 0) + (data?.mhl?.target || 0) + (data?.car?.target || 0);
+    const companyTarget = (data?.gfs?.target || 0) + (data?.mhl?.target || 0) + (data?.car?.target || 0);
+    if (hasFiniteNumber(data?.salesTargetTotal) && (data.salesTargetTotal > 0 || companyTarget === 0)) {
+        return data.salesTargetTotal;
+    }
+    return companyTarget;
 }
 
 function getTotalSalesActual(data) {
-    if (hasFiniteNumber(data?.salesActualTotal)) return data.salesActualTotal;
-    return (data?.gfs?.actual || 0) + (data?.mhl?.actual || 0) + (data?.car?.actual || 0);
+    const companyActual = (data?.gfs?.actual || 0) + (data?.mhl?.actual || 0) + (data?.car?.actual || 0);
+    if (hasFiniteNumber(data?.salesActualTotal) && (data.salesActualTotal > 0 || companyActual === 0)) {
+        return data.salesActualTotal;
+    }
+    return companyActual;
 }
 
 function normalizeSalesRepData(rep) {
