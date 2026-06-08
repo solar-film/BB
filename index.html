@@ -77,6 +77,7 @@
                 <ul class="space-y-1">
                     <li><a href="#" id="mobile-menu-tech" onclick="changePage('tech')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="wrench" class="w-5 h-5"></i> ทีมช่างติดตั้ง (อาคาร)</a></li>
                     <li><a href="#" id="mobile-menu-feedback" onclick="changePage('feedback')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
+                    <li><a href="no-install-reason.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-pen-line" class="w-5 h-5 text-amber-400"></i> เหตุผลงานไม่ติดตั้ง</a></li>
                 </ul>
             </div>
         </div>
@@ -130,6 +131,7 @@
                 <ul class="space-y-1">
                     <li><a href="#" id="menu-tech" onclick="changePage('tech')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="wrench" class="w-5 h-5"></i> ทีมช่างติดตั้ง (อาคาร)</a></li>
                     <li><a href="#" id="menu-feedback" onclick="changePage('feedback')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
+                    <li><a href="no-install-reason.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-pen-line" class="w-5 h-5 text-amber-400"></i> เหตุผลงานไม่ติดตั้ง</a></li>
                 </ul>
             </div>
         </div>
@@ -181,5 +183,145 @@
     <script src="js/pages/tech.js"></script>
     <script src="js/pages/admin.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- No-Install Reason Popup -->
+    <div id="no-install-popup" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,23,42,0.6);backdrop-filter:blur(4px)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" style="font-family:'Sarabun',sans-serif">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-red-50 shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">❌</span>
+                    <div>
+                        <h2 id="popup-title" class="text-lg font-black text-slate-900">เหตุผลงานไม่ติดตั้ง</h2>
+                        <p id="popup-subtitle" class="text-sm font-bold text-slate-500"></p>
+                    </div>
+                </div>
+                <button onclick="closeNoInstallPopup()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div id="popup-body" class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                <p class="text-slate-500 font-bold text-center py-6">กำลังโหลด...</p>
+            </div>
+            <div class="px-6 py-3 border-t border-slate-200 shrink-0 flex justify-end">
+                <a href="no-install-reason.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-black text-white hover:bg-slate-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    บันทึกเพิ่มเติม
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const SHEET_ID = '12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo';
+        const REASON_GID = '1908699919';
+        const REP_THAI = { 'BOM': 'บอม', 'Jay': 'เจ', 'Saifha': 'สายฟ้า', 'Kat': 'แพท', 'Image': 'อิมเมจ', 'Tukta': 'ตุ๊กตา' };
+        let _cache = null;
+
+        function parseCSVSimple(text) {
+            const rows = [];
+            let row = [], cell = '', inQ = false;
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (c === '"') { inQ = !inQ; }
+                else if (c === ',' && !inQ) { row.push(cell); cell = ''; }
+                else if ((c === '\n' || c === '\r') && !inQ) {
+                    row.push(cell); cell = '';
+                    if (row.some(Boolean)) rows.push(row);
+                    row = [];
+                    if (c === '\r' && text[i+1] === '\n') i++;
+                } else { cell += c; }
+            }
+            if (cell || row.length) { row.push(cell); if (row.some(Boolean)) rows.push(row); }
+            return rows;
+        }
+
+        async function fetchReasonRows() {
+            if (_cache) return _cache;
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${REASON_GID}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
+            const rows = parseCSVSimple(await res.text()).slice(1).filter(r => r.some(Boolean));
+            _cache = rows;
+            setTimeout(() => { _cache = null; }, 60000); // clear cache after 1 min
+            return rows;
+        }
+
+        function escHTML(s) {
+            return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        window.openNoInstallPopup = async function(repId) {
+            const popup = document.getElementById('no-install-popup');
+            const body = document.getElementById('popup-body');
+            const title = document.getElementById('popup-title');
+            const subtitle = document.getElementById('popup-subtitle');
+            const thaiName = REP_THAI[repId] || repId;
+
+            // Get current selected week label from dashboard globals
+            const currentWeekObj = (typeof dashboardData !== 'undefined' && typeof selectedId !== 'undefined')
+                ? dashboardData.find(d => d.id === selectedId) : null;
+            const currentWeekLabel = currentWeekObj ? currentWeekObj.week : '';
+
+            title.textContent = `เหตุผลงานไม่ติดตั้ง — ${repId}`;
+            subtitle.textContent = currentWeekLabel ? `${currentWeekLabel}` : '';
+            body.innerHTML = '<p class="text-slate-500 font-bold text-center py-8">กำลังโหลด...</p>';
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+
+            try {
+                const rows = await fetchReasonRows();
+                // row: [0]=id, [1]=recordDate, [2]=week, [3]=salesOwner, [4]=count, [5]=reason
+                const filtered = rows.filter(r =>
+                    String(r[3] || '').trim() === thaiName &&
+                    (!currentWeekLabel || String(r[2] || '').trim() === currentWeekLabel)
+                );
+                const sorted = filtered.sort((a, b) => {
+                    const wa = parseInt(String(a[2] || '').match(/\d+/)?.[0] || '0');
+                    const wb = parseInt(String(b[2] || '').match(/\d+/)?.[0] || '0');
+                    return wb - wa;
+                });
+
+                subtitle.textContent = `${currentWeekLabel ? currentWeekLabel + ' · ' : ''}${sorted.length} รายการ`;
+
+                if (sorted.length === 0) {
+                    body.innerHTML = '<div class="flex flex-col items-center gap-3 py-10 text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="font-bold text-slate-500">ยังไม่มีข้อมูลสำหรับ ' + escHTML(repId) + '</p></div>';
+                    return;
+                }
+
+                body.innerHTML = sorted.map(r => `
+                    <article onclick="window.open('no-install-reason.html?id=${encodeURIComponent(r[0] || '')}','_blank')" class="rounded-lg border border-slate-200 bg-slate-50 p-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors" title="คลิกเพื่อแก้ไข">
+                        <div class="mb-2 flex items-start justify-between gap-3">
+                            <p class="font-black text-slate-900 text-base">${escHTML(r[3] || '-')}</p>
+                            <span class="rounded-md bg-white px-2 py-1 text-xs font-black text-blue-700 shrink-0">${escHTML(r[2] || '-')}</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-500">${escHTML(r[1] || '-')} · ${escHTML(r[4] || '0')} งาน</p>
+                        <p class="mt-3 font-bold leading-7 text-slate-800 text-base bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">${escHTML(r[5] || '-').replace(/\n/g, '<br>')}</p>
+                        <p class="mt-2 text-xs font-bold text-blue-500 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            คลิกเพื่อแก้ไข
+                        </p>
+                    </article>
+                `).join('');
+            } catch(e) {
+                body.innerHTML = `<p class="font-bold text-red-600 text-center py-8">โหลดข้อมูลไม่สำเร็จ: ${escHTML(e.message)}</p>`;
+            }
+        };
+
+        window.closeNoInstallPopup = function() {
+            const popup = document.getElementById('no-install-popup');
+            popup.classList.add('hidden');
+            popup.classList.remove('flex');
+        };
+
+        document.getElementById('no-install-popup').addEventListener('click', function(e) {
+            if (e.target === this) window.closeNoInstallPopup();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') window.closeNoInstallPopup();
+        });
+    })();
+    </script>
 </body>
 </html>
