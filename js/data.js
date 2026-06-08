@@ -82,7 +82,7 @@ async function loadData() {
                 },
                 admin: {
                     contacts: { total: cleanNumber(parsed[112]?.[i]), gfs: { line: cleanNumber(parsed[115]?.[i]), fb: cleanNumber(parsed[116]?.[i]), tel: cleanNumber(parsed[117]?.[i]) }, mhl: { line: cleanNumber(parsed[120]?.[i]), fb: cleanNumber(parsed[121]?.[i]), tel: cleanNumber(parsed[122]?.[i]) }, car: cleanNumber(parsed[371]?.[i]) },
-                    leads: { target: cleanNumber(parsed[125]?.[i]), actual: cleanNumber(parsed[126]?.[i]), gfs: { line: cleanNumber(parsed[129]?.[i]), tel: cleanNumber(parsed[130]?.[i]), fb: cleanNumber(parsed[131]?.[i]) }, mhl: { line: cleanNumber(parsed[134]?.[i]), tel: cleanNumber(parsed[135]?.[i]), fb: cleanNumber(parsed[136]?.[i]) }, car: cleanNumber(parsed[360]?.[i]) },
+                    leads: { target: cleanNumber(parsed[125]?.[i]), actual: cleanNumber(parsed[126]?.[i]), gfs: { line: cleanNumber(parsed[129]?.[i]), tel: cleanNumber(parsed[130]?.[i]), fb: cleanNumber(parsed[131]?.[i]) }, mhl: { line: cleanNumber(parsed[134]?.[i]), tel: cleanNumber(parsed[135]?.[i]), fb: cleanNumber(parsed[136]?.[i]) }, car: cleanNumber(parsed[373]?.[i]) },
                     sales: { totalInstalls: cleanNumber(parsed[156]?.[i]), newInstalls: { gfs: cleanNumber(parsed[158]?.[i]), mhl: cleanNumber(parsed[159]?.[i]) }, oldInstalls: { gfs: cleanNumber(parsed[163]?.[i]), mhl: cleanNumber(parsed[164]?.[i]) }, totalSales: cleanNumber(parsed[146]?.[i]), newSales: { gfs: cleanNumber(parsed[149]?.[i]), mhl: cleanNumber(parsed[150]?.[i]) }, oldSales: { gfs: cleanNumber(parsed[153]?.[i]), mhl: cleanNumber(parsed[154]?.[i]) } }
                 },
                 tech: {
