@@ -78,17 +78,21 @@
                     </div>
                     <div>
                         <label class="field-label" for="sales-owner">ฝ่ายขาย</label>
-                        <input class="field-input" id="sales-owner" name="salesOwner" list="sales-owner-list" autocomplete="off" placeholder="เลือกหรือพิมพ์ชื่อฝ่ายขาย" required>
-                        <datalist id="sales-owner-list">
-                            <option value="บอม"></option>
-                            <option value="เจ"></option>
-                            <option value="สายฟ้า"></option>
-                            <option value="แพท"></option>
-                            <option value="อิมเมจ"></option>
-                            <option value="ยา"></option>
-                            <option value="ตัง"></option>
-                            <option value="ตุ๊กตา"></option>
-                        </datalist>
+                        <select class="field-input" id="sales-owner" name="salesOwner" required>
+                            <option value="" selected disabled>เลือกฝ่ายขาย</option>
+                            <optgroup label="Sales Representative">
+                                <option value="BOM">BOM</option>
+                                <option value="Jay">Jay</option>
+                                <option value="Saifha">Saifha</option>
+                                <option value="Kat">Kat</option>
+                                <option value="Image">Image</option>
+                            </optgroup>
+                            <optgroup label="Sales Project">
+                                <option value="YA">YA</option>
+                                <option value="Tung">Tung</option>
+                                <option value="Tukta">Tukta</option>
+                            </optgroup>
+                        </select>
                     </div>
                     <div>
                         <label class="field-label" for="no-install-count">จำนวนงานไม่ติดตั้ง</label>
