@@ -215,8 +215,30 @@
     (function() {
         const SHEET_ID = '12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo';
         const REASON_GID = '1908699919';
-        const REP_THAI = { 'BOM': 'บอม', 'Jay': 'เจ', 'Saifha': 'สายฟ้า', 'Kat': 'แพท', 'Image': 'อิมเมจ', 'Tukta': 'ตุ๊กตา' };
+        const REP_ALIASES = {
+            BOM: ['BOM', 'บอม'],
+            Jay: ['Jay', 'เจ'],
+            Saifha: ['Saifha', 'สายฟ้า'],
+            Kat: ['Kat', 'แพท'],
+            Image: ['Image', 'อิมเมจ'],
+            YA: ['YA', 'ยา'],
+            Tung: ['Tung', 'ตัง'],
+            Tukta: ['Tukta', 'ตุ๊กตา']
+        };
         let _cache = null;
+
+        function normalizeSalesOwner(value) {
+            const normalized = String(value || '').trim().toLocaleLowerCase('en-US');
+            const match = Object.entries(REP_ALIASES).find(([, aliases]) =>
+                aliases.some(alias => String(alias).trim().toLocaleLowerCase('en-US') === normalized)
+            );
+            return match ? match[0] : String(value || '').trim();
+        }
+
+        function normalizeWeekLabel(value) {
+            const match = String(value || '').match(/week\s*(\d+)/i);
+            return match ? `Week ${Number(match[1])}` : String(value || '').trim();
+        }
 
         function parseCSVSimple(text) {
             const rows = [];
@@ -236,10 +258,10 @@
             return rows;
         }
 
-        async function fetchReasonRows() {
-            if (_cache) return _cache;
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${REASON_GID}`;
-            const res = await fetch(url);
+        async function fetchReasonRows(forceRefresh = false) {
+            if (_cache && !forceRefresh) return _cache;
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${REASON_GID}&_=${Date.now()}`;
+            const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
             const rows = parseCSVSimple(await res.text()).slice(1).filter(r => r.some(Boolean));
             _cache = rows;
@@ -256,7 +278,7 @@
             const body = document.getElementById('popup-body');
             const title = document.getElementById('popup-title');
             const subtitle = document.getElementById('popup-subtitle');
-            const thaiName = REP_THAI[repId] || repId;
+            const normalizedRepId = normalizeSalesOwner(repId);
 
             // Get current selected week label from dashboard globals
             const currentWeekObj = (typeof dashboardData !== 'undefined' && typeof selectedId !== 'undefined')
@@ -270,11 +292,11 @@
             popup.classList.add('flex');
 
             try {
-                const rows = await fetchReasonRows();
+                const rows = await fetchReasonRows(true);
                 // row: [0]=id, [1]=recordDate, [2]=week, [3]=salesOwner, [4]=count, [5]=reason
                 const filtered = rows.filter(r =>
-                    String(r[3] || '').trim() === thaiName &&
-                    (!currentWeekLabel || String(r[2] || '').trim() === currentWeekLabel)
+                    normalizeSalesOwner(r[3]) === normalizedRepId &&
+                    (!currentWeekLabel || normalizeWeekLabel(r[2]) === normalizeWeekLabel(currentWeekLabel))
                 );
                 const sorted = filtered.sort((a, b) => {
                     const wa = parseInt(String(a[2] || '').match(/\d+/)?.[0] || '0');

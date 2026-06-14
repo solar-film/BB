@@ -380,14 +380,33 @@
             }[char]));
         }
 
+        const SALES_OWNER_ALIASES = {
+            BOM: ['BOM', 'บอม'],
+            Jay: ['Jay', 'เจ'],
+            Saifha: ['Saifha', 'สายฟ้า'],
+            Kat: ['Kat', 'แพท'],
+            Image: ['Image', 'อิมเมจ'],
+            YA: ['YA', 'ยา'],
+            Tung: ['Tung', 'ตัง'],
+            Tukta: ['Tukta', 'ตุ๊กตา']
+        };
+
+        function normalizeSalesOwner(value) {
+            const normalized = String(value || '').trim().toLocaleLowerCase('en-US');
+            const match = Object.entries(SALES_OWNER_ALIASES).find(([, aliases]) =>
+                aliases.some(alias => String(alias).trim().toLocaleLowerCase('en-US') === normalized)
+            );
+            return match ? match[0] : String(value || '').trim();
+        }
+
         let allRows = [];
 
         function renderRecentList() {
             const repFilter = document.getElementById('filter-rep').value;
             const weekFilter = document.getElementById('filter-week').value;
             let rows = allRows;
-            if (repFilter) rows = rows.filter(r => String(r[3] || '').trim() === repFilter);
-            if (weekFilter) rows = rows.filter(r => String(r[2] || '').trim() === weekFilter);
+            if (repFilter) rows = rows.filter(r => normalizeSalesOwner(r[3]) === normalizeSalesOwner(repFilter));
+            if (weekFilter) rows = rows.filter(r => normalizeWeek(r[2]) === normalizeWeek(weekFilter));
             if (rows.length === 0) {
                 recentList.innerHTML = '<p class="font-bold text-slate-500">ไม่พบรายการ</p>';
                 latestRows = [];
