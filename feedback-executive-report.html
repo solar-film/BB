@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4d37b4">
+    <title>รายงาน Customer Feedback สำหรับผู้บริหาร</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/feedback-executive-report.css">
+</head>
+<body>
+    <header class="report-toolbar">
+        <a class="report-brand" href="index.html" aria-label="กลับหน้าหลัก">
+            <span class="brand-mark">BB</span>
+            <span><strong>Customer Voice</strong><small>EXECUTIVE REPORT</small></span>
+        </a>
+        <div class="toolbar-center">
+            <label>ช่วง Week</label>
+            <div class="week-multi-select" id="week-multi-select">
+                <button id="week-filter-button" class="week-filter-button" type="button" aria-haspopup="true" aria-expanded="false">กำลังโหลด...</button>
+                <div id="week-filter-popover" class="week-filter-popover hidden">
+                    <header><strong>เลือก Week ที่ต้องการ</strong><small>เลือกพร้อมกันได้หลาย Week</small></header>
+                    <div class="week-quick-actions"><button id="select-latest-week" type="button">Week ล่าสุด</button><button id="select-all-weeks" type="button">เลือกทั้งหมด</button></div>
+                    <div id="week-options" class="week-options"></div>
+                    <footer><button id="apply-week-filter" type="button">ใช้ตัวกรอง</button></footer>
+                </div>
+            </div>
+            <select id="sentiment-filter" class="sentiment-filter" aria-label="กรองคำชม หรือคอมเพลน">
+                <option value="all">คำชมและคอมเพลนทั้งหมด</option>
+                <option value="praise">★ เฉพาะคำชม</option>
+                <option value="complaint">⚠ เฉพาะคอมเพลน</option>
+            </select>
+            <span id="week-range">—</span>
+        </div>
+        <nav class="toolbar-actions" aria-label="เมนูรายงาน">
+            <a href="feedback-bb-week.html">✎ บันทึกข้อมูล</a>
+            <a href="feedback-presentation.html">▶ สไลด์</a>
+            <button id="refresh-report" type="button" title="รีเฟรชข้อมูล">↻</button>
+            <button id="print-report" class="print-button" type="button">⤓ พิมพ์ / PDF</button>
+        </nav>
+    </header>
+
+    <main class="report-shell" data-report-audience="product stakeholders">
+        <header class="report-title" data-contract-section="title">
+            <div>
+                <span class="eyebrow">BB WEEK / CUSTOMER EXPERIENCE</span>
+                <h1>รายงานเสียงจากลูกค้า</h1>
+                <p id="report-subtitle">กำลังโหลดข้อมูลจาก Feedback-BB-Week...</p>
+            </div>
+            <div class="report-stamp">
+                <small>จัดทำข้อมูล ณ</small>
+                <strong id="generated-date">—</strong>
+                <span>ข้อมูลภายในองค์กร</span>
+            </div>
+        </header>
+
+        <section class="executive-summary-box" data-contract-section="executive-summary">
+            <details class="report-disclosure executive-disclosure" open>
+                <summary class="executive-summary-heading"><span class="section-kicker">01</span><h2>Executive Summary</h2></summary>
+                <div class="summary-content"><ul id="executive-summary"><li>กำลังประมวลผลข้อมูล...</li></ul></div>
+            </details>
+        </section>
+
+        <section class="report-section" data-contract-section="key-findings">
+            <details class="report-disclosure" open>
+                <summary class="section-heading">
+                    <div><span class="eyebrow">ภาพรวมประจำสัปดาห์</span><h2>สถานะ Feedback ที่ผู้บริหารควรรู้</h2></div>
+                    <p class="metric-definition">1 งาน = 1 ลูกค้าที่บันทึกในชีต และนับคำชม/คอมเพลนแยกตามฝ่ายขายกับทีมช่าง</p>
+                </summary>
+                <div class="disclosure-content">
+                    <div class="kpi-grid">
+                        <article class="kpi-card primary"><span>ลูกค้าที่ให้ Feedback</span><strong id="kpi-total">0</strong><small id="kpi-companies">0 บริษัท</small></article>
+                        <article class="kpi-card gfs"><span>GFS</span><strong id="kpi-gfs">0</strong><small id="kpi-gfs-share">0% ของงาน</small></article>
+                        <article class="kpi-card mhl"><span>MHL</span><strong id="kpi-mhl">0</strong><small id="kpi-mhl-share">0% ของงาน</small></article>
+                        <article class="kpi-card praise"><span>★ พบคำชม</span><strong id="kpi-praise">0</strong><small>ประเด็นจาก 2 ทีม</small></article>
+                        <article class="kpi-card complaint"><span>⚠ พบคอมเพลน</span><strong id="kpi-complaint">0</strong><small>ประเด็นที่ควรติดตาม</small></article>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <section class="report-section finding-grid" data-contract-section="key-findings-detail">
+            <article class="panel sentiment-panel">
+                <details class="report-disclosure" open>
+                    <summary class="panel-heading"><div><span class="eyebrow">SENTIMENT MIX</span><h2>ประเภทคำติชมแยกตามทีม</h2></div><span id="sentiment-total" class="count-pill">0 ประเด็น</span></summary>
+                    <div class="disclosure-content">
+                    <div id="sentiment-chart" class="sentiment-chart" role="img" aria-label="สัดส่วนประเภทคำติชมฝ่ายขายและทีมช่าง"></div>
+                    <p class="evidence-note">แถบแสดงจำนวนรายการแบบไม่ซ้ำในแต่ละทีม เพื่อเห็นจุดที่ต้องติดตามและโอกาสยกย่องทีมได้ทันที</p>
+                    </div>
+                </details>
+            </article>
+            <article class="panel people-panel">
+                <details class="report-disclosure" open>
+                    <summary class="panel-heading"><div><span class="eyebrow">PEOPLE SIGNALS</span><h2>บุคลากรที่ลูกค้ากล่าวถึง</h2></div></summary>
+                    <div class="disclosure-content">
+                    <div class="people-columns">
+                        <section class="people-list praise-list"><h3>★ ผู้ที่ได้รับคำชม</h3><div id="praised-people"></div></section>
+                        <section class="people-list complaint-list"><h3>⚠ ผู้ที่มีคอมเพลน</h3><div id="complaint-people"></div></section>
+                    </div>
+                    <p class="evidence-note">ชื่อมาจากช่องฝ่ายขายและรายชื่อช่างในรายการที่เลือกประเภทคำติชมไว้</p>
+                    </div>
+                </details>
+            </article>
+        </section>
+
+        <section class="report-section details-section" data-contract-section="supporting-detail">
+            <details open>
+                <summary><span>รายละเอียดลูกค้าทั้งหมดใน Week</span><b id="detail-count">0 งาน</b></summary>
+                <div class="table-wrap">
+                    <table class="detail-table">
+                        <colgroup><col class="col-number"><col class="col-customer"><col class="col-date"><col class="col-sales"><col class="col-tech"><col class="col-feedback"></colgroup>
+                        <thead><tr><th>#</th><th>ลูกค้า / บริษัท</th><th>วันที่</th><th>ฝ่ายขาย</th><th>ทีมช่าง</th><th>สรุป Feedback</th></tr></thead>
+                        <tbody id="detail-rows"></tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <footer class="report-footer">
+            <span>Customer Voice · BB Week Executive Report</span>
+            <span id="source-note">Source: Feedback-BB-Week</span>
+        </footer>
+    </main>
+
+    <div id="report-loading" class="report-loading"><span class="loader-mark">BB</span><strong>กำลังจัดทำรายงานผู้บริหาร</strong><i></i></div>
+    <div id="report-error" class="report-error hidden"><strong>ไม่สามารถโหลดรายงานได้</strong><p id="error-message"></p><button type="button" id="retry-report">ลองอีกครั้ง</button></div>
+    <script src="js/feedback-executive-report.js"></script>
+</body>
+</html>

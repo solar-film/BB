@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5b3fc2">
+    <title>BB Customer Feedback</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/feedback-bb-week.css">
+</head>
+<body>
+    <header class="app-header">
+        <a class="brand" href="index.html">
+            <span class="brand-mark">BB</span>
+            <span><strong>Customer Voice</strong><small>FEEDBACK WORKSPACE</small></span>
+        </a>
+        <div class="header-copy">
+            <span class="eyebrow">BB WEEK / CUSTOMER EXPERIENCE</span>
+            <h1>บันทึก Feedback ลูกค้า</h1>
+        </div>
+        <div class="header-actions">
+            <span class="source-status"><i id="source-dot"></i><span><small>ข้อมูลต้นทาง</small><strong id="source-status">กำลังเชื่อมต่อ...</strong></span></span>
+            <a class="presentation-link report-link" href="feedback-executive-report.html">▦ รายงานผู้บริหาร</a>
+            <a class="presentation-link" href="feedback-presentation.html">▶ เปิดสไลด์นำเสนอ</a>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <aside class="job-panel" id="job-panel">
+            <div class="panel-title">
+                <div><span class="eyebrow">STEP 1</span><h2>เลือกงานที่ต้องการ</h2><p id="job-count">กำลังโหลด Our-DATA...</p></div>
+                <button id="refresh-source" class="icon-button" type="button" title="รีเฟรชข้อมูล" aria-label="รีเฟรชข้อมูล">↻</button>
+            </div>
+
+            <div class="tabs" role="tablist">
+                <button class="active" id="jobs-tab" type="button" role="tab">งานติดตั้ง</button>
+                <button id="recent-tab" type="button" role="tab">บันทึกล่าสุด <span id="recent-count">0</span></button>
+            </div>
+
+            <section id="jobs-view">
+                <label class="search-box">
+                    <span>⌕</span>
+                    <input id="job-search" type="search" placeholder="ค้นหาชื่อ, บริษัท, เบอร์โทร, ID..." autocomplete="off">
+                </label>
+                <div class="job-filters">
+                    <select id="month-filter" aria-label="กรองเดือนติดตั้ง"><option value="">ทุกเดือนติดตั้ง</option></select>
+                    <select id="day-filter" aria-label="กรองวันที่ติดตั้ง"><option value="">ทุกวันที่ติดตั้ง</option></select>
+                </div>
+                <div class="job-list" id="job-list"></div>
+                <button id="load-more" class="load-more hidden" type="button">แสดงรายการเพิ่มเติม</button>
+            </section>
+
+            <section id="recent-view" class="hidden">
+                <div class="recent-filter-row">
+                    <label class="search-box recent-search-box">
+                        <span>⌕</span>
+                        <input id="recent-search" type="search" placeholder="ค้นหารายการที่บันทึก..." autocomplete="off">
+                    </label>
+                    <select id="recent-week-filter" aria-label="กรองรายการบันทึกตาม Week"><option value="">ทุก Week</option></select>
+                </div>
+                <div class="recent-list" id="recent-list"></div>
+                <div class="empty-mini hidden" id="recent-empty">ไม่พบ Feedback ที่บันทึกไว้</div>
+            </section>
+        </aside>
+
+        <section class="form-panel">
+            <div class="empty-selection" id="empty-selection">
+                <span>☝</span><h2>เลือกงานจากรายการด้านซ้าย</h2><p>ข้อมูลลูกค้าจากชีต Our-DATA จะถูกเติมลงฟอร์มให้อัตโนมัติ</p>
+            </div>
+
+            <form id="feedback-form" class="hidden" novalidate>
+                <input id="record-id" type="hidden">
+                <input id="source-id" type="hidden">
+                <input id="source-row" type="hidden">
+
+                <div class="form-hero">
+                    <div>
+                        <span class="eyebrow light" id="form-mode-label">SELECTED CUSTOMER</span>
+                        <h2 id="selected-customer">—</h2>
+                        <p><span id="selected-company">—</span><i></i><span id="selected-source-id">—</span></p>
+                    </div>
+                    <div class="form-hero-actions"><span id="edit-mode-badge" class="edit-mode-badge hidden">กำลังแก้ไขข้อมูลเดิม</span><button id="change-customer" type="button">เปลี่ยนงาน</button></div>
+                </div>
+
+                <section class="form-section source-section">
+                    <div class="section-heading"><span class="step-number">01</span><div><h3>ข้อมูลจาก Our-DATA</h3><p>ข้อมูลอ้างอิงจากงานที่เลือก ไม่ต้องกรอกซ้ำ</p></div></div>
+                    <div class="source-grid" id="source-grid"></div>
+                </section>
+
+                <section class="form-section">
+                    <div class="section-heading"><span class="step-number">02</span><div><h3>ข้อมูลสำหรับ BB Week</h3><p>ระบุวันที่ติดต่อและ Feedback ที่ได้รับจากลูกค้า</p></div></div>
+
+                    <div class="two-columns compact-fields">
+                        <label class="field"><span>BB Week <b>*</b></span><select id="bb-week" required></select></label>
+                        <label class="field"><span>วันที่สอบถาม <b>*</b></span><input id="inquiry-date" type="date" required></label>
+                    </div>
+
+                    <div class="feedback-group sales-group">
+                        <div class="group-label"><span>ฝ่ายขาย</span><small>ความคิดเห็นเกี่ยวกับการให้บริการของฝ่ายขาย</small></div>
+                        <div class="two-columns">
+                            <label class="field"><span>คำติชม — ฝ่ายขาย</span><select id="sales-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
+                            <label class="field"><span>Feedback — ฝ่ายขาย</span><textarea id="sales-feedback" rows="4" placeholder="รายละเอียด Feedback เพิ่มเติม..."></textarea></label>
+                        </div>
+                    </div>
+
+                    <div class="feedback-group tech-group">
+                        <div class="group-label"><span>ทีมช่าง</span><small>ความคิดเห็นเกี่ยวกับงานติดตั้งและทีมช่าง</small></div>
+                        <div class="two-columns">
+                            <label class="field"><span>คำติชม — ทีมช่าง</span><select id="tech-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
+                            <label class="field"><span>Feedback — ทีมช่าง</span><textarea id="tech-feedback" rows="4" placeholder="รายละเอียด Feedback เพิ่มเติม..."></textarea></label>
+                        </div>
+                        <label class="field technician-field"><span>รายชื่อช่าง</span><textarea id="technician-names" rows="3" placeholder="ชื่อช่างผู้ปฏิบัติงาน..."></textarea></label>
+                    </div>
+
+                    <div class="feedback-group suggestion-group">
+                        <div class="group-label"><span>ข้อแนะนำอื่นๆ</span><small>ข้อเสนอแนะเพิ่มเติมจากลูกค้า</small></div>
+                        <label class="field"><textarea id="suggestions" rows="3" aria-label="ข้อแนะนำอื่นๆ" placeholder="ข้อเสนอแนะเพิ่มเติมจากลูกค้า..."></textarea></label>
+                    </div>
+                    <label class="field"><span>หมายเหตุ</span><textarea id="note" rows="3" placeholder="หมายเหตุสำหรับทีมภายใน..."></textarea></label>
+                </section>
+
+                <div id="form-status" class="form-status hidden" role="status"></div>
+                <footer class="form-actions">
+                    <button id="clear-feedback" class="secondary-button" type="button">ล้างเฉพาะ Feedback</button>
+                    <button id="submit-button" class="primary-button" type="submit"><span>บันทึกลง Feedback-BB-Week</span><b>→</b></button>
+                </footer>
+            </form>
+        </section>
+    </main>
+
+    <div class="toast hidden" id="toast"><span>✓</span><div><strong>บันทึกเรียบร้อย</strong><small id="toast-message"></small></div></div>
+    <div class="loading-overlay" id="loading-overlay"><div class="loader-mark">BB</div><strong>กำลังโหลดงานจาก Our-DATA</strong><i></i></div>
+
+    <script src="js/feedback-bb-week.js"></script>
+</body>
+</html>

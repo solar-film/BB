@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#17152c">
+    <title>BB Customer Voice | Presentation</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/feedback-presentation.css">
+</head>
+<body>
+    <main class="presentation-shell">
+        <header class="presentation-topbar">
+            <a class="presentation-brand" href="index.html">
+                <span>BB</span><div><strong>Customer Voice</strong><small>PRESENTATION MODE</small></div>
+            </a>
+            <div class="week-control">
+                <label for="week-select">ข้อมูลประจำ</label>
+                <select id="week-select" aria-label="เลือก Week"></select>
+                <span id="week-range"></span>
+            </div>
+            <div class="topbar-actions">
+                <span class="live-status"><i></i><span><small>ข้อมูลจาก Feedback-BB-Week</small><strong id="data-status">กำลังโหลด...</strong></span></span>
+                <a class="entry-link" href="feedback-bb-week.html">✎ กรอก / แก้ไข Feedback</a>
+                <button id="refresh-button" type="button" title="รีเฟรชข้อมูล">↻</button>
+                <button id="fullscreen-button" type="button">⛶ เต็มจอ</button>
+            </div>
+        </header>
+
+        <section class="stage-wrap">
+            <div class="slide-stage" id="slide-stage" aria-live="polite"></div>
+        </section>
+
+        <footer class="presentation-controls">
+            <button id="previous-slide" type="button" aria-label="สไลด์ก่อนหน้า">←</button>
+            <button id="play-slides" class="play-button" type="button">▶ เล่นอัตโนมัติ</button>
+            <div class="slide-dots" id="slide-dots"></div>
+            <span id="slide-counter">— / —</span>
+            <button id="next-slide" type="button" aria-label="สไลด์ถัดไป">→</button>
+        </footer>
+    </main>
+
+    <div class="presentation-loading" id="presentation-loading">
+        <span class="loading-mark">BB</span>
+        <strong>กำลังจัดเตรียมสไลด์</strong>
+        <p>อ่านข้อมูลล่าสุดจาก Feedback-BB-Week</p>
+        <i></i>
+    </div>
+    <div class="presentation-error hidden" id="presentation-error"><strong>ไม่สามารถโหลดข้อมูลได้</strong><span id="error-message"></span><button id="retry-button">ลองอีกครั้ง</button></div>
+
+    <script src="js/feedback-presentation.js"></script>
+</body>
+</html>
