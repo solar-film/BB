@@ -10,7 +10,7 @@
     const RECENT_CACHE_KEY = 'bb-feedback-recent-v1';
     const PAGE_STEP = 40;
 
-    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], activeTab: 'jobs', editingRecordId: '' };
+    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], contactedSourceIds: new Set(), recentWeekInitialized: false, activeTab: 'jobs', editingRecordId: '' };
     const el = (id) => document.getElementById(id);
     const clean = (value) => String(value ?? '').trim();
     const escapeHTML = (value) => clean(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
@@ -150,12 +150,15 @@
             : `พร้อมค้นหาจาก ${state.jobs.length.toLocaleString('th-TH')} งาน`;
         el('job-list').innerHTML = !hasSearch
             ? '<div class="search-prompt"><span>⌕</span><strong>ค้นหางานที่ต้องการ</strong><p>พิมพ์คำค้นหา หรือเลือกเดือนและวันที่ติดตั้งด้านบน</p></div>'
-            : shown.length ? shown.map((job) => `
-            <button class="job-card ${state.selected?.sourceRow === job.sourceRow ? 'selected' : ''}" type="button" data-row="${job.sourceRow}">
-                <span class="job-card-top"><span class="company-tag">${escapeHTML(job.company)}</span><span class="job-date">${escapeHTML(job.installDate || 'ไม่ระบุวันที่')}</span></span>
+            : shown.length ? shown.map((job) => {
+                const contacted = state.contactedSourceIds.has(clean(job.id));
+                return `
+            <button class="job-card ${state.selected?.sourceRow === job.sourceRow ? 'selected' : ''} ${contacted ? 'contacted' : ''}" type="button" data-row="${job.sourceRow}">
+                <span class="job-card-top"><span class="job-card-tags"><span class="company-tag">${escapeHTML(job.company)}</span>${contacted ? '<span class="contacted-badge">✓ โทรติดต่อแล้ว</span>' : ''}</span><span class="job-date">${escapeHTML(job.installDate || 'ไม่ระบุวันที่')}</span></span>
                 <h3>${escapeHTML(job.customerName)}</h3><p>${escapeHTML(job.id)} · ${escapeHTML(job.address || 'ไม่ระบุที่อยู่')}</p>
                 <span class="job-card-meta"><span>ฝ่ายขาย <strong>${escapeHTML(job.sales || '—')}</strong></span><span>${job.glassArea ? `${numberFormat.format(job.glassArea)} ${escapeHTML(job.unit)}` : 'ไม่ระบุพื้นที่'}</span></span>
-            </button>`).join('') : '<div class="empty-mini">ไม่พบงานที่ตรงกับคำค้นหา</div>';
+            </button>`;
+            }).join('') : '<div class="empty-mini">ไม่พบงานที่ตรงกับคำค้นหา</div>';
         el('load-more').classList.toggle('hidden', !hasSearch || state.visible >= state.filtered.length);
         document.querySelectorAll('.job-card').forEach((button) => button.addEventListener('click', () => selectJob(Number(button.dataset.row))));
     }
@@ -339,8 +342,14 @@
     function addRecent(payload) {
         state.recent = [payload, ...state.recent.filter((item) => item.recordId !== payload.recordId)].slice(0, 500);
         localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
-        populateRecentWeekFilter();
+        refreshContactedSourceIds();
+        populateRecentWeekFilter(payload.bbWeek);
         renderRecent();
+        renderJobs();
+    }
+
+    function refreshContactedSourceIds() {
+        state.contactedSourceIds = new Set(state.recent.map((item) => clean(item.sourceId)).filter(Boolean));
     }
 
     function renderRecent() {
@@ -358,25 +367,30 @@
         const scriptUrl = getScriptUrl();
         if (!scriptUrl) return;
         try {
-            const response = await fetch(`${scriptUrl}?action=list&limit=500&_=${Date.now()}`, { cache: 'no-store' });
+            const response = await fetch(`${scriptUrl}?action=list&limit=1000&_=${Date.now()}`, { cache: 'no-store' });
             const result = await response.json();
             if (result.ok && Array.isArray(result.records)) {
                 state.recent = result.records;
                 localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
+                refreshContactedSourceIds();
                 populateRecentWeekFilter();
                 renderRecent();
+                renderJobs();
             }
         } catch (_) { /* Keep local recent records when Apps Script response is blocked. */ }
     }
 
-    function populateRecentWeekFilter() {
+    function populateRecentWeekFilter(preferredWeek = '') {
         const select = el('recent-week-filter');
         if (!select) return;
-        const current = select.value;
+        const current = clean(preferredWeek) || select.value;
         const weeks = [...new Set(state.recent.map((item) => clean(item.bbWeek)).filter(Boolean))]
             .sort((a, b) => feedbackWeekRank(b) - feedbackWeekRank(a));
         select.innerHTML = '<option value="">ทุก Week</option>' + weeks.map((week) => `<option value="${escapeHTML(week)}">${escapeHTML(week)}</option>`).join('');
         if (weeks.includes(current)) select.value = current;
+        else if (!state.recentWeekInitialized && weeks.length) select.value = weeks[0];
+        else select.value = '';
+        if (weeks.length) state.recentWeekInitialized = true;
     }
 
     function feedbackWeekRank(value) {
@@ -509,6 +523,7 @@
     }
 
     state.recent = readJSON(RECENT_CACHE_KEY) || [];
+    refreshContactedSourceIds();
     setupWeeks();
     populateRecentWeekFilter();
     renderRecent();
