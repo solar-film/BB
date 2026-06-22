@@ -255,12 +255,26 @@
     }
 
     function validatePayload(payload) {
-        if (!state.selected) return 'กรุณาเลือกงานจาก Our-DATA';
-        if (!payload.bbWeek) return 'กรุณาเลือก BB Week';
-        if (!payload.inquiryDate) return 'กรุณาระบุวันที่สอบถาม';
+        if (!state.selected) return { message: 'กรุณาเลือกงานจาก Our-DATA' };
+        if (!payload.bbWeek) return { message: 'กรุณาเลือก BB Week', fieldId: 'bb-week' };
+        if (!payload.inquiryDate) return { message: 'กรุณาระบุวันที่สอบถาม', fieldId: 'inquiry-date' };
+        if (payload.salesFeedback && !payload.salesComment) return { message: 'กรุณาเลือกคำติชมของฝ่ายขาย เนื่องจากมีการกรอก Feedback ฝ่ายขาย', fieldId: 'sales-comment' };
+        if (payload.techFeedback && !payload.techComment) return { message: 'กรุณาเลือกคำติชมของทีมช่าง เนื่องจากมีการกรอก Feedback ทีมช่าง', fieldId: 'tech-comment' };
         const feedbackFields = ['salesComment', 'salesFeedback', 'techComment', 'techFeedback', 'suggestions', 'note'];
-        if (!feedbackFields.some((key) => payload[key])) return 'กรุณากรอก Feedback อย่างน้อย 1 ช่อง';
-        return '';
+        if (!feedbackFields.some((key) => payload[key])) return { message: 'กรุณากรอก Feedback อย่างน้อย 1 ช่อง' };
+        return null;
+    }
+
+    function showValidationError(validation) {
+        showFormStatus(validation.message, true);
+        document.querySelectorAll('.field.validation-error').forEach((field) => field.classList.remove('validation-error'));
+        if (!validation.fieldId) return;
+        const input = el(validation.fieldId);
+        const field = input?.closest('.field');
+        field?.classList.add('validation-error');
+        input?.setAttribute('aria-invalid', 'true');
+        input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(() => input?.focus(), 280);
     }
 
     async function submitFeedback(event) {
@@ -268,7 +282,7 @@
         const scriptUrl = getScriptUrl();
         const payload = collectPayload();
         const validation = validatePayload(payload);
-        if (validation) { showFormStatus(validation, true); return; }
+        if (validation) { showValidationError(validation); return; }
         const button = el('submit-button');
         const isEditing = payload.action === 'update';
         button.disabled = true;
@@ -446,6 +460,18 @@
     function setSourceStatus(text, online) { el('source-status').textContent = text; el('source-dot').classList.toggle('online', online); }
     function showFormStatus(message, error = false, success = false) { el('form-status').textContent = message; el('form-status').className = `form-status${error ? ' error' : success ? ' success' : ''}`; }
     function hideFormStatus() { el('form-status').classList.add('hidden'); }
+
+    function clearFieldValidation(id) {
+        const input = el(id);
+        input?.closest('.field')?.classList.remove('validation-error');
+        input?.removeAttribute('aria-invalid');
+    }
+    function syncConditionalRequirement(feedbackId, commentId) {
+        const hasFeedback = Boolean(clean(el(feedbackId).value));
+        el(commentId).toggleAttribute('required', hasFeedback);
+        el(commentId).setAttribute('aria-required', String(hasFeedback));
+        if (!hasFeedback || el(commentId).value) clearFieldValidation(commentId);
+    }
     function showToast(message) { el('toast-message').textContent = message; el('toast').classList.remove('hidden'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => el('toast').classList.add('hidden'), 3500); }
     function formatThaiDate(value) { const date = new Date(`${value}T00:00:00`); return Number.isNaN(date.getTime()) ? clean(value) : new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' }).format(date); }
     function normalizeDate(value) {
@@ -474,7 +500,12 @@
         el('change-customer').addEventListener('click', changeCustomer);
         el('clear-feedback').addEventListener('click', handleClearFeedback);
         el('feedback-form').addEventListener('submit', submitFeedback);
-        el('inquiry-date').addEventListener('change', () => { const date = new Date(`${el('inquiry-date').value}T00:00:00`); if (!Number.isNaN(date.getTime())) el('bb-week').value = `Week ${weekOfYear(date)}`; });
+        el('sales-feedback').addEventListener('input', () => syncConditionalRequirement('sales-feedback', 'sales-comment'));
+        el('tech-feedback').addEventListener('input', () => syncConditionalRequirement('tech-feedback', 'tech-comment'));
+        el('sales-comment').addEventListener('change', () => clearFieldValidation('sales-comment'));
+        el('tech-comment').addEventListener('change', () => clearFieldValidation('tech-comment'));
+        el('bb-week').addEventListener('change', () => clearFieldValidation('bb-week'));
+        el('inquiry-date').addEventListener('change', () => { clearFieldValidation('inquiry-date'); const date = new Date(`${el('inquiry-date').value}T00:00:00`); if (!Number.isNaN(date.getTime())) el('bb-week').value = `Week ${weekOfYear(date)}`; });
     }
 
     state.recent = readJSON(RECENT_CACHE_KEY) || [];
