@@ -59,9 +59,14 @@ button, select { cursor: pointer; }
 .job-card { width: 100%; min-width: 0; max-width: 100%; overflow: hidden; display: block; padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: white; color: var(--ink); text-align: left; transition: .16s ease; }
 .job-card:hover { border-color: #b8abeb; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(60,43,126,.07); }
 .job-card.selected { border-color: var(--purple); box-shadow: 0 0 0 2px rgba(91,63,194,.1); }
+.job-card.contacted { border-color: #91cfb7; background: #e8f7f1; }
+.job-card.contacted:hover { border-color: #5fb28f; background: #ddf3ea; box-shadow: 0 8px 22px rgba(29,120,86,.12); }
+.job-card.contacted.selected { border-color: var(--purple); background: #e8f7f1; box-shadow: 0 0 0 2px rgba(91,63,194,.1); }
 .job-card-top, .job-card-meta { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
 .job-card-top, .job-card-meta, .job-card-meta span { min-width: 0; }
+.job-card-tags { min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .company-tag { padding: 3px 7px; border-radius: 6px; background: var(--lavender); color: var(--purple); font: 700 9px/1.3 Manrope, sans-serif; }
+.contacted-badge { padding: 4px 7px; border-radius: 7px; background: #dff4ec; color: #197457; font-size: 9px; font-weight: 800; line-height: 1.2; white-space: nowrap; }
 .job-date { color: #9699a6; font-size: 9px; }
 .job-card h3 { margin: 9px 0 2px; overflow: hidden; color: #262b38; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .job-card > p { margin: 0 0 9px; overflow: hidden; color: #7b7f8d; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
@@ -73,8 +78,8 @@ button, select { cursor: pointer; }
 .recent-search-box { margin-bottom: 0; }
 .recent-filter-row > select { min-width: 0; padding: 0 9px; border: 1px solid var(--line); border-radius: 11px; background: white; color: #656a78; font-size: 12px; font-weight: 700; outline: none; }
 .recent-filter-row > select:focus { border-color: #8f7ed7; box-shadow: 0 0 0 3px rgba(91,63,194,.08); }
-.recent-card { width: 100%; min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--ink); text-align: left; transition: .16s ease; }
-.recent-card:hover { border-color: #9f8de4; background: #faf8ff; transform: translateY(-1px); box-shadow: 0 7px 18px rgba(91,63,194,.08); }
+.recent-card { width: 100%; min-width: 0; padding: 13px; border: 1px solid #91cfb7; border-radius: 12px; background: #e8f7f1; color: var(--ink); text-align: left; transition: .16s ease; }
+.recent-card:hover { border-color: #5fb28f; background: #ddf3ea; transform: translateY(-1px); box-shadow: 0 7px 18px rgba(29,120,86,.12); }
 .recent-card strong { display: block; font-size: 12px; }
 .recent-card p { margin: 3px 0 8px; color: var(--muted); font-size: 10px; }
 .recent-card footer { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #eff0f3; color: #898d99; font-size: 9px; }
@@ -85,7 +90,7 @@ button, select { cursor: pointer; }
 .search-prompt strong { display: block; color: #4f5463; font-size: 13px; }
 .search-prompt p { max-width: 240px; margin: 4px auto 0; font-size: 10px; line-height: 1.55; }
 
-.form-panel { min-width: 0; padding: clamp(22px, 4vw, 52px); background: var(--paper); }
+.form-panel { min-width: 0; padding: 16px clamp(22px, 4vw, 52px) 40px; background: var(--paper); }
 .empty-selection { min-height: calc(100vh - 200px); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; }
 .empty-selection > span { width: 70px; height: 70px; display: grid; place-items: center; border-radius: 24px; background: var(--lavender); color: var(--purple); font-size: 31px; }
 .empty-selection h2 { margin: 18px 0 3px; color: var(--ink); }
@@ -123,6 +128,9 @@ button, select { cursor: pointer; }
 .field textarea { padding: 11px 12px; resize: vertical; line-height: 1.55; }
 .field input:focus, .field select:focus, .field textarea:focus { border-color: #8f7ed7; box-shadow: 0 0 0 3px rgba(91,63,194,.08); }
 .feedback-group { margin: 20px 0; padding: 22px; border: 2px solid #cfc4f5; border-radius: 16px; background: linear-gradient(135deg, #f1edff 0%, #faf8ff 100%); box-shadow: inset 6px 0 0 #6d52cf, 0 8px 22px rgba(91,63,194,.07); }
+.feedback-groups-grid { margin: 20px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.feedback-groups-grid .feedback-group { min-width: 0; margin: 0; }
+.feedback-groups-grid .two-columns { grid-template-columns: 1fr; gap: 14px; }
 .tech-group { border-color: #a9dacb; background: linear-gradient(135deg, #eaf8f3 0%, #f8fcfa 100%); box-shadow: inset 6px 0 0 #2f8a6b, 0 8px 22px rgba(35,123,90,.07); }
 .suggestion-group { border-color: #efd47a; background: linear-gradient(135deg, #fff6cf 0%, #fffdf4 100%); box-shadow: inset 6px 0 0 #e0a51d, 0 8px 22px rgba(180,126,12,.08); }
 .group-label { margin-bottom: 14px; display: flex; align-items: baseline; gap: 9px; }
@@ -210,6 +218,7 @@ body { font-size: 17px; }
 .search-box input { font-size: 15px; }
 .job-filters select { height: 42px; font-size: 13px; }
 .company-tag { font-size: 11px; }
+.contacted-badge { font-size: 11px; }
 .job-date { font-size: 11px; }
 .job-card h3 { font-size: 17px; }
 .job-card > p { font-size: 13px; }
@@ -241,6 +250,21 @@ body { font-size: 17px; }
 .primary-button, .secondary-button { min-height: 48px; font-size: 15px; }
 .toast strong { font-size: 15px; }
 .toast small { font-size: 13px; }
+
+/* Compact selected-customer header to keep the form above the fold. */
+.form-hero { min-height: 72px; padding: 10px 22px; gap: 12px; }
+.form-hero .eyebrow { margin-bottom: 2px; font-size: 10px; }
+.form-hero h2 { margin: 1px 0; font-size: 23px; line-height: 1.05; }
+.form-hero p { gap: 7px; font-size: 12px; }
+.form-hero button { padding: 7px 11px; font-size: 12px; }
+.form-hero-actions { gap: 6px; }
+.edit-mode-badge { padding: 4px 8px; font-size: 10px; }
+
+@media (max-width: 760px) {
+    .form-hero { min-height: 82px; padding: 13px 16px; }
+    .form-hero h2 { font-size: 21px; }
+    .feedback-groups-grid { grid-template-columns: 1fr; }
+}
 
 @media (min-width: 1101px) {
     .workspace { grid-template-columns: 400px minmax(0, 1fr); }
