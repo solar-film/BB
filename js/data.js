@@ -115,13 +115,13 @@ async function loadData() {
                     installs: { total: cleanNumber(parsed[373]?.[i]), line: cleanNumber(parsed[374]?.[i]), fb: cleanNumber(parsed[375]?.[i]), tel: cleanNumber(parsed[376]?.[i]), walkin: cleanNumber(parsed[377]?.[i]), showroom: cleanNumber(parsed[378]?.[i]), other: cleanNumber(parsed[379]?.[i]) },
                     contacts: { total: cleanNumber(parsed[384]?.[i]), tel: cleanNumber(parsed[385]?.[i]), line: cleanNumber(parsed[386]?.[i]), fb: cleanNumber(parsed[387]?.[i]) },
                     tech: { 
-                        claims: cleanNumber(parsed[377]?.[i]), 
+                        claims: cleanNumber(parsed[390]?.[i]), 
                         filmIssueCount: cleanNumber(parsed[392]?.[i]), 
                         filmIssueValue: cleanNumber(parsed[393]?.[i]), 
                         techIssueCount: cleanNumber(parsed[395]?.[i]), 
                         techIssueValue: cleanNumber(parsed[396]?.[i]), 
                         damagePercent: cleanNumber(parsed[384]?.[i]),
-                        teamSize: cleanNumber(parsed[386]?.[i]) 
+                        teamSize: cleanNumber(parsed[399]?.[i]) 
                     }
                 },
                 buildingSales: {
