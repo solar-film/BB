@@ -66,6 +66,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
             cpc: contacts > 0 ? actual / contacts : 0
         };
     });
+    const companyShareColors = { gfs: '#2878ff', mhl: '#ff7a00', car: '#059669' };
 
     const metricCards = [
         {
@@ -189,23 +190,19 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
 
                         <div class="marketing-mini-grid">
                             <div class="is-contact">
-                                <i data-lucide="message-square" class="w-5 h-5"></i>
-                                <span>ติดต่อ</span>
+                                <div class="marketing-mini-label"><i data-lucide="message-square" class="w-5 h-5"></i><span>ติดต่อ</span></div>
                                 <strong>${formatCurrency(company.contacts)} ติดต่อ</strong>
                             </div>
                             <div>
-                                <i data-lucide="users" class="w-5 h-5"></i>
-                                <span>ลูกค้า</span>
+                                <div class="marketing-mini-label"><i data-lucide="users" class="w-5 h-5"></i><span>ลูกค้า</span></div>
                                 <strong>${formatCurrency(company.leads)} ราย</strong>
                             </div>
                             <div>
-                                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                                <span>ROAS</span>
+                                <div class="marketing-mini-label"><i data-lucide="bar-chart-3" class="w-5 h-5"></i><span>ROAS</span></div>
                                 <strong class="is-green">${company.roas.toFixed(1)}x</strong>
                             </div>
                             <div>
-                                <i data-lucide="gauge" class="w-5 h-5"></i>
-                                <span>เทียบยอดขาย</span>
+                                <div class="marketing-mini-label"><i data-lucide="gauge" class="w-5 h-5"></i><span>เทียบยอดขาย</span></div>
                                 <strong>${company.salesRatio.toFixed(1)}%</strong>
                             </div>
                         </div>
@@ -239,35 +236,19 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
                     </div>
                 </article>
 
-                <article class="marketing-insight-card">
-                    <h3><i data-lucide="lightbulb" class="w-5 h-5"></i> วิเคราะห์การตลาด</h3>
-                    <div class="marketing-insight-list">
-                        <div>
-                            <span>เทียบงบสัปดาห์นี้ <small>(เทียบกับสัปดาห์ก่อน)</small></span>
-                            <strong class="${isOverTotal ? 'is-red' : 'is-green'}">${isOverTotal ? '+' : '-'}${formatBaht(Math.abs(totalSpend - totalBudget))}</strong>
-                            <i data-lucide="wallet" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <span>ROAS <small>(เทียบวีกก่อน)</small></span>
-                            <strong class="${roasDiff >= 0 ? 'is-green' : 'is-red'}">${roasDiff >= 0 ? '↑' : '↓'} ${Math.abs(roasDiff).toFixed(1)}x</strong>
-                            <i data-lucide="${roasDiff >= 0 ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <span>ต้นทุน / ลูกค้าใหม่</span>
-                            <strong class="is-blue">${money(costPerLead)}</strong>
-                            <i data-lucide="users" class="w-5 h-5"></i>
-                        </div>
+                <article class="marketing-company-share-card">
+                    <div class="marketing-share-head">
+                        <h3><i data-lucide="pie-chart" class="w-5 h-5"></i> สัดส่วนค่าใช้จ่ายแต่ละบริษัท</h3>
                     </div>
-                    <div class="marketing-summary ${!isOverTotal && roasDiff >= 0 ? 'is-good' : (isOverTotal ? 'is-bad' : 'is-watch')}">
-                        <div>
-                            <b><i data-lucide="lightbulb" class="w-4 h-4"></i> สรุปสถานการณ์:</b>
-                            <p>
-                                ${!isOverTotal
-                                    ? `คุมงบได้ดีมาก อยู่ในงบ (${safePercent(spendPercent)}) ROAS ${totalRoas.toFixed(1)}x ${roasDiff >= 0 ? 'เติบโตดี รักษามาตรฐานไว้' : 'ควรปรับคอนเทนต์ให้ ROAS เพิ่ม'}`
-                                    : `ใช้งบโฆษณาเกินเป้า ${formatBaht(totalSpend - totalBudget)} CPL อยู่ที่ ${money(costPerLead)} ตรวจสอบด่วน`}
-                            </p>
+                    <div class="marketing-share-body">
+                        <div class="marketing-share-chart-wrap">
+                            <canvas id="marketingCompanyShareCanvas"></canvas>
+                            <div class="marketing-share-center">
+                                <span>ใช้จ่ายรวม</span>
+                                <strong>${formatCurrency(totalSpend)}</strong>
+                                <small>บาท</small>
+                            </div>
                         </div>
-                        <span><i data-lucide="${!isOverTotal ? 'shield-check' : 'shield-alert'}" class="w-6 h-6"></i></span>
                     </div>
                 </article>
             </section>
@@ -439,6 +420,88 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
             },
             plugins: [percentLabelPlugin]
         });
+
+        const companyShareCtx = document.getElementById('marketingCompanyShareCanvas')?.getContext('2d');
+        if (companyShareCtx) {
+            if (charts.marketingCompanyShare) charts.marketingCompanyShare.destroy();
+            const shareValues = companyData.map(company => company.actual);
+            const companyShareLabelPlugin = {
+                id: 'marketingCompanyShareLabels',
+                afterDatasetsDraw(chart) {
+                    const { ctx: chartCtx } = chart;
+                    const meta = chart.getDatasetMeta(0);
+                    const total = shareValues.reduce((sum, value) => sum + value, 0);
+                    chartCtx.save();
+                    chartCtx.font = '900 11px Sarabun';
+                    meta.data.forEach((arc, index) => {
+                        const { x, y, startAngle, endAngle, innerRadius, outerRadius } = arc.getProps(
+                            ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'],
+                            true
+                        );
+                        const angle = (startAngle + endAngle) / 2;
+                        const portion = total > 0 ? shareValues[index] / total : 0;
+                        const isSmall = portion < 0.13;
+                        const cos = Math.cos(angle);
+                        const sin = Math.sin(angle);
+                        const radius = isSmall ? outerRadius + 18 : (innerRadius + outerRadius) / 2;
+                        const labelX = x + cos * radius;
+                        const labelY = y + sin * radius;
+
+                        if (isSmall) {
+                            const lineStart = outerRadius + 3;
+                            chartCtx.strokeStyle = companyShareColors[companyData[index].key];
+                            chartCtx.lineWidth = 1.5;
+                            chartCtx.beginPath();
+                            chartCtx.moveTo(x + cos * lineStart, y + sin * lineStart);
+                            chartCtx.lineTo(x + cos * (outerRadius + 13), y + sin * (outerRadius + 13));
+                            chartCtx.stroke();
+                        }
+
+                        chartCtx.fillStyle = isSmall ? '#111a3b' : '#ffffff';
+                        chartCtx.textAlign = isSmall ? (cos >= 0 ? 'left' : 'right') : 'center';
+                        chartCtx.textBaseline = 'middle';
+                        chartCtx.fillText(companyData[index].code, labelX, labelY);
+                    });
+                    chartCtx.restore();
+                }
+            };
+
+            charts.marketingCompanyShare = new Chart(companyShareCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: companyData.map(company => company.code),
+                    datasets: [{
+                        data: shareValues,
+                        backgroundColor: companyData.map(company => companyShareColors[company.key]),
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '67%',
+                    layout: { padding: 18 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { family: 'Sarabun', weight: '800' },
+                            bodyFont: { family: 'Sarabun', weight: '700' },
+                            callbacks: {
+                                label(context) {
+                                    const value = context.raw || 0;
+                                    const share = totalSpend > 0 ? (value / totalSpend) * 100 : 0;
+                                    return `ใช้จ่าย: ${formatBaht(value)} (${share.toFixed(1)}%)`;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [companyShareLabelPlugin]
+            });
+        }
 
         const weeklyCtx = document.getElementById('marketingWeeklySpendCanvas')?.getContext('2d');
         if (!weeklyCtx) return;

@@ -99,7 +99,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
             </div>
 
             <div class="admin-kpi-grid">
-                <article class="admin-card admin-kpi-card is-blue">
+                <article class="admin-card admin-kpi-card is-blue is-contact-support">
                     <div class="admin-kpi-icon"><i data-lucide="message-square" class="w-6 h-6"></i></div>
                     <div>
                         <h3>ปริมาณการติดต่อ</h3>
@@ -108,13 +108,17 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                     </div>
                 </article>
 
-                <article class="admin-card admin-kpi-card is-indigo">
+                <article class="admin-card admin-kpi-card is-indigo is-lead-hero">
                     <div class="admin-kpi-icon"><i data-lucide="send" class="w-6 h-6"></i></div>
                     <div class="admin-kpi-split">
                         <div>
                             <h3>ส่งงานให้เซลล์</h3>
                             <strong>${formatNumber(current.admin.leads.actual)}</strong>
                             <p>เป้า ${formatNumber(current.admin.leads.target)} งาน</p>
+                            <div class="admin-kpi-target-line" aria-label="ส่งงานเทียบเป้า ${Math.round(leadTargetProgress)}%">
+                                <i style="width:${leadTargetProgress}%"></i>
+                            </div>
+                            <small class="admin-kpi-target-label">${Math.round(leadTargetProgress)}% ของเป้า</small>
                         </div>
                         <div class="admin-kpi-rate">
                             <span>Conversion</span>
@@ -123,27 +127,12 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                     </div>
                 </article>
 
-                <article class="admin-card admin-kpi-card is-green">
-                    <div class="admin-kpi-icon"><i data-lucide="target" class="w-6 h-6"></i></div>
-                    <div class="admin-kpi-split">
-                        <div>
-                            <h3>ปิดการขายได้</h3>
-                            <strong>${formatNumber(current.admin.sales.totalInstalls)}</strong>
-                            <p>งานติดตั้ง</p>
-                        </div>
-                        <div class="admin-kpi-rate">
-                            <span>Close Rate</span>
-                            <b>${formatPercent(closeRate)}</b>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="admin-revenue-card">
+                <article class="admin-revenue-card is-revenue-secondary">
                     <div class="admin-revenue-icon"><i data-lucide="award" class="w-8 h-8"></i></div>
                     <div>
                         <h3>ยอดขายจากแอดมิน</h3>
                         <strong>${formatBaht(currentAdminSales)}</strong>
-                        <p>ยอดขายรวมสัปดาห์นี้</p>
+                        <p>ยอดขายจากงานแอดมินปิดเอง</p>
                     </div>
                 </article>
             </div>
@@ -171,8 +160,8 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                     <div class="admin-panel-head">
                         <span class="admin-panel-icon is-indigo"><i data-lucide="award" class="w-5 h-5"></i></span>
                         <div>
-                            <h3>คุณภาพยอดขาย</h3>
-                            <p>แบ่งตามประเภทลูกค้า (อาคาร)</p>
+                            <h3>คุณภาพยอดขายจากแอดมิน</h3>
+                            <p>แตกยอดขายรวมด้านบนตามลูกค้าใหม่/เก่า</p>
                         </div>
                     </div>
 
@@ -195,7 +184,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                         <div class="admin-quality-row is-new">
                             <div>
                                 <span><em>NEW</em> ลูกค้าใหม่ (New)</span>
-                                <p>ติดตั้งแล้ว ${formatNumber(totalNewInstalls)} งาน</p>
+                                <p>ติดตั้งแล้ว <b class="admin-install-count">${formatNumber(totalNewInstalls)}</b> งาน</p>
                             </div>
                         <strong>${formatBaht(totalNewSales)}</strong>
                             <div class="admin-progress"><i style="width:${pct(totalNewSales, currentAdminSales)}%"></i></div>
@@ -204,7 +193,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                         <div class="admin-quality-row is-old">
                             <div>
                                 <span><i data-lucide="users" class="w-4 h-4"></i> ลูกค้าเก่า (Old)</span>
-                                <p>ติดตั้งแล้ว ${formatNumber(totalOldInstalls)} งาน</p>
+                                <p>ติดตั้งแล้ว <b class="admin-install-count">${formatNumber(totalOldInstalls)}</b> งาน</p>
                             </div>
                         <strong>${formatBaht(totalOldSales)}</strong>
                             <div class="admin-progress"><i style="width:${pct(totalOldSales, currentAdminSales)}%"></i></div>

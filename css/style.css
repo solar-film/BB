@@ -516,7 +516,7 @@
         .car-reference-performance-card.is-analysis > strong { color: #0f172a; }
         .car-reference-performance-card.is-analysis p {
             color: #475569;
-            font-size: .86rem;
+            font-size: .98rem;
             font-weight: 700;
             line-height: 1.25;
             margin: 0;
@@ -3136,14 +3136,15 @@
 
         .admin-card,
         .admin-kpi-card {
-            background: rgba(255, 255, 255, .96);
-            border: 1px solid var(--admin-line);
+            background: linear-gradient(180deg, #e8f2ff 0%, #ddecff 100%);
+            border: 1px solid #b9d4f8;
         }
 
         .admin-kpi-grid {
             display: grid;
             gap: .85rem;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            position: relative;
         }
 
         .admin-kpi-card,
@@ -3164,6 +3165,39 @@
         .admin-kpi-card.is-indigo { --kpi: #4f46e5; --kpi-soft: #f0edff; }
         .admin-kpi-card.is-green { --kpi: #059669; --kpi-soft: #e9fbf3; }
 
+        .admin-kpi-card.is-lead-hero {
+            --kpi: #fff;
+            --kpi-soft: rgba(255, 255, 255, .18);
+            background: linear-gradient(135deg, #2637e8 0%, #4338ca 54%, #009ee6 100%);
+            border-color: rgba(37, 99, 235, .45);
+            box-shadow: 0 18px 42px rgba(48, 72, 232, .28), 0 0 0 1px rgba(255, 255, 255, .28) inset;
+            color: #fff;
+            min-height: 9.4rem;
+            order: 2;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .admin-kpi-card.is-lead-hero::after {
+            background: radial-gradient(circle, rgba(255, 255, 255, .24), transparent 62%);
+            content: "";
+            height: 12rem;
+            pointer-events: none;
+            position: absolute;
+            right: -3rem;
+            top: -4.2rem;
+            width: 12rem;
+        }
+
+        .admin-kpi-card.is-contact-support {
+            align-items: center;
+            background: linear-gradient(135deg, #e0efff 0%, #d3e7ff 100%);
+            border-color: #9fc5f8;
+            box-shadow: 0 14px 32px rgba(37, 99, 235, .12);
+            min-height: 9.4rem;
+            order: 1;
+        }
+
         .admin-kpi-icon {
             align-items: center;
             background: var(--kpi-soft);
@@ -3175,6 +3209,24 @@
             width: 3.25rem;
         }
 
+        .admin-kpi-card.is-lead-hero .admin-kpi-icon {
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-kpi-card.is-contact-support .admin-kpi-icon {
+            background: #dbeafe;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, .12);
+            height: 3.55rem;
+            width: 3.55rem;
+        }
+
+        .admin-kpi-card.is-contact-support .admin-kpi-icon svg {
+            height: 1.75rem;
+            width: 1.75rem;
+        }
+
         .admin-kpi-card h3,
         .admin-revenue-card h3 {
             color: #111a3b;
@@ -3182,6 +3234,25 @@
             font-weight: 900;
             line-height: 1.15;
             margin: .05rem 0 .42rem;
+        }
+
+        .admin-kpi-card.is-lead-hero h3,
+        .admin-kpi-card.is-lead-hero p,
+        .admin-kpi-card.is-lead-hero strong,
+        .admin-kpi-card.is-lead-hero .admin-kpi-split,
+        .admin-kpi-card.is-lead-hero .admin-kpi-rate {
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-kpi-card.is-lead-hero h3 {
+            color: #eef4ff;
+            font-size: 1.08rem;
+        }
+
+        .admin-kpi-card.is-contact-support h3 {
+            font-size: 1.06rem;
+            margin-bottom: .5rem;
         }
 
         .admin-kpi-card strong {
@@ -3192,12 +3263,62 @@
             line-height: .95;
         }
 
+        .admin-kpi-card.is-lead-hero strong {
+            color: #fff;
+            font-size: clamp(3.05rem, 4.7vw, 4.25rem);
+            text-shadow: 0 2px 8px rgba(15, 23, 42, .16);
+        }
+
+        .admin-kpi-card.is-contact-support strong {
+            font-size: clamp(3rem, 4.2vw, 4rem);
+        }
+
         .admin-kpi-card p,
         .admin-revenue-card p {
             color: #64748b;
             font-size: .84rem;
             font-weight: 800;
             margin: .72rem 0 0;
+        }
+
+        .admin-kpi-card.is-lead-hero p {
+            color: #dbeafe;
+        }
+
+        .admin-kpi-card.is-contact-support p {
+            color: #40506b;
+            font-size: .9rem;
+            margin-top: .8rem;
+        }
+
+        .admin-kpi-target-line {
+            background: rgba(255, 255, 255, .24);
+            border-radius: 999px;
+            height: .42rem;
+            margin-top: .5rem;
+            overflow: hidden;
+            position: relative;
+            width: min(12.5rem, 100%);
+            z-index: 1;
+        }
+
+        .admin-kpi-target-line i {
+            background: linear-gradient(90deg, #fff 0%, #b8f4ff 100%);
+            border-radius: inherit;
+            box-shadow: 0 0 14px rgba(255, 255, 255, .38);
+            display: block;
+            height: 100%;
+        }
+
+        .admin-kpi-target-label {
+            color: #e0f7ff;
+            display: block;
+            font-size: .76rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-top: .34rem;
+            position: relative;
+            z-index: 1;
         }
 
         .admin-kpi-split {
@@ -3214,6 +3335,10 @@
             padding-left: .9rem;
         }
 
+        .admin-kpi-card.is-lead-hero .admin-kpi-rate {
+            border-left-color: rgba(255, 255, 255, .26);
+        }
+
         .admin-kpi-rate span {
             color: #53627c;
             display: block;
@@ -3222,12 +3347,21 @@
             margin-bottom: .18rem;
         }
 
+        .admin-kpi-card.is-lead-hero .admin-kpi-rate span {
+            color: #dbeafe;
+        }
+
         .admin-kpi-rate b {
             color: var(--kpi);
             display: block;
             font-size: 1.5rem;
             font-weight: 900;
             line-height: 1;
+        }
+
+        .admin-kpi-card.is-lead-hero .admin-kpi-rate b {
+            color: #fff;
+            font-size: 1.75rem;
         }
 
         .admin-revenue-card {
@@ -3239,6 +3373,13 @@
             grid-template-columns: 3.35rem minmax(0, 1fr);
             overflow: hidden;
             position: relative;
+        }
+
+        .admin-revenue-card.is-revenue-secondary {
+            background: linear-gradient(135deg, #ecfdf4 0%, #d9fbe9 100%);
+            border: 1px solid #b7f0d0;
+            box-shadow: 0 14px 30px rgba(5, 150, 105, .12);
+            order: 3;
         }
 
         .admin-revenue-card::after {
@@ -3289,6 +3430,27 @@
             color: #dbe6ff;
         }
 
+        .admin-revenue-card.is-revenue-secondary h3 {
+            color: #065f46;
+        }
+
+        .admin-revenue-card.is-revenue-secondary p {
+            color: #53627c;
+        }
+
+        .admin-revenue-card.is-revenue-secondary strong {
+            color: #059669;
+        }
+
+        .admin-revenue-card.is-revenue-secondary .admin-revenue-icon {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .admin-revenue-card.is-revenue-secondary::after {
+            background: radial-gradient(circle, rgba(16, 185, 129, .2), transparent 58%);
+        }
+
         .admin-mid-grid,
         .admin-bottom-grid {
             display: grid;
@@ -3296,10 +3458,53 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
+        .admin-mid-grid {
+            position: relative;
+        }
+
+        .admin-kpi-grid::after,
+        .admin-mid-grid::after {
+            background: linear-gradient(180deg, transparent 0%, #c7d8ff 14%, #93c5fd 50%, #c7d8ff 86%, transparent 100%);
+            border-radius: 999px;
+            content: "";
+            left: calc(66.666% + .14rem);
+            opacity: .95;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            width: 2px;
+            z-index: 0;
+        }
+
+        .admin-kpi-grid::after {
+            bottom: 0;
+        }
+
+        .admin-mid-grid::after {
+            bottom: 0;
+        }
+
+        .admin-kpi-grid > *,
+        .admin-mid-grid > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-kpi-grid .admin-revenue-card,
+        .admin-mid-grid .admin-quality-card {
+            box-shadow: 0 14px 32px rgba(37, 99, 235, .12);
+        }
+
         .admin-company-card,
         .admin-quality-card,
         .admin-chart-card {
             padding: .9rem 1rem;
+        }
+
+        .admin-chart-card,
+        .admin-source-card {
+            background: rgba(255, 255, 255, .98);
+            border-color: #dfe7f1;
         }
 
         .admin-company-card,
@@ -3371,7 +3576,7 @@
 
         .admin-company-total-grid div {
             min-width: 0;
-            padding: .38rem .54rem .36rem;
+            padding: .34rem .54rem .32rem;
         }
 
         .admin-company-total-grid div + div {
@@ -3395,7 +3600,7 @@
         .admin-company-total-grid strong {
             color: #2563eb;
             display: block;
-            font-size: 1.22rem;
+            font-size: 1.62rem;
             font-weight: 900;
             line-height: 1;
         }
@@ -3435,8 +3640,8 @@
 
         .admin-company-total-grid .is-leads em {
             color: #e0f7ff;
-            font-size: .68rem;
-            margin-top: .2rem;
+            font-size: .78rem;
+            margin-top: .16rem;
         }
 
         .admin-company-card.is-amber .admin-company-total-grid .is-leads em {
@@ -3507,8 +3712,18 @@
             color: #fff;
         }
 
+        .admin-company-card.is-amber .admin-channel-stats strong.admin-channel-leads {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef7b00 100%);
+            border-color: rgba(245, 158, 11, .34);
+            box-shadow: 0 8px 18px rgba(245, 158, 11, .2);
+        }
+
         .admin-channel-stats strong.admin-channel-leads small {
             color: #e0f7ff;
+        }
+
+        .admin-company-card.is-amber .admin-channel-stats strong.admin-channel-leads small {
+            color: #fff4dc;
         }
 
         .admin-channel-stats small,
@@ -3568,12 +3783,24 @@
         .admin-brand-badge.is-phone { background: #52627a; }
 
         .admin-quality-card {
-            background: linear-gradient(180deg, #f3f0ff 0%, #e9e6ff 100%);
-            border-color: #c9c3ff;
-            box-shadow: 0 14px 32px rgba(79, 70, 229, .11);
+            background: linear-gradient(180deg, #ecfdf4 0%, #e2fbea 100%);
+            border-color: #b7f0d0;
+            box-shadow: 0 14px 32px rgba(5, 150, 105, .1);
             display: flex;
             flex-direction: column;
             gap: .62rem;
+            position: relative;
+        }
+
+        .admin-quality-card::before {
+            background: linear-gradient(90deg, #059669 0%, #10b981 58%, #34d399 100%);
+            border-radius: 8px 8px 0 0;
+            content: "";
+            height: .22rem;
+            left: -1px;
+            position: absolute;
+            right: -1px;
+            top: -1px;
         }
 
         .admin-panel-head {
@@ -3600,8 +3827,8 @@
         }
 
         .admin-panel-icon.is-indigo {
-            background: #dfd9ff;
-            color: #4f46e5;
+            background: #d1fae5;
+            color: #059669;
         }
 
         .admin-panel-icon.is-amber {
@@ -3619,7 +3846,7 @@
 
         .admin-quality-total-grid {
             background: rgba(255, 255, 255, .82);
-            border: 1px solid #cfc9ff;
+            border: 1px solid #b7f0d0;
             border-radius: 8px;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3629,11 +3856,11 @@
 
         .admin-quality-total-grid div {
             min-width: 0;
-            padding: .45rem .48rem .42rem;
+            padding: .48rem .48rem .46rem;
         }
 
         .admin-quality-total-grid div + div {
-            border-left: 1px solid #cfc9ff;
+            border-left: 1px solid #b7f0d0;
         }
 
         .admin-quality-total-grid span {
@@ -3646,9 +3873,9 @@
         }
 
         .admin-quality-total-grid strong {
-            color: #4f46e5;
+            color: #059669;
             display: block;
-            font-size: .98rem;
+            font-size: 1.55rem;
             font-weight: 900;
             line-height: 1;
         }
@@ -3700,16 +3927,23 @@
             margin: .12rem 0 0;
         }
 
+        .admin-quality-row p .admin-install-count {
+            color: #07183f;
+            font-size: 1.08rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
         .admin-quality-row strong {
             align-self: end;
-            font-size: 1.22rem;
+            font-size: 1.58rem;
             font-weight: 900;
             line-height: 1;
             white-space: nowrap;
         }
 
-        .admin-quality-row.is-new strong { color: #059669; }
-        .admin-quality-row.is-old strong { color: #4f46e5; }
+        .admin-quality-row.is-new strong { color: #047857; }
+        .admin-quality-row.is-old strong { color: #3730a3; }
 
         .admin-progress {
             background: #e9eef6;
@@ -3737,7 +3971,11 @@
         .admin-monthly-row {
             display: grid;
             gap: .85rem;
-            grid-template-columns: minmax(0, 2.65fr) minmax(18rem, .85fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .admin-monthly-chart-card {
+            grid-column: span 2;
         }
 
         .admin-chart-card {
@@ -3869,11 +4107,17 @@
 
         @media (max-width: 1480px) {
             .admin-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .admin-kpi-grid::after,
+            .admin-mid-grid::after { display: none; }
             .admin-mid-grid,
             .admin-bottom-grid { grid-template-columns: 1fr; }
 
             .admin-monthly-row {
-                grid-template-columns: minmax(0, 2fr) minmax(16rem, .8fr);
+                grid-template-columns: 1fr;
+            }
+
+            .admin-monthly-chart-card {
+                grid-column: auto;
             }
 
             .admin-company-head {
@@ -3910,6 +4154,10 @@
 
             .admin-kpi-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .admin-kpi-card.is-lead-hero {
+                grid-column: auto;
             }
 
             .admin-kpi-split {
@@ -4255,7 +4503,7 @@
         .marketing-company-card {
             --company-color: #2878ff;
             --company-soft: #edf5ff;
-            --company-card-bg: #f4f8ff;
+            --company-card-bg: #edf4ff;
             --company-border: #cfe1ff;
             background: var(--company-card-bg);
             border-color: var(--company-border);
@@ -4266,22 +4514,22 @@
         .marketing-company-card.is-gfs {
             --company-color: #2878ff;
             --company-soft: #edf5ff;
-            --company-card-bg: #f4f8ff;
-            --company-border: #cfe1ff;
+            --company-card-bg: #e2edff;
+            --company-border: #bcd5ff;
         }
 
         .marketing-company-card.is-mhl {
             --company-color: #ff7a00;
             --company-soft: #fff4e8;
-            --company-card-bg: #fff8f0;
-            --company-border: #fed7aa;
+            --company-card-bg: #ffeed7;
+            --company-border: #fdc987;
         }
 
         .marketing-company-card.is-car {
             --company-color: #ff3434;
             --company-soft: #eefbf3;
-            --company-card-bg: #fff5f5;
-            --company-border: #fecaca;
+            --company-card-bg: #e5f8ee;
+            --company-border: #a7e7c4;
         }
 
         .marketing-company-head {
@@ -4394,7 +4642,7 @@
             align-items: center;
             color: #53627c;
             display: inline-flex;
-            font-size: .7rem;
+            font-size: .86rem;
             font-weight: 900;
             gap: .24rem;
         }
@@ -4402,7 +4650,7 @@
         .marketing-platform-row b {
             color: #2878ff;
             display: block;
-            font-size: .8rem;
+            font-size: 1.18rem;
             font-weight: 900;
             margin-top: .1rem;
         }
@@ -4426,9 +4674,10 @@
             display: grid;
             gap: .45rem;
             grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin-top: .3rem;
         }
 
-        .marketing-mini-grid div {
+        .marketing-mini-grid > div {
             background: rgba(255, 255, 255, .76);
             border: 1px solid color-mix(in srgb, var(--company-color) 18%, #fff);
             border-radius: 8px;
@@ -4436,19 +4685,29 @@
             padding: .62rem .48rem .56rem;
         }
 
-        .marketing-mini-grid div.is-contact {
+        .marketing-mini-grid > div.is-contact {
             background: color-mix(in srgb, var(--company-color) 11%, #fff);
             border-color: color-mix(in srgb, var(--company-color) 32%, #fff);
         }
 
-        .marketing-mini-grid i {
-            color: var(--company-color);
-            margin-bottom: .18rem;
+        .marketing-mini-label {
+            align-items: center;
+            display: inline-flex !important;
+            gap: .3rem;
+            line-height: 1;
+            white-space: nowrap;
         }
 
-        .marketing-mini-grid span {
+        .marketing-mini-label svg {
+            color: var(--company-color);
+            flex: 0 0 auto;
+            height: 1.12rem;
+            width: 1.12rem;
+        }
+
+        .marketing-mini-label span {
             color: #435373;
-            display: block;
+            display: inline !important;
             font-size: .72rem;
             font-weight: 900;
             line-height: 1.05;
@@ -4471,31 +4730,34 @@
 
         .marketing-company-foot {
             align-items: center;
+            background: rgba(255, 255, 255, .38);
             border-top: 1px solid color-mix(in srgb, var(--company-color) 28%, #fff);
             color: var(--marketing-ink);
             display: flex;
-            font-size: 1.06rem;
+            font-size: 1.18rem;
             font-weight: 900;
             justify-content: center;
             margin-top: .7rem;
-            padding-top: .6rem;
+            padding: .72rem .4rem 0;
         }
+
+        .marketing-company-foot span { white-space: nowrap; }
 
         .marketing-company-foot b {
             color: #172554;
-            font-size: .86rem;
+            font-size: 1.18rem;
             font-weight: 900;
         }
 
         .marketing-company-foot strong {
             color: var(--company-color);
-            font-size: 1.24rem;
+            font-size: 1.8rem;
             font-weight: 900;
         }
 
         .marketing-company-foot em {
             color: #1e3a8a;
-            font-size: .88rem;
+            font-size: 1.18rem;
             font-style: normal;
             font-weight: 900;
         }
@@ -4511,7 +4773,11 @@
         .marketing-bottom-grid {
             display: grid;
             gap: .85rem;
-            grid-template-columns: minmax(0, 1.72fr) minmax(22rem, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .marketing-bottom-grid > .marketing-chart-card {
+            grid-column: span 2;
         }
 
         .marketing-weekly-section {
@@ -4526,6 +4792,110 @@
         .marketing-insight-card {
             min-height: 15.7rem;
             padding: .85rem 1rem;
+        }
+
+        .marketing-company-share-card {
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid var(--marketing-line);
+            border-radius: 8px;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, .045);
+            min-height: 15.7rem;
+            padding: .85rem 1rem;
+        }
+
+        .marketing-share-head h3 {
+            align-items: center;
+            color: #111a3b;
+            display: inline-flex;
+            font-size: .98rem;
+            font-weight: 900;
+            gap: .42rem;
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .marketing-share-head h3 i { color: #7c3aed; }
+
+        .marketing-share-body {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            margin-top: .65rem;
+        }
+
+        .marketing-share-chart-wrap {
+            aspect-ratio: 1;
+            position: relative;
+            width: min(100%, 13.5rem);
+        }
+
+        .marketing-share-chart-wrap canvas {
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        .marketing-share-center {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            inset: 0;
+            justify-content: center;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .marketing-share-center span,
+        .marketing-share-center small {
+            color: #53627c;
+            font-size: .65rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .marketing-share-center strong {
+            color: #111a3b;
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin: .16rem 0;
+        }
+
+        .marketing-share-legend {
+            display: grid;
+            gap: .62rem;
+        }
+
+        .marketing-share-legend div {
+            align-items: center;
+            display: grid;
+            gap: .28rem .42rem;
+            grid-template-columns: .55rem 2.1rem 1fr;
+        }
+
+        .marketing-share-legend i {
+            border-radius: 50%;
+            height: .52rem;
+            width: .52rem;
+        }
+
+        .marketing-share-legend span {
+            color: #435373;
+            font-size: .78rem;
+            font-weight: 900;
+        }
+
+        .marketing-share-legend strong {
+            color: #111a3b;
+            font-size: .9rem;
+            font-weight: 900;
+            text-align: right;
+        }
+
+        .marketing-share-legend small {
+            color: #53627c;
+            font-size: .72rem;
+            font-weight: 900;
+            grid-column: 2 / -1;
         }
 
         .marketing-chart-head {
@@ -4746,6 +5116,10 @@
             .marketing-company-grid,
             .marketing-bottom-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .marketing-bottom-grid > .marketing-chart-card {
+                grid-column: auto;
             }
 
             .marketing-chart-wrap {
@@ -6349,4 +6723,40 @@
 
         .building-project-customer-card p:last-child span {
             font-size: .84rem !important;
+        }
+
+        /* Let project performance colors fill the complete two-column stat panel. */
+        .building-project-main-stat {
+            gap: 0 !important;
+            overflow: hidden;
+            padding: 0 !important;
+        }
+
+        .building-project-main-stat > .building-project-stat-card {
+            border-radius: 0 !important;
+            min-height: 6.15rem;
+            padding: .85rem 1rem !important;
+        }
+
+        .building-project-main-stat > .building-project-stat-card:first-child {
+            background: linear-gradient(145deg, #fff8e6, #ffedbd) !important;
+            border-right: 1px solid #f0c875 !important;
+        }
+
+        .building-project-main-stat > .building-project-stat-card:nth-child(2) {
+            background: linear-gradient(145deg, #fffdf5, #fff4d6) !important;
+        }
+
+        /* Make representative weekly sales easier to read from a distance. */
+        .building-rep-header .building-rep-week p:first-child {
+            font-size: .88rem !important;
+        }
+
+        .building-rep-header .building-rep-week p:last-child {
+            font-size: 1.8rem !important;
+        }
+
+        /* Enlarge weekly sales figures on project cards. */
+        .building-project-header .building-project-week p:last-child {
+            font-size: 2.35rem !important;
         }
