@@ -1,18 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BB">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Business Breakdown">
   <defs>
-    <linearGradient id="bg" x1="12" y1="8" x2="54" y2="58" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0ea5e9"/>
-      <stop offset="0.52" stop-color="#2563eb"/>
+    <linearGradient id="background" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1d4ed8"/>
       <stop offset="1" stop-color="#0f172a"/>
     </linearGradient>
-    <linearGradient id="shine" x1="16" y1="9" x2="43" y2="43" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    <linearGradient id="bar" x1="18" y1="48" x2="49" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#a7f3d0"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
-  <path d="M12 18c7.5-7 21.5-9.5 39-2.5 2.5 1 3.2 4.3 1.3 6.2C42.6 31.7 25.4 26.8 12 18Z" fill="url(#shine)"/>
-  <path d="M17 45V19h14.1c5.4 0 8.7 2.7 8.7 6.8 0 2.7-1.5 4.9-4.1 5.9 3.3 0.9 5.3 3.1 5.3 6.3 0 4.4-3.4 7-9.2 7H17Zm8-16h5.3c1.8 0 2.8-0.9 2.8-2.4 0-1.6-1-2.4-2.8-2.4H25V29Zm0 10.7h6.1c2 0 3.1-0.9 3.1-2.6s-1.1-2.6-3.1-2.6H25v5.2Z" fill="#f8fafc"/>
-  <path d="M37 45V19h7.9c2.3 0 4.2 0.4 5.7 1.2v6.6c-1.2-1.5-3-2.2-5.4-2.2H45V29h1.3c2.7 0 4.6 0.8 5.7 2.4v6.8c-1.1-1.8-3.1-2.7-5.9-2.7H45V45h-8Z" fill="#dbeafe" opacity="0.92"/>
-  <circle cx="49" cy="16" r="4" fill="#38bdf8"/>
+  <rect width="64" height="64" rx="16" fill="url(#background)"/>
+  <path d="M15 49V16h8v33h-8Z" fill="#f8fafc"/>
+  <path d="M27 49V25h8v24h-8Z" fill="url(#bar)"/>
+  <path d="M39 49V19h8v30h-8Z" fill="#fbbf24"/>
+  <path d="m14 20 11-8 10 5 14-9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"/>
+  <circle cx="49" cy="8" r="3.5" fill="#fff"/>
+  <path d="M12 54h40" stroke="#fff" stroke-linecap="round" stroke-opacity=".7" stroke-width="2"/>
 </svg>
