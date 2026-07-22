@@ -1,19 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Business Breakdown">
-  <defs>
-    <linearGradient id="background" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1d4ed8"/>
-      <stop offset="1" stop-color="#0f172a"/>
-    </linearGradient>
-    <linearGradient id="bar" x1="18" y1="48" x2="49" y2="20" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#38bdf8"/>
-      <stop offset="1" stop-color="#a7f3d0"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#background)"/>
-  <path d="M15 49V16h8v33h-8Z" fill="#f8fafc"/>
-  <path d="M27 49V25h8v24h-8Z" fill="url(#bar)"/>
-  <path d="M39 49V19h8v30h-8Z" fill="#fbbf24"/>
-  <path d="m14 20 11-8 10 5 14-9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"/>
-  <circle cx="49" cy="8" r="3.5" fill="#fff"/>
-  <path d="M12 54h40" stroke="#fff" stroke-linecap="round" stroke-opacity=".7" stroke-width="2"/>
+  <path d="M8 55h48" fill="none" stroke="#0f172a" stroke-linecap="round" stroke-width="4"/>
+  <path d="M11 51V27h11v24H11Z" fill="#2563eb"/>
+  <path d="M27 51V17h11v34H27Z" fill="#14b8a6"/>
+  <path d="M43 51V9h11v42H43Z" fill="#f59e0b"/>
+  <path d="m9 20 15-9 12 6L54 6" fill="none" stroke="#0f172a" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+  <path d="M9 20 24 11l12 6L54 6" fill="none" stroke="#38bdf8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <circle cx="54" cy="6" r="4" fill="#0f172a"/>
+  <circle cx="54" cy="6" r="2" fill="#f8fafc"/>
 </svg>
