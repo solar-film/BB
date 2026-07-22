@@ -4098,6 +4098,57 @@
             padding: .9rem 1rem .8rem;
         }
 
+        .marketing-kpi-card.is-blue {
+            background: #f3f7ff;
+            border-color: #cfe0ff;
+        }
+
+        .marketing-kpi-card.is-green {
+            background: #f1fbf6;
+            border-color: #ccefdc;
+        }
+
+        .marketing-kpi-card.is-purple {
+            background: #faf5ff;
+            border-color: #ead9ff;
+        }
+
+        .marketing-kpi-card.is-primary {
+            background: #123d9b;
+            border-color: #1d4ed8;
+        }
+
+        .marketing-kpi-card.is-primary .marketing-kpi-icon {
+            background: rgba(255, 255, 255, .14);
+            border-color: rgba(255, 255, 255, .28);
+            color: #fff;
+        }
+
+        .marketing-kpi-card.is-primary .marketing-kpi-body p,
+        .marketing-kpi-card.is-primary .marketing-kpi-footer,
+        .marketing-kpi-card.is-primary .marketing-kpi-meta {
+            color: rgba(255, 255, 255, .82);
+        }
+
+        .marketing-kpi-card.is-primary .marketing-kpi-body strong {
+            color: #fff;
+        }
+
+        .marketing-kpi-card.is-primary .marketing-kpi-footer {
+            border-top-color: rgba(255, 255, 255, .2);
+        }
+
+        .marketing-kpi-card.is-primary .marketing-progress-track {
+            background: rgba(255, 255, 255, .24);
+        }
+
+        .marketing-kpi-card.is-primary .marketing-progress-track span.is-blue {
+            background: #bfdbfe;
+        }
+
+        .marketing-kpi-card.is-primary .marketing-kpi-meta b.is-good { color: #bbf7d0; }
+        .marketing-kpi-card.is-primary .marketing-kpi-meta b.is-bad { color: #fecaca; }
+
         .marketing-kpi-icon {
             align-items: center;
             background: #eaf2ff;
@@ -4271,9 +4322,9 @@
 
         .marketing-company-title h3 {
             color: #111a3b;
-            font-size: 1.04rem;
+            font-size: 1.32rem;
             font-weight: 900;
-            line-height: 1.08;
+            line-height: 1.12;
             margin: 0;
             overflow: hidden;
             text-overflow: ellipsis;

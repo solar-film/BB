@@ -71,6 +71,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
         {
             icon: 'wallet',
             tone: 'blue',
+            prominent: true,
             label: 'งบโฆษณารวม (TOTAL SPEND)',
             value: money(totalSpend),
             bar: true,
@@ -126,7 +127,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
 
             <section class="marketing-kpi-grid">
                 ${metricCards.map(card => `
-                    <article class="marketing-kpi-card">
+                    <article class="marketing-kpi-card is-${card.tone} ${card.prominent ? 'is-primary' : ''}">
                         <div class="marketing-kpi-icon is-${card.tone}">
                             <i data-lucide="${card.icon}" class="w-6 h-6"></i>
                         </div>
