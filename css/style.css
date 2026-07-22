@@ -155,9 +155,9 @@
             flex-direction: column;
             justify-content: space-between;
             min-width: 0;
-            min-height: 10.5rem;
+            min-height: 12rem;
             overflow: hidden;
-            padding: .95rem 1.05rem 1rem;
+            padding: 1.05rem 1.15rem 1.1rem;
             border-radius: .7rem;
             box-shadow: 0 8px 22px rgba(23, 55, 94, .09);
         }
@@ -190,7 +190,7 @@
 
         .car-reference-kpi-head h3 {
             color: #07183f;
-            font-size: 1.08rem;
+            font-size: 1.18rem;
             font-weight: 900;
             line-height: 1.1;
             margin: 0;
@@ -198,7 +198,7 @@
         }
 
         .car-reference-kpi-head h3 span {
-            font-size: .92rem;
+            font-size: 1rem;
             font-weight: 800;
         }
 
@@ -224,8 +224,8 @@
             border: 6px solid #2563eb;
             border-radius: 50%;
             box-shadow: 0 3px 10px rgba(37, 99, 235, .16);
-            height: 3.75rem;
-            width: 3.75rem;
+            height: 4.1rem;
+            width: 4.1rem;
         }
 
         .is-week .car-reference-kpi-head i { border-color: #2563eb; color: #1d4ed8; }
@@ -239,9 +239,9 @@
             border-radius: 50%;
             box-shadow: 0 3px 10px rgba(37, 99, 235, .16);
             color: #1d4ed8;
-            height: 3.75rem;
+            height: 4.1rem;
             padding: .45rem;
-            width: 3.75rem;
+            width: 4.1rem;
         }
 
         .is-month .car-reference-kpi-head > svg { border-color: #7c3aed; color: #5b21b6; }
@@ -250,7 +250,7 @@
         .car-reference-kpi > strong {
             color: #1557ae;
             display: block;
-            font-size: clamp(2.25rem, 3vw, 3.1rem);
+            font-size: clamp(2.6rem, 3.3vw, 3.5rem);
             font-weight: 900;
             line-height: 1;
             margin: .2rem 0 .35rem;
@@ -273,7 +273,7 @@
         .car-reference-kpi-meta {
             align-items: center;
             display: flex;
-            font-size: .9rem;
+            font-size: 1rem;
             font-weight: 800;
             gap: .75rem;
             justify-content: space-between;
@@ -283,6 +283,8 @@
         .is-month > strong { color: #5b21b6; }
         .is-month .car-reference-progress span { background: #7c3aed; }
         .car-reference-kpi-meta b { color: #16a34a; }
+        .car-reference-kpi-meta b.is-gap { color: #dc2626; }
+        .car-reference-kpi-meta b.is-positive { color: #16a34a; }
         .car-reference-kpi-meta span { color: #07183f; white-space: nowrap; }
 
         .car-reference-performance-card:nth-child(1) { background: linear-gradient(145deg, #e0edff 0%, #c7dcff 100%); border-color: #9fc2f5; }
@@ -298,6 +300,69 @@
         .car-reference-performance-card:nth-child(2) > .car-reference-split-value > strong { color: #15803d; }
         .car-reference-performance-card:nth-child(3) > .car-reference-tech-count > strong { color: #c2410c; }
         .car-reference-performance-card:nth-child(4) > strong { color: #7e22ce; }
+
+        .car-reference-performance-card.is-damage-summary {
+            background: linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%);
+            border-color: #fb7185;
+            box-shadow: 0 6px 18px rgba(225, 29, 72, .14);
+        }
+
+        .car-reference-performance-card.is-damage-summary h3 i {
+            background: #ffe4e6;
+            color: #dc2626;
+        }
+
+        .car-inline-damage-kpis {
+            display: grid;
+            gap: .35rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .car-inline-damage-kpis > span,
+        .car-inline-damage-cards > span {
+            background: rgba(255, 255, 255, .82);
+            border: 1px solid #fda4af;
+            border-radius: .35rem;
+            display: flex;
+            flex-direction: column;
+            gap: .18rem;
+            justify-content: center;
+            padding: .5rem .45rem;
+            text-align: center;
+        }
+
+        .car-inline-damage-kpis small,
+        .car-inline-damage-cards small {
+            color: #475569;
+            font-size: .82rem;
+            font-weight: 900;
+        }
+
+        .car-inline-damage-kpis b {
+            color: #0f172a;
+            font-size: 1.18rem;
+            font-weight: 900;
+        }
+
+        .car-inline-damage-cards {
+            display: grid;
+            gap: .35rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .car-inline-damage-cards b {
+            color: #0f172a;
+            font-size: 1.12rem;
+            font-weight: 900;
+        }
+
+        .car-inline-damage-cards em {
+            color: #be123c;
+            font-size: .82rem;
+            font-style: normal;
+            font-weight: 900;
+            white-space: nowrap;
+        }
 
         .car-reference-performance {
             display: flex;
@@ -329,7 +394,7 @@
             grid-template-rows: 2.2rem 4.2rem 1fr;
             row-gap: .45rem;
             min-width: 0;
-            min-height: 9rem;
+            min-height: 17rem;
             overflow: hidden;
             padding: .75rem .75rem;
         }
@@ -444,7 +509,7 @@
         }
 
         .car-reference-performance-card:nth-child(2) {
-            min-height: 10.5rem;
+            min-height: 17rem;
         }
 
         .car-reference-performance-card:nth-child(2) .car-reference-mini-grid {
@@ -493,9 +558,9 @@
 
         .car-reference-mini-grid b {
             color: #0f172a;
-            font-size: 1.18rem;
+            font-size: 1.45rem;
             font-weight: 900;
-            line-height: 1;
+            line-height: 1.05;
             margin-left: 0;
         }
 
@@ -516,10 +581,98 @@
         .car-reference-performance-card.is-analysis > strong { color: #0f172a; }
         .car-reference-performance-card.is-analysis p {
             color: #475569;
-            font-size: .98rem;
+            font-size: .84rem;
             font-weight: 700;
-            line-height: 1.25;
+            line-height: 1.2;
             margin: 0;
+        }
+
+        .car-reference-performance-card.is-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: .45rem;
+            justify-content: space-between;
+        }
+
+        .car-analysis-gap {
+            display: flex;
+            flex-direction: column;
+            gap: .1rem;
+        }
+
+        .car-analysis-gap > span {
+            color: #7e22ce;
+            font-size: .88rem;
+            font-weight: 900;
+        }
+
+        .car-analysis-gap > strong {
+            color: #7e22ce;
+            font-size: 2.35rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .car-analysis-gap.is-over > span,
+        .car-analysis-gap.is-over > strong { color: #15803d; }
+
+        .car-analysis-month-compare {
+            background: rgba(236, 253, 245, .82);
+            border: 1px solid #a7f3d0;
+            border-radius: .4rem;
+            display: flex;
+            flex-direction: column;
+            gap: .12rem;
+            padding: .35rem .45rem;
+        }
+
+        .car-analysis-month-compare > span {
+            color: #475569;
+            font-size: .72rem;
+            font-weight: 800;
+        }
+
+        .car-analysis-month-compare > strong {
+            color: #15803d;
+            font-size: .92rem;
+            font-weight: 900;
+        }
+
+        .car-analysis-month-compare.is-down {
+            background: rgba(255, 241, 242, .88);
+            border-color: #fecdd3;
+        }
+
+        .car-analysis-month-compare.is-down > strong { color: #dc2626; }
+
+        .car-analysis-stats {
+            display: grid;
+            gap: .3rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .car-analysis-stats > span {
+            background: rgba(255, 255, 255, .62);
+            border: 1px solid rgba(196, 181, 253, .75);
+            border-radius: .35rem;
+            display: flex;
+            flex-direction: column;
+            gap: .12rem;
+            padding: .3rem .35rem;
+        }
+
+        .car-analysis-stats small {
+            color: #64748b;
+            font-size: .68rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .car-analysis-stats b {
+            color: #7e22ce;
+            font-size: .92rem;
+            font-weight: 900;
+            white-space: nowrap;
         }
 
         .car-reference-bottom-grid {
@@ -528,13 +681,16 @@
             grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
         }
 
+        .car-reference-monthly-panel { grid-column: span 2; }
+        .car-reference-channel-panel { grid-column: span 1; }
+
         .car-reference-panel {
             background: #fff;
             border: 1px solid #d8e2ef;
             border-radius: .55rem;
             box-shadow: 0 5px 16px rgba(23, 55, 94, .055);
             min-width: 0;
-            min-height: 19rem;
+            min-height: 25rem;
             overflow: hidden;
         }
 
@@ -588,16 +744,58 @@
         }
 
         .car-reference-monthly-chart-wrap {
-            height: 16.3rem;
+            height: 22.2rem;
             padding: .3rem .45rem .45rem;
             position: relative;
         }
 
         .car-reference-channel-chart-wrap {
-            height: 16.3rem;
+            height: 22.2rem;
             padding: .7rem;
             position: relative;
         }
+
+        .car-reference-panel-head-tools {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .45rem .7rem;
+            justify-content: flex-end;
+        }
+
+        .car-reference-panel-head-tools > span:first-child {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: .35rem;
+            color: #1d4ed8;
+            font-size: .72rem;
+            font-weight: 900;
+            padding: .2rem .45rem;
+        }
+
+        .car-reference-chart-legend-item {
+            align-items: center;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            color: #334155;
+            display: inline-flex;
+            font-size: .78rem;
+            font-weight: 900;
+            gap: .28rem;
+            padding: 0;
+            white-space: nowrap;
+        }
+
+        .car-reference-chart-legend-item i {
+            border-radius: 50%;
+            display: inline-block;
+            height: .7rem;
+            width: .7rem;
+        }
+
+        .car-reference-chart-legend-item.is-target i { background: #60a5fa; }
+        .car-reference-chart-legend-item.is-actual i { background: #1d4ed8; }
 
         .car-reference-funnel {
             align-items: center;
@@ -708,6 +906,15 @@
             margin-bottom: .25rem;
         }
 
+        .car-reference-damage-card > span:first-child {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            line-height: 1.1;
+            margin-bottom: .3rem;
+            min-height: 2.2rem;
+        }
+
         .car-reference-damage-card strong {
             color: #0f172a;
             display: block;
@@ -722,11 +929,22 @@
         }
 
         .car-reference-damage-card > b {
+            align-items: baseline;
             color: #475569;
-            display: block;
+            display: flex;
             font-size: 1rem;
+            gap: .25rem;
+            justify-content: center;
             margin-top: .3rem;
             white-space: nowrap;
+        }
+
+        .car-reference-damage-card .car-reference-damage-value-label {
+            color: #64748b;
+            display: inline;
+            font-size: .72rem;
+            font-weight: 800;
+            margin: 0 .15rem 0 0;
         }
 
         .car-reference-damage-card.is-red {
@@ -1114,6 +1332,11 @@
             .car-reference-performance-grid,
             .car-reference-bottom-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .car-reference-monthly-panel,
+            .car-reference-channel-panel {
+                grid-column: auto;
             }
 
             .car-reference-insight-bar { align-items: flex-start; flex-wrap: wrap; }
@@ -3196,6 +3419,8 @@
             box-shadow: 0 14px 32px rgba(37, 99, 235, .12);
             min-height: 9.4rem;
             order: 1;
+            overflow: hidden;
+            position: relative;
         }
 
         .admin-kpi-icon {
@@ -3225,6 +3450,46 @@
         .admin-kpi-card.is-contact-support .admin-kpi-icon svg {
             height: 1.75rem;
             width: 1.75rem;
+        }
+
+        .admin-contact-art,
+        .admin-send-art {
+            align-items: center;
+            display: flex;
+            gap: .48rem;
+            opacity: .13;
+            pointer-events: none;
+            position: absolute;
+            right: .9rem;
+            top: 50%;
+            transform: translateY(-50%) rotate(-8deg);
+            z-index: 0;
+        }
+
+        .admin-contact-art {
+            color: #2563eb;
+        }
+
+        .admin-send-art {
+            color: #fff;
+            opacity: .18;
+            right: 1.1rem;
+        }
+
+        .admin-contact-art svg,
+        .admin-send-art svg {
+            filter: drop-shadow(0 8px 12px rgba(37, 99, 235, .12));
+            stroke-width: 2.5;
+        }
+
+        .admin-send-art svg {
+            filter: drop-shadow(0 8px 12px rgba(255, 255, 255, .14));
+        }
+
+        .admin-kpi-card.is-contact-support > *:not(.admin-contact-art),
+        .admin-kpi-card.is-lead-hero > *:not(.admin-send-art) {
+            position: relative;
+            z-index: 1;
         }
 
         .admin-kpi-card h3,
@@ -3451,6 +3716,55 @@
             background: radial-gradient(circle, rgba(16, 185, 129, .2), transparent 58%);
         }
 
+        .admin-revenue-card.is-revenue-secondary {
+            align-items: center;
+        }
+
+        .admin-revenue-card.is-revenue-secondary strong {
+            font-size: clamp(2.7rem, 3.8vw, 3.55rem);
+        }
+
+        .admin-money-art {
+            align-items: center;
+            bottom: .9rem;
+            color: #059669;
+            display: flex;
+            gap: .52rem;
+            opacity: .14;
+            pointer-events: none;
+            position: absolute;
+            right: .85rem;
+            transform: rotate(-8deg);
+            z-index: 0;
+        }
+
+        .admin-money-art svg {
+            animation: admin-money-float 3.4s ease-in-out infinite;
+            filter: drop-shadow(0 8px 12px rgba(5, 150, 105, .18));
+            stroke-width: 2.6;
+        }
+
+        .admin-money-art svg:nth-child(2) {
+            animation-delay: .35s;
+            transform: translateY(-.35rem) rotate(10deg);
+        }
+
+        .admin-money-art svg:nth-child(3) {
+            animation-delay: .7s;
+            transform: translateY(.25rem) rotate(-12deg);
+        }
+
+        @keyframes admin-money-float {
+            0%, 100% { translate: 0 0; }
+            50% { translate: 0 -.35rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .admin-money-art svg {
+                animation: none;
+            }
+        }
+
         .admin-mid-grid,
         .admin-bottom-grid {
             display: grid;
@@ -3515,6 +3829,39 @@
         .admin-company-card {
             display: flex;
             flex-direction: column;
+        }
+
+        .admin-company-card.is-blue {
+            background: linear-gradient(180deg, #e7f0ff 0%, #dbeafe 100%);
+            border-color: #9fc5f8;
+            box-shadow: 0 14px 30px rgba(37, 99, 235, .12);
+            position: relative;
+        }
+
+        .admin-company-card.is-amber {
+            background: linear-gradient(180deg, #fff4dc 0%, #ffecd0 100%);
+            border-color: #fdba74;
+            box-shadow: 0 14px 30px rgba(245, 158, 11, .13);
+            position: relative;
+        }
+
+        .admin-company-card.is-blue::before,
+        .admin-company-card.is-amber::before {
+            border-radius: 8px 8px 0 0;
+            content: "";
+            height: .22rem;
+            left: -1px;
+            position: absolute;
+            right: -1px;
+            top: -1px;
+        }
+
+        .admin-company-card.is-blue::before {
+            background: linear-gradient(90deg, #1d6fff 0%, #06b6d4 100%);
+        }
+
+        .admin-company-card.is-amber::before {
+            background: linear-gradient(90deg, #f59e0b 0%, #ef7b00 100%);
         }
 
         .admin-company-head {
@@ -3752,9 +4099,19 @@
             border-color: #d8f5e7;
         }
 
+        .admin-company-card.is-amber .admin-channel-row.is-line {
+            background: #ecfdf4;
+            border-color: #cdeedc;
+        }
+
         .admin-channel-row.is-facebook {
             background: #edf4ff;
             border-color: #dceaff;
+        }
+
+        .admin-company-card.is-amber .admin-channel-row.is-facebook {
+            background: #fff7ed;
+            border-color: #fed7aa;
         }
 
         .admin-channel-row.is-facebook b { color: #1d5ecf; }
@@ -3762,6 +4119,11 @@
         .admin-channel-row.is-phone {
             background: #f7f9fc;
             border-color: #eef2f7;
+        }
+
+        .admin-company-card.is-amber .admin-channel-row.is-phone {
+            background: #fffaf3;
+            border-color: #fed7aa;
         }
 
         .admin-channel-row.is-phone b { color: #4b5b73; }

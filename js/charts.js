@@ -22,9 +22,11 @@ function createProgressPlugin(isBudget = false) {
 
             const actualMeta = chart.getDatasetMeta(actualIndex);
             ctx.save();
-            ctx.font = 'bold 13px Sarabun';
+            ctx.font = '900 15px Sarabun';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(255, 255, 255, .95)';
             actualMeta.data.forEach((dp, i) => {
                 const actual = data.datasets[actualIndex].data[i];
                 const target = data.datasets[targetIndex].data[i];
@@ -36,9 +38,10 @@ function createProgressPlugin(isBudget = false) {
                         if (percent <= 100) { ctx.fillStyle = '#10b981'; } 
                         else { ctx.fillStyle = '#ef4444'; icon = '⚠️ '; } 
                     } else {
-                        if (percent >= 100) { ctx.fillStyle = '#10b981'; icon = '🏆 '; } 
-                        else { ctx.fillStyle = '#64748b'; } 
+                        if (percent >= 100) { ctx.fillStyle = '#047857'; icon = '🏆 '; }
+                        else { ctx.fillStyle = '#1e3a8a'; }
                     }
+                    ctx.strokeText(icon + text, dp.x, dp.y - 12);
                     ctx.fillText(icon + text, dp.x, dp.y - 12);
                 }
             });

@@ -23,19 +23,25 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
     const sales = cd.sales;
     const salesProgress = sales.target > 0 ? (sales.actual / sales.target) * 100 : 0;
     const isSalesOverTarget = sales.actual >= sales.target;
+    const salesGap = Math.abs(sales.actual - sales.target);
+    const salesGapLabel = isSalesOverTarget ? 'ยอดขายเกินเป้าหมาย' : 'ยอดขายที่ยังขาดจากเป้า';
+    const analysisRecommendation = isSalesOverTarget
+        ? 'รักษาแผนการขายและติดตามช่องทางที่สร้างยอดขายได้ดีที่สุดอย่างต่อเนื่อง'
+        : 'ควรเพิ่มจำนวนลูกค้าจาก Marketing และเร่งติดตามลูกค้าที่สนใจ เพื่อเพิ่มยอดติดตั้งและปิดการขาย';
     
     const prevSales = prev ? prev.carDetail.sales.actual : 0;
     const salesGrowth = prevSales > 0 ? ((sales.actual - prevSales) / prevSales) * 100 : 0;
+    const previousWeekLabel = prev ? `${prev.week}` : '';
+    const weekChangeAmount = sales.actual - prevSales;
+    const hasWeekComparison = Boolean(prev) && prevSales > 0;
+    const weekChangePercent = hasWeekComparison ? (weekChangeAmount / prevSales) * 100 : 0;
 
     const installs = cd.installs;
     const totalInstalls = installs.total || (installs.line + installs.fb + installs.tel + installs.walkin + installs.showroom + installs.other);
     const contacts = cd.contacts;
     const convRate = contacts.total > 0 ? (totalInstalls / contacts.total) * 100 : 0;
-    const channelRateLabel = (installed, contacted) => contacted > 0 ? `${Math.round((installed / contacted) * 100)}%` : '—';
     
     const tech = cd.tech;
-    const technicianCount = tech.teamSize || 0;
-    const installsPerTechnician = technicianCount > 0 ? totalInstalls / technicianCount : 0;
     const totalDamageValue = tech.techIssueValue + tech.filmIssueValue;
     const totalDamageCount = tech.filmIssueCount + tech.techIssueCount;
     const techDamagePercentSales = sales.actual > 0 ? (tech.techIssueValue / sales.actual) * 100 : 0;
@@ -79,19 +85,19 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 <div class="car-reference-kpi-head"><h3>ยอดขายรายสัปดาห์ <span>(Current Week)</span></h3><i data-lucide="bar-chart-3"></i></div>
                 <strong>${formatBaht(sales.actual)}</strong>
                 <div class="car-reference-progress"><span style="width:${Math.min(salesProgress, 100)}%"></span></div>
-                <div class="car-reference-kpi-meta"><b>↑ ผลงาน ${salesProgress.toFixed(1)}%</b><span>เป้า ${formatBaht(sales.target)}</span></div>
+                <div class="car-reference-kpi-meta"><b class="${isSalesOverTarget ? 'is-positive' : 'is-gap'}">${isSalesOverTarget ? `↑ ผลงาน ${salesProgress.toFixed(1)}%` : `↓ ขาดอีก ${formatBaht(sales.target - sales.actual)} บาท`}</b><span>เป้า ${formatBaht(sales.target)}</span></div>
             </article>
             <article class="car-reference-kpi is-month">
                 <div class="car-reference-kpi-head"><h3>ยอดขายรายเดือน <span>(Current Month) ${monthGroup}</span></h3><i data-lucide="calendar-days"></i></div>
                 <strong>${formatBaht(monthlyCarActual)}</strong>
                 <div class="car-reference-progress"><span style="width:${Math.min(monthlyCarProgress, 100)}%"></span></div>
-                <div class="car-reference-kpi-meta"><b>${monthlyCarActual >= monthlyCarTarget ? '↑' : '↓'} ผลงาน ${monthlyCarProgress.toFixed(1)}%</b><span>เป้า ${formatBaht(monthlyCarTarget)}</span></div>
+                <div class="car-reference-kpi-meta"><b class="${isMonthlyOverTarget ? 'is-positive' : 'is-gap'}">${isMonthlyOverTarget ? `↑ ผลงาน ${monthlyCarProgress.toFixed(1)}%` : `↓ ขาดอีก ${formatBaht(monthlyCarTarget - monthlyCarActual)} บาท`}</b><span>เป้า ${formatBaht(monthlyCarTarget)}</span></div>
             </article>
             <article class="car-reference-kpi is-ytd">
                 <div class="car-reference-kpi-head"><h3>ยอดขายสะสมปีนี้ <span>(TOTAL YTD)</span></h3><i data-lucide="crown"></i></div>
                 <strong>${formatBaht(ytdCarActual)}</strong>
                 <div class="car-reference-progress"><span style="width:${Math.min(ytdProgressVsYearly, 100)}%"></span></div>
-                <div class="car-reference-kpi-meta"><b>↑ ผลงาน ${ytdProgressVsYearly.toFixed(1)}%</b><span>เป้า ${formatBaht(YEARLY_CAR_TARGET)}</span></div>
+                <div class="car-reference-kpi-meta"><b class="${ytdCarActual >= YEARLY_CAR_TARGET ? 'is-positive' : 'is-gap'}">${ytdCarActual >= YEARLY_CAR_TARGET ? `↑ ผลงาน ${ytdProgressVsYearly.toFixed(1)}%` : `↓ ขาดอีก ${formatBaht(YEARLY_CAR_TARGET - ytdCarActual)} บาท`}</b><span>เป้า ${formatBaht(YEARLY_CAR_TARGET)}</span></div>
             </article>
         </section>
 
@@ -106,50 +112,51 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 <article class="car-reference-performance-card">
                     <h3><i data-lucide="car"></i> 2. ปริมาณรถติดตั้งใหม่</h3>
                     <div class="car-reference-split-value"><strong>${formatNumber(totalInstalls)} <small>คัน</small></strong><span>% ความสำเร็จ <b>${formatPercent(convRate)}</b></span></div>
-                    <div class="car-reference-mini-grid"><span><span class="car-reference-mini-label is-line"><i data-lucide="message-circle"></i>LINE OA</span><div class="car-reference-channel-value"><b>${formatNumber(installs.line)}</b><em>${channelRateLabel(installs.line, contacts.line)}</em></div></span><span><span class="car-reference-mini-label is-facebook"><i data-lucide="messages-square"></i>Facebook</span><div class="car-reference-channel-value"><b>${formatNumber(installs.fb)}</b><em>${channelRateLabel(installs.fb, contacts.fb)}</em></div></span><span><span class="car-reference-mini-label is-phone"><i data-lucide="phone"></i>โทรเข้า</span><div class="car-reference-channel-value"><b>${formatNumber(installs.tel)}</b><em>${channelRateLabel(installs.tel, contacts.tel)}</em></div></span><span><span class="car-reference-mini-label is-walkin"><i data-lucide="user-round"></i>Walk-In</span><div class="car-reference-channel-value"><b>${formatNumber(installs.walkin)}</b><em>—</em></div></span></div>
+                    <div class="car-reference-mini-grid"><span><span class="car-reference-mini-label is-line"><i data-lucide="message-circle"></i>LINE OA</span><div class="car-reference-channel-value"><b>${formatNumber(installs.line)}</b></div></span><span><span class="car-reference-mini-label is-facebook"><i data-lucide="messages-square"></i>Facebook</span><div class="car-reference-channel-value"><b>${formatNumber(installs.fb)}</b></div></span><span><span class="car-reference-mini-label is-phone"><i data-lucide="phone"></i>โทรเข้า</span><div class="car-reference-channel-value"><b>${formatNumber(installs.tel)}</b></div></span><span><span class="car-reference-mini-label is-walkin"><i data-lucide="user-round"></i>Walk-In</span><div class="car-reference-channel-value"><b>${formatNumber(installs.walkin)}</b></div></span></div>
                 </article>
-                <article class="car-reference-performance-card">
-                    <h3><i data-lucide="wrench"></i> 3. ประสิทธิภาพช่าง</h3>
-                    <div class="car-reference-tech-count"><strong>${formatNumber(technicianCount)} <small>คน</small></strong></div>
-                    <div class="car-reference-tech-average">เฉลี่ย ${installsPerTechnician.toFixed(1)} คัน ต่อช่าง 1 คน</div>
+                <article class="car-reference-performance-card is-damage-summary">
+                    <h3><i data-lucide="alert-triangle"></i> 3. การวิเคราะห์ความเสียหาย</h3>
+                    <div class="car-inline-damage-kpis">
+                        <span><small>รถเคลม</small><b>${formatNumber(tech.claims)} คัน</b></span>
+                        <span><small>ความเสียหายรวม</small><b>${damagePercentSales.toFixed(2)}%</b></span>
+                    </div>
+                    <div class="car-inline-damage-cards">
+                        <span><small>จากฟิล์ม</small><b>${formatNumber(tech.filmIssueCount)} งาน</b><em>มูลค่า ${formatBaht(tech.filmIssueValue)}</em></span>
+                        <span><small>จากช่าง</small><b>${formatNumber(tech.techIssueCount)} งาน</b><em>มูลค่า ${formatBaht(tech.techIssueValue)}</em></span>
+                        <span><small>รวม</small><b>${formatNumber(totalDamageCount)} งาน</b><em>มูลค่ารวม ${formatBaht(totalDamageValue)}</em></span>
+                    </div>
                 </article>
                 <article class="car-reference-performance-card is-analysis">
                     <h3><i data-lucide="line-chart"></i> 4. วิเคราะห์ยอดขาย</h3>
-                    <strong>${formatBaht(Math.abs(sales.actual - sales.target))}</strong>
-                    <p>แนะนำให้วิเคราะห์จำนวนลูกค้าจาก Marketing หรือเพิ่มโปรโมชั่นเพื่อกระตุ้นการตัดสินใจ</p>
+                    <div class="car-analysis-gap ${isSalesOverTarget ? 'is-over' : ''}">
+                        <span>${salesGapLabel}</span>
+                        <strong>${formatBaht(salesGap)}</strong>
+                    </div>
+                    <div class="car-analysis-month-compare ${hasWeekComparison && weekChangeAmount < 0 ? 'is-down' : ''}">
+                        <span>เทียบสัปดาห์ที่ผ่านมา${previousWeekLabel ? ` (${previousWeekLabel})` : ''}</span>
+                        <strong>${hasWeekComparison ? `${weekChangeAmount >= 0 ? '↑ เพิ่มขึ้น' : '↓ ลดลง'} ${formatBaht(Math.abs(weekChangeAmount))} (${Math.abs(weekChangePercent).toFixed(1)}%)` : 'ไม่มีข้อมูลสำหรับเปรียบเทียบ'}</strong>
+                    </div>
+                    <div class="car-analysis-stats">
+                        <span><small>ผลงานเทียบเป้า</small><b>${salesProgress.toFixed(1)}%</b></span>
+                        <span><small>ลูกค้า / ติดตั้งใหม่</small><b>${formatNumber(contacts.total)} / ${formatNumber(totalInstalls)}</b></span>
+                        <span><small>Conversion</small><b>${formatPercent(convRate)}</b></span>
+                    </div>
+                    <p>${analysisRecommendation}</p>
                 </article>
             </div>
         </section>
 
         <section class="car-reference-bottom-grid">
             <article class="car-reference-panel car-reference-monthly-panel">
-                <div class="car-reference-panel-head"><h2><i data-lucide="trending-up"></i> ยอดขายรายเดือนเทียบเป้า</h2><span>รายเดือน</span></div>
+                <div class="car-reference-panel-head">
+                    <h2><i data-lucide="trending-up"></i> ยอดขายรายเดือนเทียบเป้า</h2>
+                    <div class="car-reference-panel-head-tools">
+                        <span>รายเดือน</span>
+                        <span class="car-reference-chart-legend-item is-target"><i></i>เป้าหมายรายเดือน</span>
+                        <span class="car-reference-chart-legend-item is-actual"><i></i>ยอดขายจริงรายเดือน</span>
+                    </div>
+                </div>
                 <div class="car-reference-monthly-chart-wrap"><canvas id="carReferenceMonthlyChartCanvas"></canvas></div>
-            </article>
-
-            <article class="car-reference-panel car-reference-damage-panel">
-                <div class="car-reference-panel-head"><h2><i data-lucide="alert-triangle"></i> การวิเคราะห์ความเสียหาย</h2></div>
-                <div class="car-reference-damage-kpis">
-                    <div><span><i data-lucide="triangle-alert"></i> รถเคลม</span><strong>${formatNumber(tech.claims)} <small>คัน</small></strong></div>
-                    <div><span><i data-lucide="triangle-alert"></i> ความเสียหายรวม</span><strong>${damagePercentSales.toFixed(2)}%</strong></div>
-                </div>
-                <div class="car-reference-damage-cards">
-                    <article class="car-reference-damage-card">
-                        <span>จากฟิล์ม</span>
-                        <strong>${formatNumber(tech.filmIssueCount)} <small>งาน</small></strong>
-                        <b>${formatBaht(tech.filmIssueValue)}</b>
-                    </article>
-                    <article class="car-reference-damage-card is-red">
-                        <span>จากช่าง</span>
-                        <strong>${formatNumber(tech.techIssueCount)} <small>งาน</small></strong>
-                        <b>${formatBaht(tech.techIssueValue)}</b>
-                    </article>
-                    <article class="car-reference-damage-card is-total">
-                        <span>รวมความเสียหาย</span>
-                        <strong>${formatNumber(totalDamageCount)} <small>งาน</small></strong>
-                        <b>${formatBaht(totalDamageValue)}</b>
-                    </article>
-                </div>
             </article>
 
             <article class="car-reference-panel car-reference-channel-panel">
@@ -453,18 +460,18 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
             data: { 
                 labels, 
                 datasets: [
-                    { type: 'bar', label: actualLabel, data: actualData, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6, order: 2 },
-                    { type: 'line', label: targetLabel, data: targetData, borderColor: '#93c5fd', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#93c5fd', tension: 0.1, order: 1 }
+                    { type: 'bar', label: actualLabel, data: actualData, backgroundColor: '#1d4ed8', borderRadius: 4, barPercentage: 0.6, order: 2 },
+                    { type: 'line', label: targetLabel, data: targetData, borderColor: '#60a5fa', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#60a5fa', tension: 0.1, order: 1 }
                 ] 
             },
             options: { 
                 layout: { padding: { top: 30 } },
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', weight: 'bold' }, usePointStyle: true, boxWidth: 10 } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatBaht(c.parsed.y)}` } } },
+                plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', size: 13, weight: '900' }, usePointStyle: true, boxWidth: 10 } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatBaht(c.parsed.y)}` } } },
                 scales: { 
-                    x: { grid: { display: false }, ticks: { font: { family: 'Sarabun', size: 12, weight: '700' } } },
-                    y: { type: 'linear', position: 'left', beginAtZero: true, grace: '25%', grid: { color: '#f1f5f9', drawBorder: false }, ticks: { font: { family: 'Sarabun', size: 12, weight: '700' }, callback: (v) => v >= 1000 ? (v/1000)+'k' : v } }
+                    x: { grid: { display: false }, ticks: { color: '#334155', font: { family: 'Sarabun', size: 13, weight: '800' } } },
+                    y: { type: 'linear', position: 'left', beginAtZero: true, grace: '25%', grid: { color: '#dbe4ef', drawBorder: false }, ticks: { color: '#334155', font: { family: 'Sarabun', size: 13, weight: '800' }, callback: (v) => v >= 1000 ? (v/1000)+'k' : v } }
                 }
             },
             plugins: [createProgressPlugin(false)]
@@ -494,8 +501,8 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 data: {
                     labels: referenceMonthlyData.map(d => d.label),
                     datasets: [
-                        { type: 'bar', label: 'ยอดขายจริงรายเดือน', data: referenceMonthlyData.map(d => d.actual), backgroundColor: '#2563eb', borderRadius: 2, barPercentage: 0.58, order: 2 },
-                        { type: 'line', label: 'เป้าหมายรายเดือน', data: referenceMonthlyData.map(d => d.target), borderColor: '#93c5fd', backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 4], pointBackgroundColor: '#93c5fd', tension: 0.1, order: 1 }
+                        { type: 'bar', label: 'ยอดขายจริงรายเดือน', data: referenceMonthlyData.map(d => d.actual), backgroundColor: '#1d4ed8', borderRadius: 2, barPercentage: 0.58, order: 2 },
+                        { type: 'line', label: 'เป้าหมายรายเดือน', data: referenceMonthlyData.map(d => d.target), borderColor: '#60a5fa', backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 4], pointBackgroundColor: '#60a5fa', tension: 0.1, order: 1 }
                     ]
                 },
                 options: {
@@ -504,12 +511,12 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', size: 12, weight: '700' }, usePointStyle: true, boxWidth: 9 } },
+                        legend: { display: false },
                         tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatBaht(c.parsed.y)}` } }
                     },
                     scales: {
-                        x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 35, minRotation: 35, font: { family: 'Sarabun', size: 11, weight: '700' } } },
-                        y: { beginAtZero: true, grace: '20%', grid: { color: '#eef2f7', drawBorder: false }, ticks: { font: { family: 'Sarabun', size: 11, weight: '700' }, callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v } }
+                        x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 35, minRotation: 35, color: '#334155', font: { family: 'Sarabun', size: 12, weight: '800' } } },
+                        y: { beginAtZero: true, grace: '20%', grid: { color: '#dbe4ef', drawBorder: false }, ticks: { color: '#334155', font: { family: 'Sarabun', size: 12, weight: '800' }, callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v } }
                     }
                 },
                 plugins: [createProgressPlugin(false)]
@@ -583,8 +590,8 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                 data: {
                     labels: yearWeeklyData.map(d => d.label),
                     datasets: [
-                        { type: 'bar', label: 'ยอดขายจริง', data: yearWeeklyData.map(d => d.actual), backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.58, order: 2 },
-                        { type: 'line', label: 'เป้าหมายราย Week', data: yearWeeklyData.map(d => d.target), borderColor: '#93c5fd', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#93c5fd', tension: 0.1, order: 1 }
+                        { type: 'bar', label: 'ยอดขายจริง', data: yearWeeklyData.map(d => d.actual), backgroundColor: '#1d4ed8', borderRadius: 4, barPercentage: 0.58, order: 2 },
+                        { type: 'line', label: 'เป้าหมายราย Week', data: yearWeeklyData.map(d => d.target), borderColor: '#60a5fa', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#60a5fa', tension: 0.1, order: 1 }
                     ]
                 },
                 options: {
@@ -593,12 +600,12 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', size: 13, weight: '700' }, usePointStyle: true, boxWidth: 10 } },
+                        legend: { display: false },
                         tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatBaht(c.parsed.y)}` } }
                     },
                     scales: {
-                        x: { grid: { display: false }, ticks: { font: { family: 'Sarabun', size: 12, weight: '700' } } },
-                        y: { beginAtZero: true, grace: '25%', grid: { color: '#f1f5f9', drawBorder: false }, ticks: { font: { family: 'Sarabun', size: 12, weight: '700' }, callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v } }
+                        x: { grid: { display: false }, ticks: { color: '#334155', font: { family: 'Sarabun', size: 13, weight: '800' } } },
+                        y: { beginAtZero: true, grace: '25%', grid: { color: '#dbe4ef', drawBorder: false }, ticks: { color: '#334155', font: { family: 'Sarabun', size: 13, weight: '800' }, callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v } }
                     }
                 },
                 plugins: [createProgressPlugin(false)]

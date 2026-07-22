@@ -100,6 +100,10 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
 
             <div class="admin-kpi-grid">
                 <article class="admin-card admin-kpi-card is-blue is-contact-support">
+                    <div class="admin-contact-art" aria-hidden="true">
+                        <i data-lucide="messages-square" class="w-11 h-11"></i>
+                        <i data-lucide="phone-call" class="w-9 h-9"></i>
+                    </div>
                     <div class="admin-kpi-icon"><i data-lucide="message-square" class="w-6 h-6"></i></div>
                     <div>
                         <h3>ปริมาณการติดต่อ</h3>
@@ -109,6 +113,10 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                 </article>
 
                 <article class="admin-card admin-kpi-card is-indigo is-lead-hero">
+                    <div class="admin-send-art" aria-hidden="true">
+                        <i data-lucide="send" class="w-12 h-12"></i>
+                        <i data-lucide="sparkles" class="w-8 h-8"></i>
+                    </div>
                     <div class="admin-kpi-icon"><i data-lucide="send" class="w-6 h-6"></i></div>
                     <div class="admin-kpi-split">
                         <div>
@@ -128,6 +136,11 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                 </article>
 
                 <article class="admin-revenue-card is-revenue-secondary">
+                    <div class="admin-money-art" aria-hidden="true">
+                        <i data-lucide="coins" class="w-9 h-9"></i>
+                        <i data-lucide="banknote" class="w-11 h-11"></i>
+                        <i data-lucide="badge-dollar-sign" class="w-8 h-8"></i>
+                    </div>
                     <div class="admin-revenue-icon"><i data-lucide="award" class="w-8 h-8"></i></div>
                     <div>
                         <h3>ยอดขายจากแอดมิน</h3>
@@ -345,6 +358,40 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
             }).join('');
         }
 
+        const compactSalesLabel = (value) => {
+            const num = Number(value) || 0;
+            if (num >= 1000) return `${formatNumber(num / 1000)}k`;
+            return formatNumber(num);
+        };
+
+        const adminBarValueLabels = {
+            id: 'adminBarValueLabels',
+            afterDatasetsDraw: (chart) => {
+                const { ctx, data } = chart;
+                const barMeta = chart.getDatasetMeta(0);
+                if (!barMeta || barMeta.hidden) return;
+
+                const dense = (data.labels || []).length > 18;
+                ctx.save();
+                ctx.font = `900 ${dense ? 10 : 12}px Sarabun`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(255, 255, 255, .96)';
+                ctx.fillStyle = '#07183f';
+
+                barMeta.data.forEach((bar, index) => {
+                    const value = Number(data.datasets[0].data[index]) || 0;
+                    if (value <= 0) return;
+                    const text = compactSalesLabel(value);
+                    const y = Math.max(bar.y - 7, 14);
+                    ctx.strokeText(text, bar.x, y);
+                    ctx.fillText(text, bar.x, y);
+                });
+                ctx.restore();
+            }
+        };
+
         const makeAdminTrendChart = (ctx, series, chartKey, maxTicksLimit, showAllTicks = false) => {
             charts[chartKey] = new Chart(ctx, {
             type: 'line',
@@ -360,7 +407,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
-                layout: { padding: { top: 0, right: 8, bottom: 0, left: 0 } },
+                layout: { padding: { top: 18, right: 8, bottom: 0, left: 0 } },
                 plugins: {
                     legend: {
                         display: true,
@@ -409,7 +456,8 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                         ticks: { color: '#64748b', font: { family: 'Sarabun', size: 12, weight: 'bold' } }
                     }
                 }
-            }
+            },
+            plugins: [adminBarValueLabels]
             });
         };
 
