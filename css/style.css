@@ -7376,3 +7376,17 @@
             background: #0b3b8f !important;
             border-color: #0b3b8f !important;
         }
+
+        /* Fullscreen controls use a clean white treatment, separate from menu toggles. */
+        .dashboard-fullscreen-button {
+            background: #fff !important;
+            border-color: #dbe4f0 !important;
+            box-shadow: 0 10px 22px rgba(15, 55, 110, .14) !important;
+            color: #092f72 !important;
+        }
+
+        .dashboard-fullscreen-button:hover {
+            background: #f4f8ff !important;
+            border-color: #b9cdec !important;
+            color: #0b3b8f !important;
+        }
