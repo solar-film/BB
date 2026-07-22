@@ -7318,3 +7318,9 @@
         #mobile-sidebar > div:last-child p.text-slate-400 {
             color: #d2e4ff !important;
         }
+
+        /* Use the requested flat blue surface without any gradient. */
+        #desktop-sidebar,
+        #mobile-sidebar {
+            background: #092f72 !important;
+        }
