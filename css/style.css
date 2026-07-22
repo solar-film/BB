@@ -7349,3 +7349,30 @@
 
         #desktop-sidebar [data-lucide="clipboard-pen-line"],
         #mobile-sidebar [data-lucide="clipboard-pen-line"] { color: #fde047 !important; }
+
+        /* Keep every sidebar and fullscreen action button in one blue tone. */
+        #desktop-sidebar-toggle,
+        .car-sidebar-toggle,
+        .building-sidebar-toggle,
+        .overview-sidebar-toggle,
+        .admin-sidebar-toggle,
+        .marketing-sidebar-toggle,
+        .tech-sidebar-toggle,
+        .dashboard-fullscreen-button {
+            background: #092f72 !important;
+            border-color: #092f72 !important;
+            box-shadow: 0 10px 22px rgba(3, 26, 75, .22) !important;
+            color: #fff !important;
+        }
+
+        #desktop-sidebar-toggle:hover,
+        .car-sidebar-toggle:hover,
+        .building-sidebar-toggle:hover,
+        .overview-sidebar-toggle:hover,
+        .admin-sidebar-toggle:hover,
+        .marketing-sidebar-toggle:hover,
+        .tech-sidebar-toggle:hover,
+        .dashboard-fullscreen-button:hover {
+            background: #0b3b8f !important;
+            border-color: #0b3b8f !important;
+        }

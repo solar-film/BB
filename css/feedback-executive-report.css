@@ -57,8 +57,8 @@ a { color: inherit; }
 .toolbar-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
 .toolbar-actions a, .toolbar-actions button { min-height: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 10px; background: white; color: #555a69; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .toolbar-actions button { cursor: pointer; }
-.toolbar-actions .dashboard-fullscreen-button { background: #211c46; border-color: #211c46; color: white; cursor: pointer; }
-.toolbar-actions .dashboard-fullscreen-button:hover { background: #302765; border-color: #302765; }
+.toolbar-actions .dashboard-fullscreen-button { background: #092f72; border-color: #092f72; color: white; cursor: pointer; }
+.toolbar-actions .dashboard-fullscreen-button:hover { background: #0b3b8f; border-color: #0b3b8f; }
 .toolbar-actions .print-button { border-color: #d7cff3; background: #f4f0ff; color: var(--purple); }
 
 .report-shell { width: min(1440px, calc(100% - 40px)); margin: 28px auto 60px; }
