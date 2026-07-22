@@ -4138,6 +4138,11 @@
             color: #0c9b5a;
         }
 
+        .marketing-kpi-card.is-primary .marketing-kpi-body strong {
+            font-size: clamp(2.7rem, 3.8vw, 3.35rem);
+            line-height: .9;
+        }
+
         .marketing-progress-track {
             background: #e9eff7;
             border-radius: 999px;
@@ -4315,6 +4320,10 @@
             color: #53627c;
             font-size: .94rem;
             font-weight: 900;
+        }
+
+        .marketing-company-spend strong {
+            font-size: clamp(2rem, 2.8vw, 2.35rem);
         }
 
         .marketing-platform-row {
