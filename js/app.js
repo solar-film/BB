@@ -14,12 +14,13 @@ let activeChartTab = 'total';
 
 let activeMarketingChartTab = 'yearly';
 let marketingTrendFilter = 'total'; 
+let marketingWeeklyTrendFilter = 'total';
 
 let buildingTrendFilter = 'total'; 
 let adminTrendFilter = 'total';
 let techTrendFilter = 'total'; 
 let repChartTimeframe = 'monthly'; 
-let carTrendTimeframe = 'weekly';
+let carTrendTimeframe = 'monthly';
 
 let isDesktopSidebarCollapsed = false;
 
@@ -52,13 +53,25 @@ function updateDesktopSidebarUI() {
     const sidebar = document.getElementById('desktop-sidebar');
     const toggleButton = document.getElementById('desktop-sidebar-toggle');
     const toggleIcon = document.getElementById('desktop-sidebar-toggle-icon');
-    if (!sidebar || !toggleButton || !toggleIcon) return;
+    if (!sidebar) return;
 
     sidebar.classList.toggle('lg:flex', !isDesktopSidebarCollapsed);
     sidebar.classList.toggle('lg:hidden', isDesktopSidebarCollapsed);
-    toggleButton.setAttribute('aria-label', isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู');
-    toggleButton.setAttribute('title', isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู');
-    toggleIcon.setAttribute('data-lucide', isDesktopSidebarCollapsed ? 'panel-left-open' : 'panel-left-close');
+
+    [
+        { button: toggleButton, icon: toggleIcon },
+        { button: document.getElementById('admin-sidebar-toggle'), icon: document.getElementById('admin-sidebar-toggle-icon') },
+        { button: document.getElementById('marketing-sidebar-toggle'), icon: document.getElementById('marketing-sidebar-toggle-icon') },
+        { button: document.getElementById('tech-sidebar-toggle'), icon: document.getElementById('tech-sidebar-toggle-icon') },
+        { button: document.getElementById('car-sidebar-toggle'), icon: document.getElementById('car-sidebar-toggle-icon') },
+        { button: document.getElementById('building-sidebar-toggle'), icon: document.getElementById('building-sidebar-toggle-icon') }
+    ].forEach(({ button, icon }) => {
+        if (!button || !icon) return;
+        button.setAttribute('aria-label', isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู');
+        button.setAttribute('title', isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู');
+        icon.setAttribute('data-lucide', isDesktopSidebarCollapsed ? 'panel-left-open' : 'panel-left-close');
+    });
+
     lucide.createIcons();
 }
 
@@ -73,6 +86,7 @@ window.changeOverviewTimeframe = (t) => { overviewTimeframe = t; updateDashboard
 window.changeChartTab = (t) => { activeChartTab = t; updateDashboardUI(); };
 window.changeMarketingChartTab = (t) => { activeMarketingChartTab = t; updateDashboardUI(); };
 window.changeMarketingTrendFilter = (t) => { marketingTrendFilter = t; updateDashboardUI(); };
+window.changeMarketingWeeklyTrendFilter = (t) => { marketingWeeklyTrendFilter = t; updateDashboardUI(); };
 window.changeBuildingTrendFilter = (t) => { buildingTrendFilter = t; updateDashboardUI(); };
 window.changeAdminTrendFilter = (t) => { adminTrendFilter = t; updateDashboardUI(); };
 window.changeTechTrendFilter = (t) => { techTrendFilter = t; updateDashboardUI(); };
@@ -95,11 +109,24 @@ window.changePage = (page) => {
 };
 
 function updateDashboardUI() {
+    document.getElementById('app-view')?.classList.toggle('overview-shell', currentPage === 'overview');
+    document.getElementById('app-view')?.classList.toggle('admin-shell', currentPage === 'admin');
+    document.getElementById('app-view')?.classList.toggle('marketing-shell', currentPage === 'marketing');
+    document.getElementById('app-view')?.classList.toggle('tech-shell', currentPage === 'tech');
+    document.getElementById('app-view')?.classList.toggle('car-shell', currentPage === 'car');
+    document.getElementById('app-view')?.classList.toggle('sales-shell', currentPage === 'sales');
+    const headerWeekControl = document.getElementById('header-week-control');
+    if (headerWeekControl) {
+        headerWeekControl.className = 'hidden';
+        headerWeekControl.innerHTML = '';
+    }
+
     if (currentPage === 'feedback') {
         document.getElementById('error-banner-container').innerHTML = '';
         destroyAllCharts();
         renderFeedbackHTML(document.getElementById('dashboard-content'));
         lucide.createIcons();
+        updateFullscreenButtons();
         return;
     }
 
@@ -113,14 +140,15 @@ function updateDashboardUI() {
         'overview': { title: 'ภาพรวมธุรกิจ (Overview)', sub: 'สรุปข้อมูลสถิติรายสัปดาห์' },
         'sales': { title: 'ฝ่ายขาย ฟิล์มอาคาร', sub: 'ประสิทธิภาพการขายของ Sales Reps และ Projects' },
         'car': { title: 'ฝ่ายขาย ฟิล์มรถยนต์', sub: 'เจาะลึกยอดขาย การติดต่อ และทีมช่างฟิล์มรถยนต์' },
-        'marketing': { title: 'MARKETING Online', sub: 'วิเคราะห์งบโฆษณา การเข้าถึง และความคุ้มค่า (ROAS)' },
+        'marketing': { title: 'MARKETING ONLINE', sub: 'วิเคราะห์งบโฆษณา การเข้าถึง และความคุ้มค่า (ROAS)' },
         'tech': { title: 'ทีมช่างติดตั้ง (อาคาร)', sub: 'วิเคราะห์ประสิทธิภาพงานติดตั้งและบริหารความเสียหาย' },
         'admin': { title: 'SALES ADMIN', sub: 'เจาะลึกการประสานงาน ปริมาณติดต่อ และยอดขายแอดมิน' }
     };
     const currentPageInfo = pageInfo[currentPage] || pageInfo.overview;
     document.getElementById('header-title').innerText = currentPageInfo.title;
-    document.getElementById('header-subtitle').innerText = `${currentPageInfo.sub} (ข้อมูลประจำ ${current.week})`;
-
+    document.getElementById('header-subtitle').innerText = currentPage === 'marketing'
+        ? currentPageInfo.sub
+        : `${currentPageInfo.sub} (ข้อมูลประจำ ${current.week})`;
     const bannerContainer = document.getElementById('error-banner-container');
     bannerContainer.innerHTML = isUsingMock ? `<div class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center gap-3"><i data-lucide="alert-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0"></i><p class="text-amber-800 text-base"><strong>โหมดสาธิต:</strong> ข้อมูลจำลอง (${escapeHTML(errorMessage)})</p></div>` : '';
 
@@ -135,7 +163,8 @@ function updateDashboardUI() {
     else if (currentPage === 'tech') renderTechDeepDiveHTML(current, m, opt, contentDiv);
     else renderOverviewHTML(current, m, opt, contentDiv);
 
-    lucide.createIcons(); 
+    lucide.createIcons();
+    updateFullscreenButtons();
 }
 
 

@@ -38,6 +38,7 @@
         <nav class="toolbar-actions" aria-label="เมนูรายงาน">
             <a href="feedback-bb-week.html">✎ บันทึกข้อมูล</a>
             <a href="feedback-presentation.html">▶ สไลด์</a>
+            <button class="dashboard-fullscreen-button" data-fullscreen-toggle onclick="toggleDashboardFullscreen(event)" type="button" aria-label="ขยายเต็มจอ" title="ขยายเต็มจอ"><span class="fullscreen-button-icon" aria-hidden="true">⛶</span><span class="fullscreen-button-label">เต็มจอ</span></button>
             <button id="refresh-report" type="button" title="รีเฟรชข้อมูล">↻</button>
             <button id="print-report" class="print-button" type="button">⤓ พิมพ์ / PDF</button>
         </nav>
@@ -127,6 +128,7 @@
 
     <div id="report-loading" class="report-loading"><span class="loader-mark">BB</span><strong>กำลังจัดทำรายงานผู้บริหาร</strong><i></i></div>
     <div id="report-error" class="report-error hidden"><strong>ไม่สามารถโหลดรายงานได้</strong><p id="error-message"></p><button type="button" id="retry-report">ลองอีกครั้ง</button></div>
+    <script src="js/fullscreen.js"></script>
     <script src="js/feedback-executive-report.js"></script>
 </body>
 </html>

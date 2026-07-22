@@ -25,6 +25,7 @@
             <span class="source-status"><i id="source-dot"></i><span><small>ข้อมูลต้นทาง</small><strong id="source-status">กำลังเชื่อมต่อ...</strong></span></span>
             <a class="presentation-link report-link" href="feedback-executive-report.html">▦ รายงานผู้บริหาร</a>
             <a class="presentation-link" href="feedback-presentation.html">▶ เปิดสไลด์นำเสนอ</a>
+            <button class="dashboard-fullscreen-button" data-fullscreen-toggle onclick="toggleDashboardFullscreen(event)" type="button" aria-label="ขยายเต็มจอ" title="ขยายเต็มจอ"><span class="fullscreen-button-icon" aria-hidden="true">⛶</span><span class="fullscreen-button-label">เต็มจอ</span></button>
         </div>
     </header>
 
@@ -136,6 +137,7 @@
     <div class="toast hidden" id="toast"><span>✓</span><div><strong>บันทึกเรียบร้อย</strong><small id="toast-message"></small></div></div>
     <div class="loading-overlay" id="loading-overlay"><div class="loader-mark">BB</div><strong>กำลังโหลดงานจาก Our-DATA</strong><i></i></div>
 
+    <script src="js/fullscreen.js"></script>
     <script src="js/feedback-bb-week.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เหตุผลงานไม่ติดตั้ง | BB Weekly 2026</title>
+    <title>เหตุผลงานไม่ติดตั้ง | Business Breakdown 2026</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="theme-color" content="#0f172a">
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
@@ -380,6 +380,31 @@
             }[char]));
         }
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function verifySavedEntry(payload) {
+            for (let attempt = 0; attempt < 5; attempt += 1) {
+                await sleep(attempt === 0 ? 800 : 1200);
+                try {
+                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}&_=${Date.now()}`;
+                    const response = await fetch(url, { cache: 'no-store' });
+                    if (!response.ok) continue;
+                    const rows = parseCSV(await response.text()).slice(1).filter(row => row.some(Boolean));
+                    const saved = rows.find(row =>
+                        String(row[0] || '').trim() === String(payload.id || '').trim() &&
+                        normalizeWeek(row[2]) === normalizeWeek(payload.week) &&
+                        normalizeSalesOwner(row[3]) === normalizeSalesOwner(payload.salesOwner) &&
+                        Number(row[4]) === Number(payload.noInstallCount) &&
+                        String(row[5] || '').trim() === String(payload.reason || '').trim()
+                    );
+                    if (saved) return true;
+                } catch (_) {}
+            }
+            return false;
+        }
+
         const SALES_OWNER_ALIASES = {
             BOM: ['BOM', 'บอม'],
             Jay: ['Jay', 'เจ'],
@@ -545,13 +570,17 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+                const verified = await verifySavedEntry(payload);
+                if (!verified) {
+                    throw new Error('Apps Script ไม่ได้บันทึกข้อมูล กรุณาอนุญาตสิทธิ์ Google Sheets และ Deploy เวอร์ชันใหม่');
+                }
                 const wasEditing = isEditMode;
                 resetForm();
                 setStatus('success', wasEditing ? 'แก้ไขเรียบร้อยแล้ว' : 'บันทึกเรียบร้อยแล้ว');
                 setTimeout(clearStatus, 3000);
                 setTimeout(loadRecentEntries, 1500);
             } catch (error) {
-                setStatus('error', 'ส่งข้อมูลไม่สำเร็จ กรุณาตรวจสอบสิทธิ์ของ Apps Script');
+                setStatus('error', error.message || 'ส่งข้อมูลไม่สำเร็จ กรุณาตรวจสอบสิทธิ์ของ Apps Script');
             }
         }
 

@@ -11,6 +11,7 @@ function parseCSV(text) {
 }
 
 function formatCurrency(value) { return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value); }
+function formatBaht(value) { return formatCurrency(value); }
 function formatPercent(value) { const num = parseFloat(value); if (isNaN(num) || !isFinite(num)) return '0.0%'; return num.toFixed(1) + '%'; }
 function formatNumber(value) { return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(value)); }
 function cleanNumber(str) {

@@ -110,30 +110,227 @@ function renderBasicTrendChart(current) {
         });
     }
 
-    const dLabelAct = activeChartTab === 'total' ? 'ยอดขายจริงรวม' : `ยอดขายจริง ${activeChartTab.toUpperCase()}`;
-    const dLabelTar = activeChartTab === 'total' ? 'เป้าหมายรวม' : `เป้าหมาย ${activeChartTab.toUpperCase()}`;
-
-    const cols = { total: '#6366f1', gfs: '#3b82f6', mhl: '#f59e0b', car: '#10b981' };
-    const lines = { total: '#818cf8', gfs: '#93c5fd', mhl: '#fcd34d', car: '#6ee7b7' };
+    const dLabelAct = activeChartTab === 'total' ? 'ผลงานรายเดือน' : `ผลงานรายเดือน ${activeChartTab.toUpperCase()}`;
+    const dLabelTar = activeChartTab === 'total' ? 'เป้ายอดขาย' : `เป้ายอดขาย ${activeChartTab.toUpperCase()}`;
+    const cols = { total: '#2563eb', gfs: '#1464f4', mhl: '#fb8c00', car: '#00b451' };
+    const lines = { total: '#2563eb', gfs: '#1464f4', mhl: '#fb8c00', car: '#00b451' };
+    const overviewPercentPlugin = {
+        id: 'overviewPercentLabels',
+        afterDatasetsDraw: (chart) => {
+            const { ctx, data } = chart;
+            const bars = chart.getDatasetMeta(0);
+            ctx.save();
+            ctx.font = '800 13px Sarabun';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            bars.data.forEach((bar, index) => {
+                const actual = data.datasets[0].data[index] || 0;
+                const target = data.datasets[1].data[index] || 0;
+                if (target <= 0) return;
+                const percent = Math.round((actual / target) * 100);
+                const over = percent >= 100;
+                ctx.fillStyle = over ? '#07883c' : '#061b4e';
+                const text = over ? `↑ ${percent}%` : percent < 75 ? `↓ ${percent}%` : `${percent}%`;
+                ctx.fillText(text, bar.x, Math.max(bar.y - 10, 16));
+            });
+            ctx.restore();
+        }
+    };
 
     charts['barTrend'] = new Chart(bCtx.getContext('2d'), {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                { type: 'bar', label: dLabelAct, data: dAct, backgroundColor: cols[activeChartTab], borderRadius: 4, barPercentage: 0.6, order: 2 },
-                { type: 'line', label: dLabelTar, data: dTar, borderColor: lines[activeChartTab], backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: lines[activeChartTab], tension: 0.1, order: 1 }
+                {
+                    type: 'bar',
+                    label: dLabelAct,
+                    data: dAct,
+                    backgroundColor: (context) => {
+                        const area = context.chart.chartArea;
+                        if (!area) return cols[activeChartTab];
+                        const gradient = context.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+                        gradient.addColorStop(0, cols[activeChartTab]);
+                        gradient.addColorStop(1, '#1d4ed8');
+                        return gradient;
+                    },
+                    borderRadius: 3,
+                    barPercentage: 0.58,
+                    categoryPercentage: 0.68,
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: dLabelTar,
+                    data: dTar,
+                    borderColor: lines[activeChartTab],
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [4, 4],
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.28,
+                    order: 1
+                }
             ]
         },
         options: { 
-            layout: { padding: { top: 30 } }, responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', weight: 'bold' }, usePointStyle: true, boxWidth: 10 } } },
+            layout: { padding: { top: 22, right: 8, left: 4, bottom: 0 } },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { family: 'Sarabun', weight: '800' },
+                    bodyFont: { family: 'Sarabun', weight: '700' },
+                    callbacks: {
+                        label: (context) => `${context.dataset.label}: ${formatBaht(context.raw)}`
+                    }
+                }
+            },
             scales: { 
-                x: { grid: { display: false }, ticks: { font: { family: 'Sarabun' } } }, 
-                y: { beginAtZero: true, grace: '25%', grid: { color: '#f1f5f9', drawBorder: false }, ticks: { font: { weight: 'bold' }, callback: (v) => v >= 1000000 ? (v/1000000)+'M' : (v>=1000?(v/1000)+'k':v) } } 
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: '#0f1f46', font: { family: 'Sarabun', weight: '800', size: 12 } }
+                }, 
+                y: {
+                    beginAtZero: true,
+                    grace: '28%',
+                    grid: { color: '#edf2f7', drawTicks: false },
+                    border: { display: false },
+                    ticks: {
+                        color: '#24345d',
+                        padding: 8,
+                        font: { family: 'Sarabun', weight: '700', size: 12 },
+                        callback: (v) => v >= 1000000 ? (v/1000000)+'M' : (v>=1000?(v/1000)+'k':v)
+                    }
+                } 
             }
         },
-        plugins: [createProgressPlugin(false)]
+        plugins: [overviewPercentPlugin]
+    });
+}
+
+function renderOverviewWeeklyTrendChart(current) {
+    const ctx = document.getElementById('weeklyTrendCanvas');
+    if (!ctx) return;
+    if (charts['overviewWeeklyTrend']) charts['overviewWeeklyTrend'].destroy();
+
+    const currentIndex = dashboardData.findIndex(d => d.id === current.id);
+    const weeks = dashboardData
+        .slice(0, currentIndex >= 0 ? currentIndex + 1 : dashboardData.length)
+        .filter(d => getTotalSalesActual(d) > 0 || getTotalSalesTarget(d) > 0);
+
+    const labels = weeks.map(d => d.week);
+    const actualData = weeks.map(d => {
+        if (activeChartTab === 'total') return getTotalSalesActual(d);
+        return d[activeChartTab]?.actual || 0;
+    });
+    const targetData = weeks.map(d => {
+        if (activeChartTab === 'total') return getTotalSalesTarget(d);
+        return d[activeChartTab]?.target || 0;
+    });
+    const chartLabelSuffix = activeChartTab === 'total' ? '' : ` ${activeChartTab.toUpperCase()}`;
+    const weeklyPercentLabelsPlugin = {
+        id: 'weeklyPercentLabels',
+        afterDatasetsDraw: (chart) => {
+            const { ctx, data } = chart;
+            const bars = chart.getDatasetMeta(0);
+            ctx.save();
+            ctx.font = '800 11px Sarabun';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            bars.data.forEach((bar, index) => {
+                const actual = data.datasets[0].data[index] || 0;
+                const target = data.datasets[1].data[index] || 0;
+                if (target <= 0 || actual <= 0) return;
+                const percent = Math.round((actual / target) * 100);
+                ctx.fillStyle = percent >= 100 ? '#07883c' : '#0f3f99';
+                ctx.fillText(`${percent}%`, bar.x, Math.max(bar.y - 7, 13));
+            });
+            ctx.restore();
+        }
+    };
+
+    charts['overviewWeeklyTrend'] = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: `ผลงานราย Week${chartLabelSuffix}`,
+                    data: actualData,
+                    backgroundColor: activeChartTab === 'mhl' ? '#fb8c00' : activeChartTab === 'car' ? '#00b451' : '#1464f4',
+                    borderRadius: 4,
+                    barPercentage: 0.72,
+                    categoryPercentage: 0.72,
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: `เป้ายอดขายราย Week${chartLabelSuffix}`,
+                    data: targetData,
+                    borderColor: activeChartTab === 'mhl' ? '#c96d00' : activeChartTab === 'car' ? '#087a34' : '#0f3f99',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.24,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            layout: { padding: { top: 24, right: 8, left: 4, bottom: 0 } },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { family: 'Sarabun', weight: '800' },
+                    bodyFont: { family: 'Sarabun', weight: '700' },
+                    callbacks: {
+                        title: (items) => {
+                            const index = items[0]?.dataIndex ?? 0;
+                            const week = weeks[index];
+                            return week ? `${week.week} (${week.dateRange})` : '';
+                        },
+                        label: (context) => `${context.dataset.label}: ${formatBaht(context.raw)}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 18,
+                        color: '#0f1f46',
+                        font: { family: 'Sarabun', weight: '800', size: 11 },
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grace: '18%',
+                    grid: { color: '#edf2f7', drawTicks: false },
+                    border: { display: false },
+                    ticks: {
+                        color: '#24345d',
+                        padding: 8,
+                        font: { family: 'Sarabun', weight: '700', size: 12 },
+                        callback: (v) => v >= 1000000 ? (v / 1000000) + 'M' : (v >= 1000 ? (v / 1000) + 'k' : v)
+                    }
+                }
+            }
+        },
+        plugins: [weeklyPercentLabelsPlugin]
     });
 }
 

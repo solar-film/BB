@@ -28,6 +28,8 @@ button, select { cursor: pointer; }
 .brand small { margin-top: 5px; color: #999cac; font: 700 9px/1 Manrope, sans-serif; letter-spacing: .16em; }
 .header-copy h1 { margin: 0; font-size: 24px; line-height: 1.2; }
 .header-actions { display: flex; align-items: center; gap: 16px; }
+.header-actions .dashboard-fullscreen-button { min-width: 42px; height: 40px; padding: 0 12px; border: 1px solid #24213f; border-radius: 10px; background: #211c46; color: white; font-size: 12px; font-weight: 800; cursor: pointer; }
+.header-actions .dashboard-fullscreen-button:hover { background: #302765; }
 .source-status { display: flex; align-items: center; gap: 9px; }
 .source-status i { width: 8px; height: 8px; border-radius: 50%; background: #e2a31b; box-shadow: 0 0 0 5px #fff2d2; }
 .source-status i.online { background: #2ba772; box-shadow: 0 0 0 5px #dff5ec; }
@@ -169,6 +171,8 @@ button, select { cursor: pointer; }
     .source-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
+    .header-actions .dashboard-fullscreen-button { width: 40px; padding: 0; }
+    .header-actions .fullscreen-button-label { display: none; }
     .app-header { min-height: 78px; padding: 13px 16px; }
     .source-status { display: none; }
     .presentation-link { width: 40px; padding: 0; justify-content: center; overflow: hidden; font-size: 0; }

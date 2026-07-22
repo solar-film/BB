@@ -13,7 +13,7 @@ function generateMockData() {
             bom: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             jay: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             saifha: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
-            pat: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
+            kat: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60},
             image: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             projYa: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
             projTung: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
@@ -63,8 +63,8 @@ async function loadData() {
             const jayInstalls = cleanNumber(parsed[194]?.[i]);
             const saifhaMeets = cleanNumber(parsed[229]?.[i]);
             const saifhaInstalls = cleanNumber(parsed[230]?.[i]);
-            const patMeets = cleanNumber(parsed[249]?.[i]);
-            const patInstalls = cleanNumber(parsed[250]?.[i]);
+            const katMeets = cleanNumber(parsed[249]?.[i]);
+            const katInstalls = cleanNumber(parsed[250]?.[i]);
             const imageMeets = cleanNumber(parsed[269]?.[i]);
             const imageInstalls = cleanNumber(parsed[270]?.[i]);
 
@@ -131,7 +131,7 @@ async function loadData() {
                     bom: normalizeSalesRepData({ ytd: cleanNumber(parsed[172]?.[i]), meets: bomMeets, installs: bomInstalls, sales: cleanNumber(parsed[175]?.[i]), newMeets: cleanNumber(parsed[177]?.[i]), newInstalls: cleanNumber(parsed[178]?.[i]), newSales: cleanNumber(parsed[179]?.[i]), oldMeets: cleanNumber(parsed[181]?.[i]), oldInstalls: cleanNumber(parsed[182]?.[i]), oldSales: cleanNumber(parsed[183]?.[i]), noInstalls: cleanNumber(parsed[185]?.[i]), noInstallSales: cleanNumber(parsed[186]?.[i]) }),
                     jay: normalizeSalesRepData({ ytd: cleanNumber(parsed[192]?.[i]), meets: jayMeets, installs: jayInstalls, sales: cleanNumber(parsed[195]?.[i]), newMeets: cleanNumber(parsed[197]?.[i]), newInstalls: cleanNumber(parsed[198]?.[i]), newSales: cleanNumber(parsed[199]?.[i]), oldMeets: cleanNumber(parsed[201]?.[i]), oldInstalls: cleanNumber(parsed[202]?.[i]), oldSales: cleanNumber(parsed[203]?.[i]), noInstalls: cleanNumber(parsed[205]?.[i]), noInstallSales: cleanNumber(parsed[206]?.[i]) }),
                     saifha: normalizeSalesRepData({ ytd: cleanNumber(parsed[228]?.[i]), meets: saifhaMeets, installs: saifhaInstalls, sales: cleanNumber(parsed[231]?.[i]), newMeets: cleanNumber(parsed[233]?.[i]), newInstalls: cleanNumber(parsed[234]?.[i]), newSales: cleanNumber(parsed[235]?.[i]), oldMeets: cleanNumber(parsed[237]?.[i]), oldInstalls: cleanNumber(parsed[238]?.[i]), oldSales: cleanNumber(parsed[239]?.[i]), noInstalls: cleanNumber(parsed[241]?.[i]), noInstallSales: cleanNumber(parsed[242]?.[i]) }),
-                    pat: normalizeSalesRepData({ ytd: cleanNumber(parsed[248]?.[i]), meets: patMeets, installs: patInstalls, sales: cleanNumber(parsed[251]?.[i]), newMeets: cleanNumber(parsed[252]?.[i]), newInstalls: cleanNumber(parsed[253]?.[i]), newSales: cleanNumber(parsed[254]?.[i]), oldMeets: cleanNumber(parsed[256]?.[i]), oldInstalls: cleanNumber(parsed[257]?.[i]), oldSales: cleanNumber(parsed[258]?.[i]), noInstalls: cleanNumber(parsed[260]?.[i]), noInstallSales: cleanNumber(parsed[261]?.[i]) }),
+                    kat: normalizeSalesRepData({ ytd: cleanNumber(parsed[248]?.[i]), meets: katMeets, installs: katInstalls, sales: cleanNumber(parsed[251]?.[i]), newMeets: cleanNumber(parsed[253]?.[i]), newInstalls: cleanNumber(parsed[254]?.[i]), newSales: cleanNumber(parsed[255]?.[i]), oldMeets: cleanNumber(parsed[257]?.[i]), oldInstalls: cleanNumber(parsed[258]?.[i]), oldSales: cleanNumber(parsed[259]?.[i]), noInstalls: cleanNumber(parsed[261]?.[i]), noInstallSales: cleanNumber(parsed[262]?.[i]) }),
                     image: normalizeSalesRepData({ ytd: cleanNumber(parsed[268]?.[i]), meets: imageMeets, installs: imageInstalls, sales: cleanNumber(parsed[271]?.[i]), newMeets: cleanNumber(parsed[273]?.[i]), newInstalls: cleanNumber(parsed[274]?.[i]), newSales: cleanNumber(parsed[275]?.[i]), oldMeets: cleanNumber(parsed[277]?.[i]), oldInstalls: cleanNumber(parsed[278]?.[i]), oldSales: cleanNumber(parsed[279]?.[i]), noInstalls: cleanNumber(parsed[281]?.[i]), noInstallSales: cleanNumber(parsed[282]?.[i]) }),
                     projYa: { ytd: cleanNumber(parsed[289]?.[i]), sales: cleanNumber(parsed[290]?.[i]), installs: cleanNumber(parsed[291]?.[i]), targetMeets: cleanNumber(parsed[294]?.[i]), meets: cleanNumber(parsed[295]?.[i]), newMeets: cleanNumber(parsed[296]?.[i]), oldMeets: cleanNumber(parsed[297]?.[i]) },
                     projTung: { ytd: cleanNumber(parsed[302]?.[i]), sales: cleanNumber(parsed[303]?.[i]), installs: cleanNumber(parsed[304]?.[i]), targetMeets: cleanNumber(parsed[307]?.[i]), meets: cleanNumber(parsed[308]?.[i]), newMeets: cleanNumber(parsed[309]?.[i]), oldMeets: cleanNumber(parsed[310]?.[i]) },
@@ -227,7 +227,7 @@ function parseRowBasedWeeklyData(parsed) {
             const bomSales = cleanNumber(row[15]);
             const yaSales = cleanNumber(row[16]);
             const saifhaSales = cleanNumber(row[17]);
-            const patSales = cleanNumber(row[18]);
+            const katSales = cleanNumber(row[18]);
             const imageSales = cleanNumber(row[19]);
             const gfsActual = isAvailable ? gfsTarget : 0;
             const mhlActual = isAvailable ? mhlTarget : 0;
@@ -266,13 +266,13 @@ function parseRowBasedWeeklyData(parsed) {
                     tech: { claims: 0, filmIssueCount: 0, filmIssueValue: 0, techIssueCount: 0, techIssueValue: 0, damagePercent: 0, teamSize: 0 }
                 },
                 buildingSales: {
-                    totalRepSales: repActual(jaySales + bomSales + saifhaSales + patSales + imageSales),
+                    totalRepSales: repActual(jaySales + bomSales + saifhaSales + katSales + imageSales),
                     totalProjSales: repActual(yaSales),
                     totalAdminSales: 0,
                     bom: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(bomSales), newMeets: 0, newInstalls: 0, newSales: repActual(bomSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     jay: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(jaySales), newMeets: 0, newInstalls: 0, newSales: repActual(jaySales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     saifha: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(saifhaSales), newMeets: 0, newInstalls: 0, newSales: repActual(saifhaSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
-                    pat: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(patSales), newMeets: 0, newInstalls: 0, newSales: repActual(patSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
+                    kat: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(katSales), newMeets: 0, newInstalls: 0, newSales: repActual(katSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     image: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(imageSales), newMeets: 0, newInstalls: 0, newSales: repActual(imageSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     projYa: { ytd: 0, sales: repActual(yaSales), installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
                     projTung: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 }

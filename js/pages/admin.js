@@ -2,295 +2,487 @@
 function renderAdminDeepDiveHTML(current, m, opt, container) {
     const cIdx = dashboardData.findIndex(d => d.id === current.id);
     const prev = cIdx > 0 ? dashboardData[cIdx - 1] : null;
-    
-    const currentAdminSales = current.admin.sales.totalSales;
-    const prevAdminSales = prev ? prev.admin.sales.totalSales : 0;
+
+    const currentAdminSales = current.admin.sales.totalSales || current.buildingSales?.totalAdminSales || 0;
+    const prevAdminSales = prev ? (prev.admin.sales.totalSales || prev.buildingSales?.totalAdminSales || 0) : 0;
     const adminGrowth = prevAdminSales > 0 ? ((currentAdminSales - prevAdminSales) / prevAdminSales) * 100 : 0;
-    
+
     const convRate = current.admin.contacts.total > 0 ? ((current.admin.leads.actual / current.admin.contacts.total) * 100) : 0;
     const closeRate = current.admin.leads.actual > 0 ? ((current.admin.sales.totalInstalls / current.admin.leads.actual) * 100) : 0;
     const leadTargetProgress = current.admin.leads.target > 0 ? ((current.admin.leads.actual / current.admin.leads.target) * 100) : 0;
 
-    const insightType = convRate < 25 ? 'low_conv' : (closeRate < 15 ? 'low_close' : 'good');
-    
+    const insightType = convRate < 25 ? 'low_conv' : (closeRate < 35 ? 'low_close' : 'good');
+
     const gfsContacts = current.admin.contacts.gfs.line + current.admin.contacts.gfs.fb + current.admin.contacts.gfs.tel;
     const gfsLeads = current.admin.leads.gfs.line + current.admin.leads.gfs.fb + current.admin.leads.gfs.tel;
-    
+
     const mhlContacts = current.admin.contacts.mhl.line + current.admin.contacts.mhl.fb + current.admin.contacts.mhl.tel;
     const mhlLeads = current.admin.leads.mhl.line + current.admin.leads.mhl.fb + current.admin.leads.mhl.tel;
-    
+
     const totalNewSales = current.admin.sales.newSales.gfs + current.admin.sales.newSales.mhl;
     const totalOldSales = current.admin.sales.oldSales.gfs + current.admin.sales.oldSales.mhl;
     const totalNewInstalls = current.admin.sales.newInstalls.gfs + current.admin.sales.newInstalls.mhl;
     const totalOldInstalls = current.admin.sales.oldInstalls.gfs + current.admin.sales.oldInstalls.mhl;
 
+    const pct = (part, total) => total > 0 ? Math.max(0, Math.min(100, (part / total) * 100)) : 0;
+    const channelRow = (type, label, leads, contacts) => {
+        const rowConvRate = contacts > 0 ? (leads / contacts) * 100 : 0;
+        const rowIcon = type === 'line'
+            ? '<span class="admin-brand-badge is-line"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></span>'
+            : type === 'facebook'
+                ? '<span class="admin-brand-badge is-facebook">f</span>'
+                : '<span class="admin-brand-badge is-phone"><i data-lucide="phone" class="w-3.5 h-3.5"></i></span>';
+
+        return `
+            <div class="admin-channel-row is-${type}">
+                <span>${rowIcon}<b>${label}</b></span>
+                <div class="admin-channel-stats">
+                    <strong><small>ติดต่อ</small>${formatNumber(contacts)}</strong>
+                    <strong class="admin-channel-leads"><small>ส่งงาน</small>${formatNumber(leads)}</strong>
+                    <strong class="admin-channel-percent">${Math.round(rowConvRate)}%</strong>
+                </div>
+            </div>
+        `;
+    };
+
+    const companyCard = (company, tone, leads, contacts, values) => `
+            <article class="admin-card admin-company-card is-${tone}">
+                <div class="admin-company-head">
+                    <div class="admin-company-title">
+                        <span class="admin-company-code">${company}</span>
+                        <h3>ฟิล์มอาคาร</h3>
+                    </div>
+                    <div class="admin-company-total-grid">
+                        <div>
+                            <span>ติดต่อ</span>
+                            <strong>${formatNumber(contacts)}</strong>
+                        </div>
+                        <div class="is-leads">
+                            <span>ส่งงาน</span>
+                            <strong>${formatNumber(leads)}</strong>
+                            <em>${Math.round(pct(leads, contacts))}%</em>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-channel-list">
+                    ${channelRow('line', 'LINE OA', values.lineLead, values.lineContact)}
+                    ${channelRow('facebook', 'Facebook', values.fbLead, values.fbContact)}
+                    ${channelRow('phone', 'โทรเข้า', values.telLead, values.telContact)}
+                </div>
+            </article>
+        `;
+
+    const insightClass = insightType === 'good' ? 'is-good' : (insightType === 'low_close' ? 'is-warn' : 'is-bad');
+    const growthDirection = adminGrowth >= 0 ? 'up' : 'down';
+    const growthLabel = `${adminGrowth >= 0 ? '↑' : '↓'} ${Math.abs(adminGrowth).toFixed(1)}%`;
+
     container.innerHTML = `
-        <!-- Filter Section -->
-        <div class="flex items-center gap-2 mb-6 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm shrink-0">
-            <i data-lucide="filter" class="w-5 h-5 text-slate-400 ml-2"></i>
-            <span class="text-base font-bold text-slate-600 mr-2">เลือกสัปดาห์:</span>
-            <select onchange="handleWeekChange(event)" class="ml-auto bg-indigo-50 border border-indigo-200 text-indigo-700 text-base cursor-pointer font-bold rounded-xl p-2 w-72">${opt}</select>
-        </div>
-        
-        <div class="flex items-center gap-3 mb-6 shrink-0 mt-2">
-            <h3 class="font-black text-slate-800 text-2xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="filter" class="text-indigo-600 w-7 h-7"></i> กระบวนการคัดกรอง (Sales Admin Funnel) สัปดาห์นี้</h3>
-            <div class="h-px bg-slate-200 flex-1 ml-2"></div>
-        </div>
-
-        <!-- Section 1: Funnel KPIs (4 Cards in a row) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 shrink-0">
-            <!-- 1. Contacts -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center">
-                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> ปริมาณการติดต่อ</p>
-                <h3 class="text-4xl lg:text-5xl font-black text-blue-600 leading-tight">${formatCurrency(current.admin.contacts.total)}</h3>
-                <p class="text-xs font-bold text-slate-400 mt-3 border-t border-slate-100 pt-2">ลูกค้าทักแชท / โทรเข้า</p>
-            </div>
-            
-            <!-- 2. Leads (ส่งงาน) -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center relative overflow-hidden">
-                <div class="absolute -right-4 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none"><i data-lucide="send" class="w-32 h-32 text-indigo-600"></i></div>
-                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10"><i data-lucide="send" class="w-4 h-4 text-indigo-500"></i> ส่งงานให้เซลล์</p>
-                <h3 class="text-4xl lg:text-5xl font-black text-indigo-600 relative z-10 leading-tight">${formatNumber(current.admin.leads.actual)}</h3>
-                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 relative z-10 text-xs gap-2">
-                    <span class="font-bold text-slate-500">เป้า: ${current.admin.leads.target} งาน</span>
-                    <span class="px-2 py-1 ${convRate >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} rounded-lg text-xs font-black">Conv. ${formatPercent(convRate)}</span>
+        <section class="admin-v2">
+            <div class="admin-page-head">
+                <div class="admin-title-row">
+                    <button type="button" id="admin-sidebar-toggle" class="admin-sidebar-toggle" onclick="toggleDesktopSidebar()" aria-label="${isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู'}" title="${isDesktopSidebarCollapsed ? 'แสดงเมนู' : 'ซ่อนเมนู'}">
+                        <i id="admin-sidebar-toggle-icon" data-lucide="${isDesktopSidebarCollapsed ? 'panel-left-open' : 'panel-left-close'}" class="w-5 h-5"></i>
+                    </button>
+                    <div class="admin-title-block">
+                        <h2>SALES ADMIN</h2>
+                        <p>สรุปประสิทธิภาพงานแอดมินรายสัปดาห์</p>
+                    </div>
+                </div>
+                <div class="page-head-actions">
+                    <label class="admin-week-select">
+                        <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                        <select onchange="handleWeekChange(event)" aria-label="เลือกสัปดาห์">${opt}</select>
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </label>
+                    ${renderFullscreenButton()}
                 </div>
             </div>
 
-            <!-- 3. Installs (ปิดการขาย) -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-center relative overflow-hidden">
-                <div class="absolute -right-4 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none"><i data-lucide="check-circle" class="w-32 h-32 text-emerald-600"></i></div>
-                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> ปิดการขายได้</p>
-                <h3 class="text-4xl lg:text-5xl font-black text-emerald-600 relative z-10 leading-tight">${formatNumber(current.admin.sales.totalInstalls)}</h3>
-                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 relative z-10 text-xs gap-2">
-                    <span class="font-bold text-slate-500">งานติดตั้ง</span>
-                    <span class="px-2 py-1 ${closeRate >= 15 ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'} rounded-lg text-xs font-black">Close ${formatPercent(closeRate)}</span>
-                </div>
-            </div>
-
-            <!-- 4. Revenue (ยอดขาย) -->
-            <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center text-white relative overflow-hidden">
-                <div class="absolute -right-4 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none"><i data-lucide="award" class="w-32 h-32 text-white"></i></div>
-                <p class="text-sm font-black text-indigo-200 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10"><i data-lucide="award" class="w-5 h-5 text-amber-300"></i> ยอดขายจากแอดมิน</p>
-                <h3 class="text-4xl lg:text-5xl font-black text-white relative z-10 tracking-tighter">฿${formatCurrency(current.admin.sales.totalSales)}</h3>
-                <p class="text-sm font-bold text-indigo-200 mt-3 border-t border-indigo-500/50 pt-3 relative z-10">ยอดขายรวมสัปดาห์นี้</p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-3 mb-6 shrink-0 mt-4">
-            <h3 class="font-black text-slate-800 text-xl uppercase tracking-tight flex items-center gap-3"><i data-lucide="pie-chart" class="text-blue-500 w-6 h-6"></i> แยกรายบริษัทและคุณภาพงาน (Breakdown)</h3>
-            <div class="h-px bg-slate-200 flex-1 ml-2"></div>
-        </div>
-
-        <!-- Section 2: Channel Breakdown (3 Cards) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 shrink-0">
-            
-            <!-- GFS Card -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col">
-                <div class="flex justify-between items-start mb-4 pb-4 border-b border-slate-100 gap-4">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm border border-blue-100 flex-shrink-0">GFS</div>
-                        <div class="min-w-0"><h4 class="font-black text-slate-800 text-base leading-tight">ฟิล์มอาคาร</h4><p class="text-xs text-slate-500 font-bold">GFS</p></div>
-                    </div>
-                    <div class="text-right flex-shrink-0">
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-0.5">ส่งงาน / ติดต่อ</p>
-                        <p class="text-sm lg:text-base font-black text-blue-600">${formatNumber(gfsLeads)} <span class="text-xs font-bold text-slate-400">/ ${formatNumber(gfsContacts)}</span></p>
-                    </div>
-                </div>
-                <div class="space-y-2 mt-auto">
-                    <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100/50 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-emerald-700"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE OA</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.line)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.line)}</span></div>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-100/50 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-blue-700"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.fb)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.fb)}</span></div>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4"></i> โทรเข้า</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.gfs.tel)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.gfs.tel)}</span></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- MHL Card -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col">
-                <div class="flex justify-between items-start mb-4 pb-4 border-b border-slate-100 gap-4">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-black text-sm border border-amber-100 flex-shrink-0">MHL</div>
-                        <div class="min-w-0"><h4 class="font-black text-slate-800 text-base leading-tight">ฟิล์มอาคาร</h4><p class="text-xs text-slate-500 font-bold">MHL</p></div>
-                    </div>
-                    <div class="text-right flex-shrink-0">
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-0.5">ส่งงาน / ติดต่อ</p>
-                        <p class="text-sm lg:text-base font-black text-amber-600">${formatNumber(mhlLeads)} <span class="text-xs font-bold text-slate-400">/ ${formatNumber(mhlContacts)}</span></p>
-                    </div>
-                </div>
-                <div class="space-y-2 mt-auto">
-                    <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100/50 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-emerald-700"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> LINE OA</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.line)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.line)}</span></div>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-100/50 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-blue-700"><div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Facebook</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.fb)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.fb)}</span></div>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs lg:text-sm">
-                        <span class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="phone" class="w-4 h-4"></i> โทรเข้า</span>
-                        <div class="text-right"><span class="font-black text-slate-900">${formatNumber(current.admin.leads.mhl.tel)}</span> <span class="text-xs text-slate-400 font-bold">/ ${formatNumber(current.admin.contacts.mhl.tel)}</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quality of Sales Card -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none"><i data-lucide="award" class="w-40 h-40 text-amber-500"></i></div>
-                <div class="flex items-center gap-4 mb-6 pb-5 border-b border-slate-100 relative z-10">
-                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-black border border-indigo-100"><i data-lucide="award" class="w-6 h-6"></i></div>
+            <div class="admin-kpi-grid">
+                <article class="admin-card admin-kpi-card is-blue">
+                    <div class="admin-kpi-icon"><i data-lucide="message-square" class="w-6 h-6"></i></div>
                     <div>
-                        <h4 class="font-black text-slate-800 text-lg leading-none mb-1">คุณภาพยอดขาย</h4>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">แบ่งตามประเภทลูกค้า (อาคาร)</p>
+                        <h3>ปริมาณการติดต่อ</h3>
+                        <strong>${formatNumber(current.admin.contacts.total)}</strong>
+                        <p>ลูกค้าทักแชท / โทรเข้า</p>
                     </div>
-                </div>
-                <div class="space-y-6 mt-auto relative z-10 flex-1 flex flex-col justify-center">
-                    <!-- New Customers -->
+                </article>
+
+                <article class="admin-card admin-kpi-card is-indigo">
+                    <div class="admin-kpi-icon"><i data-lucide="send" class="w-6 h-6"></i></div>
+                    <div class="admin-kpi-split">
+                        <div>
+                            <h3>ส่งงานให้เซลล์</h3>
+                            <strong>${formatNumber(current.admin.leads.actual)}</strong>
+                            <p>เป้า ${formatNumber(current.admin.leads.target)} งาน</p>
+                        </div>
+                        <div class="admin-kpi-rate">
+                            <span>Conversion</span>
+                            <b>${formatPercent(convRate)}</b>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="admin-card admin-kpi-card is-green">
+                    <div class="admin-kpi-icon"><i data-lucide="target" class="w-6 h-6"></i></div>
+                    <div class="admin-kpi-split">
+                        <div>
+                            <h3>ปิดการขายได้</h3>
+                            <strong>${formatNumber(current.admin.sales.totalInstalls)}</strong>
+                            <p>งานติดตั้ง</p>
+                        </div>
+                        <div class="admin-kpi-rate">
+                            <span>Close Rate</span>
+                            <b>${formatPercent(closeRate)}</b>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="admin-revenue-card">
+                    <div class="admin-revenue-icon"><i data-lucide="award" class="w-8 h-8"></i></div>
                     <div>
-                        <div class="flex justify-between items-end mb-2">
+                        <h3>ยอดขายจากแอดมิน</h3>
+                        <strong>${formatBaht(currentAdminSales)}</strong>
+                        <p>ยอดขายรวมสัปดาห์นี้</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="admin-mid-grid">
+                ${companyCard('GFS', 'blue', gfsLeads, gfsContacts, {
+                    lineLead: current.admin.leads.gfs.line,
+                    lineContact: current.admin.contacts.gfs.line,
+                    fbLead: current.admin.leads.gfs.fb,
+                    fbContact: current.admin.contacts.gfs.fb,
+                    telLead: current.admin.leads.gfs.tel,
+                    telContact: current.admin.contacts.gfs.tel
+                })}
+
+                ${companyCard('MHL', 'amber', mhlLeads, mhlContacts, {
+                    lineLead: current.admin.leads.mhl.line,
+                    lineContact: current.admin.contacts.mhl.line,
+                    fbLead: current.admin.leads.mhl.fb,
+                    fbContact: current.admin.contacts.mhl.fb,
+                    telLead: current.admin.leads.mhl.tel,
+                    telContact: current.admin.contacts.mhl.tel
+                })}
+
+                <article class="admin-card admin-quality-card">
+                    <div class="admin-panel-head">
+                        <span class="admin-panel-icon is-indigo"><i data-lucide="award" class="w-5 h-5"></i></span>
+                        <div>
+                            <h3>คุณภาพยอดขาย</h3>
+                            <p>แบ่งตามประเภทลูกค้า (อาคาร)</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-quality-total-grid">
+                        <div>
+                            <span>ติดตั้ง</span>
+                            <strong>${formatNumber(totalNewInstalls + totalOldInstalls)}</strong>
+                        </div>
+                        <div>
+                            <span>ลูกค้าใหม่</span>
+                            <strong>${formatPercent(pct(totalNewSales, currentAdminSales))}</strong>
+                        </div>
+                        <div>
+                            <span>ลูกค้าเก่า</span>
+                            <strong>${formatPercent(pct(totalOldSales, currentAdminSales))}</strong>
+                        </div>
+                    </div>
+
+                    <div class="admin-quality-list">
+                        <div class="admin-quality-row is-new">
                             <div>
-                                <span class="text-sm font-black text-slate-700 block mb-0.5">🆕 ลูกค้าใหม่ (New)</span>
-                                <span class="text-xs text-slate-500 font-bold">ติดตั้งแล้ว: ${totalNewInstalls} งาน</span>
+                                <span><em>NEW</em> ลูกค้าใหม่ (New)</span>
+                                <p>ติดตั้งแล้ว ${formatNumber(totalNewInstalls)} งาน</p>
                             </div>
-                            <span class="text-xl font-black text-emerald-600">฿${formatCurrency(totalNewSales)}</span>
+                        <strong>${formatBaht(totalNewSales)}</strong>
+                            <div class="admin-progress"><i style="width:${pct(totalNewSales, currentAdminSales)}%"></i></div>
                         </div>
-                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-emerald-500 h-full rounded-full" style="width:${((totalNewSales/currentAdminSales)*100) || 0}%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Old Customers -->
-                    <div>
-                        <div class="flex justify-between items-end mb-2">
+
+                        <div class="admin-quality-row is-old">
                             <div>
-                                <span class="text-sm font-black text-slate-700 block mb-0.5">🔙 ลูกค้าเก่า (Old)</span>
-                                <span class="text-xs text-slate-500 font-bold">ติดตั้งแล้ว: ${totalOldInstalls} งาน</span>
+                                <span><i data-lucide="users" class="w-4 h-4"></i> ลูกค้าเก่า (Old)</span>
+                                <p>ติดตั้งแล้ว ${formatNumber(totalOldInstalls)} งาน</p>
                             </div>
-                            <span class="text-xl font-black text-indigo-600">฿${formatCurrency(totalOldSales)}</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-indigo-500 h-full rounded-full" style="width:${((totalOldSales/currentAdminSales)*100) || 0}%"></div>
+                        <strong>${formatBaht(totalOldSales)}</strong>
+                            <div class="admin-progress"><i style="width:${pct(totalOldSales, currentAdminSales)}%"></i></div>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
-        </div>
 
-        <!-- Section 3: Chart & Insights -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 shrink-0 mt-4">
-            <!-- Chart -->
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm flex flex-col shrink-0">
-                <div class="flex items-center justify-between gap-6 mb-6 pb-4 border-b border-slate-100 overflow-x-auto custom-scrollbar w-full">
-                    <div class="flex items-center gap-4 shrink-0">
-                        <h3 class="font-black text-slate-800 uppercase tracking-tight text-base whitespace-nowrap m-0 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 text-indigo-500 mr-2"></i> แนวโน้มการทำงาน (12 สัปดาห์)</h3>
-                        <div class="flex gap-2 shrink-0 ml-4">
-                            <button onclick="changeAdminTrendFilter('total')" class="px-4 py-1.5 rounded-full text-xs lg:text-sm font-black transition-all ${adminTrendFilter === 'total' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">รวมทั้งหมด</button>
-                            <button onclick="changeAdminTrendFilter('gfs')" class="px-4 py-1.5 rounded-full text-xs lg:text-sm font-black transition-all ${adminTrendFilter === 'gfs' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">GFS</button>
-                            <button onclick="changeAdminTrendFilter('mhl')" class="px-4 py-1.5 rounded-full text-xs lg:text-sm font-black transition-all ${adminTrendFilter === 'mhl' ? 'bg-amber-500 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">MHL</button>
+            <div class="admin-bottom-grid">
+                <div class="admin-monthly-row">
+                    <article class="admin-card admin-chart-card admin-monthly-chart-card">
+                        <div class="admin-chart-head">
+                            <h3><i data-lucide="bar-chart-3" class="w-4 h-4"></i> แนวโน้มการทำงานรายเดือน</h3>
+                            <div class="admin-chart-tabs">
+                                <button onclick="changeAdminTrendFilter('total')" class="${adminTrendFilter === 'total' ? 'is-active' : ''}">รวมทั้งหมด</button>
+                                <button onclick="changeAdminTrendFilter('gfs')" class="${adminTrendFilter === 'gfs' ? 'is-active' : ''}">GFS</button>
+                                <button onclick="changeAdminTrendFilter('mhl')" class="${adminTrendFilter === 'mhl' ? 'is-active' : ''}">MHL</button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="flex-1 w-full min-h-[350px] relative"><canvas id="adminTrendChartCanvas"></canvas></div>
-            </div>
-            
-            <!-- Executive Insights -->
-            <div class="bg-white rounded-[2rem] p-6 lg:p-8 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none"><i data-lucide="lightbulb" class="w-64 h-64 text-indigo-600"></i></div>
-                <h3 class="font-black text-slate-800 flex items-center gap-2 text-xl uppercase tracking-tight mb-6 relative z-10">
-                    <i data-lucide="lightbulb" class="text-amber-500 w-6 h-6"></i> วิเคราะห์งานแอดมิน
-                </h3>
-                
-                <div class="flex flex-col gap-4 relative z-10 mb-6 flex-1">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-indigo-200 transition-colors">
-                        <div>
-                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">อัตราส่งมอบ (Conversion)</p>
-                            <p class="text-2xl font-black text-indigo-600">${convRate.toFixed(1)}%</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><i data-lucide="filter" class="w-6 h-6"></i></div>
-                    </div>
-                    
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-indigo-200 transition-colors">
-                        <div>
-                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">อัตราปิดการขาย (Close Rate)</p>
-                            <p class="text-2xl font-black text-emerald-600">${closeRate.toFixed(1)}%</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="check-circle-2" class="w-6 h-6"></i></div>
-                    </div>
+                        <div class="admin-chart-wrap admin-monthly-chart-wrap"><canvas id="adminMonthlyTrendChartCanvas"></canvas></div>
+                    </article>
 
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-indigo-200 transition-colors">
-                        <div>
-                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Growth (เทียบวีคก่อน)</p>
-                            <p class="text-2xl font-black ${adminGrowth>=0?'text-emerald-600':'text-red-600'}">${adminGrowth>=0?'↑':'↓'} ${Math.abs(adminGrowth).toFixed(1)}%</p>
+                    <article class="admin-card admin-source-card">
+                        <div class="admin-chart-head">
+                            <h3><i data-lucide="pie-chart" class="w-4 h-4"></i> ที่มาของงานส่งฝ่ายขาย (สะสมรายปี)</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl ${adminGrowth>=0?'bg-emerald-100 text-emerald-600':'bg-red-100 text-red-600'} flex items-center justify-center shrink-0"><i data-lucide="trending-${adminGrowth>=0?'up':'down'}" class="w-6 h-6"></i></div>
-                    </div>
+                        <div class="admin-source-wrap"><canvas id="adminLeadSourceChartCanvas"></canvas></div>
+                        <div id="adminLeadSourceLegend" class="admin-source-legend"></div>
+                    </article>
                 </div>
 
-                <div class="mt-auto p-5 ${insightType === 'good' ? 'bg-emerald-50/50 border-emerald-100' : (insightType === 'low_close' ? 'bg-amber-50/50 border-amber-100' : 'bg-red-50/50 border-red-100')} rounded-2xl border text-sm leading-relaxed text-slate-800 font-medium relative z-10 flex flex-col justify-center">
-                    <b class="${insightType === 'good' ? 'text-emerald-600' : (insightType === 'low_close' ? 'text-amber-600' : 'text-red-600')} uppercase font-black tracking-widest block mb-2">💡 สรุปสถานการณ์:</b> 
-                    ${insightType === 'good' 
-                        ? `ยอดเยี่ยมมาก! แอดมินสามารถคัดกรองลูกค้าและส่งต่อให้เซลล์ได้สูงถึง <b class="text-emerald-700">${convRate.toFixed(1)}%</b> และมีการปิดการขายได้ถึง <b class="text-emerald-700">${closeRate.toFixed(1)}%</b> แสดงให้เห็นถึงคุณภาพของ Leads ที่แอดมินคุยมาดีมาก` 
-                        : (insightType === 'low_close' 
-                            ? `แอดมินทำงานได้ดีในการส่งมอบ Leads <b class="text-amber-600">(${convRate.toFixed(1)}%)</b> แต่เซลล์ปิดการขายได้ค่อนข้างต่ำ <b class="text-amber-600">(${closeRate.toFixed(1)}%)</b> แนะนำให้ตรวจสอบว่าปัญหาเกิดจากคุณภาพของ Leads หรือเซลล์ตามงานไม่ทัน`
-                            : `ประสิทธิภาพการเปลี่ยน Contact เป็น Leads ต่ำกว่าเกณฑ์ปกติ <b class="text-red-600">(${convRate.toFixed(1)}%)</b> แม้จะมีคนทักมามาก แต่แอดมินไม่สามารถดึงข้อมูลหรือส่งให้เซลล์ได้ ควรเร่งตรวจสอบและปรับปรุงสคริปต์การตอบด่วน`)}
-                </div>
+                <article class="admin-card admin-chart-card">
+                    <div class="admin-chart-head">
+                        <h3><i data-lucide="trending-up" class="w-4 h-4"></i> แนวโน้มการทำงานรายสัปดาห์ (ทั้งหมดปีนี้)</h3>
+                    </div>
+                    <div class="admin-chart-wrap"><canvas id="adminTrendChartCanvas"></canvas></div>
+                </article>
             </div>
-        </div>
+        </section>
     `;
-    
+
     setTimeout(() => {
         const adminCtx = document.getElementById('adminTrendChartCanvas')?.getContext('2d');
-        if(!adminCtx) return;
+        const adminMonthlyCtx = document.getElementById('adminMonthlyTrendChartCanvas')?.getContext('2d');
+        const adminSourceCtx = document.getElementById('adminLeadSourceChartCanvas')?.getContext('2d');
+        if (!adminCtx || !adminMonthlyCtx || !adminSourceCtx) return;
         if (charts['adminTrend']) charts['adminTrend'].destroy();
-        
-        const recentData = dashboardData.filter(d => d.admin.contacts.total > 0).slice(-12);
-        let dSales = [], dCont = [], dLeads = [], cBg = '#4f46e5';
-        
-        if (adminTrendFilter === 'total') {
-            dSales = recentData.map(d => d.admin.sales.totalSales);
-            dCont = recentData.map(d => d.admin.contacts.total);
-            dLeads = recentData.map(d => d.admin.leads.actual);
-            cBg = '#4f46e5';
-        } else if (adminTrendFilter === 'gfs') {
-            dSales = recentData.map(d => d.admin.sales.newSales.gfs + d.admin.sales.oldSales.gfs);
-            dCont = recentData.map(d => d.admin.contacts.gfs.line + d.admin.contacts.gfs.fb + d.admin.contacts.gfs.tel);
-            dLeads = recentData.map(d => d.admin.leads.gfs.line + d.admin.leads.gfs.fb + d.admin.leads.gfs.tel);
-            cBg = '#2563eb';
-        } else if (adminTrendFilter === 'mhl') {
-            dSales = recentData.map(d => d.admin.sales.newSales.mhl + d.admin.sales.oldSales.mhl);
-            dCont = recentData.map(d => d.admin.contacts.mhl.line + d.admin.contacts.mhl.fb + d.admin.contacts.mhl.tel);
-            dLeads = recentData.map(d => d.admin.leads.mhl.line + d.admin.leads.mhl.fb + d.admin.leads.mhl.tel);
-            cBg = '#f59e0b';
+        if (charts['adminMonthlyTrend']) charts['adminMonthlyTrend'].destroy();
+        if (charts['adminLeadSource']) charts['adminLeadSource'].destroy();
+
+        const yearData = dashboardData.filter(d => d.admin.contacts.total > 0 || d.admin.sales.totalSales > 0 || d.buildingSales?.totalAdminSales > 0);
+        const recentData = yearData.length ? yearData : dashboardData;
+
+        const getAdminPoint = (d) => {
+            if (adminTrendFilter === 'gfs') {
+                return {
+                    sales: d.admin.sales.newSales.gfs + d.admin.sales.oldSales.gfs,
+                    contacts: d.admin.contacts.gfs.line + d.admin.contacts.gfs.fb + d.admin.contacts.gfs.tel,
+                    leads: d.admin.leads.gfs.line + d.admin.leads.gfs.fb + d.admin.leads.gfs.tel,
+                    color: '#2563eb'
+                };
+            }
+
+            if (adminTrendFilter === 'mhl') {
+                return {
+                    sales: d.admin.sales.newSales.mhl + d.admin.sales.oldSales.mhl,
+                    contacts: d.admin.contacts.mhl.line + d.admin.contacts.mhl.fb + d.admin.contacts.mhl.tel,
+                    leads: d.admin.leads.mhl.line + d.admin.leads.mhl.fb + d.admin.leads.mhl.tel,
+                    color: '#f59e0b'
+                };
+            }
+
+            return {
+                sales: d.admin.sales.totalSales || d.buildingSales?.totalAdminSales || 0,
+                contacts: d.admin.contacts.total,
+                leads: d.admin.leads.actual,
+                color: '#4f46e5'
+            };
+        };
+
+        const getLeadSources = (d) => {
+            if (adminTrendFilter === 'gfs') {
+                return {
+                    line: d.admin.leads.gfs.line,
+                    facebook: d.admin.leads.gfs.fb,
+                    phone: d.admin.leads.gfs.tel
+                };
+            }
+
+            if (adminTrendFilter === 'mhl') {
+                return {
+                    line: d.admin.leads.mhl.line,
+                    facebook: d.admin.leads.mhl.fb,
+                    phone: d.admin.leads.mhl.tel
+                };
+            }
+
+            return {
+                line: d.admin.leads.gfs.line + d.admin.leads.mhl.line,
+                facebook: d.admin.leads.gfs.fb + d.admin.leads.mhl.fb,
+                phone: d.admin.leads.gfs.tel + d.admin.leads.mhl.tel
+            };
+        };
+
+        const chartColor = getAdminPoint(recentData[0] || current).color;
+        const weeklySeries = recentData.map(d => ({ label: d.week, ...getAdminPoint(d) }));
+        const referenceYear = String(current.dateRange || recentData[0]?.dateRange || '').match(/(20\d{2}|25\d{2})/)?.[0] || '2026';
+        const monthLabels = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+            .map(month => `${month} ${referenceYear}`);
+        const monthlyMap = new Map(monthLabels.map(label => [label, { label, sales: 0, contacts: 0, leads: 0, hasData: false }]));
+        recentData.forEach((d) => {
+            const label = extractMonthGroup(d.dateRange || d.week);
+            if (!monthlyMap.has(label)) monthlyMap.set(label, { label, sales: 0, contacts: 0, leads: 0 });
+            const target = monthlyMap.get(label);
+            const point = getAdminPoint(d);
+            target.sales += point.sales;
+            target.contacts += point.contacts;
+            target.leads += point.leads;
+            target.hasData = true;
+        });
+        const monthlySeries = monthLabels.map(label => {
+            const item = monthlyMap.get(label) || { label, sales: 0, contacts: 0, leads: 0, hasData: false };
+            return item.hasData ? item : { label, sales: null, contacts: null, leads: null };
+        });
+        const sourceTotals = recentData.reduce((acc, d) => {
+            const sources = getLeadSources(d);
+            acc.line += sources.line;
+            acc.facebook += sources.facebook;
+            acc.phone += sources.phone;
+            return acc;
+        }, { line: 0, facebook: 0, phone: 0 });
+        const sourceTotal = sourceTotals.line + sourceTotals.facebook + sourceTotals.phone;
+        const sourceLegendEl = document.getElementById('adminLeadSourceLegend');
+        if (sourceLegendEl) {
+            sourceLegendEl.innerHTML = [
+                { label: 'LINE OA', value: sourceTotals.line, color: '#19c069' },
+                { label: 'Facebook', value: sourceTotals.facebook, color: '#1d6fe7' },
+                { label: 'โทรเข้า', value: sourceTotals.phone, color: '#52627a' }
+            ].map((item) => {
+                const percent = sourceTotal > 0 ? Math.round((item.value / sourceTotal) * 100) : 0;
+                return `
+                    <div class="admin-source-legend-item" style="--source-color:${item.color}">
+                        <i></i>
+                        <span>${item.label}</span>
+                        <strong>${formatNumber(item.value)} <small>งาน</small></strong>
+                        <em>${percent}%</em>
+                    </div>
+                `;
+            }).join('');
         }
 
-        charts['adminTrend'] = new Chart(adminCtx, {
+        const makeAdminTrendChart = (ctx, series, chartKey, maxTicksLimit, showAllTicks = false) => {
+            charts[chartKey] = new Chart(ctx, {
             type: 'line',
-            data: { 
-                labels: recentData.map(d => d.week), 
+            data: {
+                labels: series.map(d => d.label),
                 datasets: [
-                    { type: 'bar', label: 'ยอดขาย (฿)', data: dSales, backgroundColor: cBg, borderRadius: 4, yAxisID: 'y', order: 3, barPercentage: 0.6 }, 
-                    { type: 'line', label: 'ติดต่อรวม', data: dCont, borderColor: '#f59e0b', backgroundColor: '#fef3c7', borderWidth: 2, tension: 0.4, yAxisID: 'y1', order: 2, fill: false }, 
-                    { type: 'line', label: 'ส่งงาน', data: dLeads, borderColor: '#06b6d4', backgroundColor: '#cffafe', borderWidth: 2, borderDash: [5,5], tension: 0.4, yAxisID: 'y1', order: 1, fill: false }
-                ] 
+                    { type: 'bar', label: 'ยอดขาย', data: series.map(d => d.sales), backgroundColor: chartColor, borderRadius: 3, yAxisID: 'y', order: 3, barPercentage: 0.48, categoryPercentage: 0.72 },
+                    { type: 'line', label: 'ติดต่อรวม', data: series.map(d => d.contacts), borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 2, tension: 0.42, yAxisID: 'y1', order: 2, fill: false },
+                    { type: 'line', label: 'ส่งงาน', data: series.map(d => d.leads), borderColor: '#06b6d4', backgroundColor: '#06b6d4', borderWidth: 2, borderDash: [5, 5], pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 2, tension: 0.42, yAxisID: 'y1', order: 1, fill: false }
+                ]
             },
-            options: { 
-                layout: { padding: { top: 30 } },
-                responsive: true, maintainAspectRatio: false, 
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Sarabun', weight: 'bold' }, usePointStyle: true, boxWidth: 10 } }, tooltip: { callbacks: { label: (c) => c.datasetIndex === 0 ? `${c.dataset.label}: ฿${formatCurrency(c.parsed.y)}` : `${c.dataset.label}: ${formatCurrency(c.parsed.y)}` } } },
-                scales: { 
-                    x: { grid: { display: false }, ticks: { font: { family: 'Sarabun' } } },
-                    y: { type: 'linear', position: 'left', beginAtZero: true, grace: '25%', grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold' }, callback: (v) => v >= 1000 ? (v/1000)+'k' : v } }, 
-                    y1: { type: 'linear', position: 'right', beginAtZero: true, grace: '25%', grid: { drawOnChartArea: false }, ticks: { font: { family: 'Sarabun' } } } 
-                } 
+                layout: { padding: { top: 0, right: 8, bottom: 0, left: 0 } },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#334155',
+                            font: { family: 'Sarabun', size: 13, weight: 'bold' },
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            padding: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (c) => c.datasetIndex === 0 ? `${c.dataset.label}: ${formatBaht(c.parsed.y)}` : `${c.dataset.label}: ${formatNumber(c.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            autoSkip: !showAllTicks,
+                            maxRotation: 0,
+                            maxTicksLimit,
+                            color: '#64748b',
+                            font: { family: 'Sarabun', size: 12, weight: 'bold' }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        grace: '20%',
+                        grid: { color: '#eef2f7' },
+                        border: { display: false },
+                        ticks: { color: '#64748b', font: { family: 'Sarabun', size: 12, weight: 'bold' }, callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        grace: '20%',
+                        grid: { drawOnChartArea: false },
+                        border: { display: false },
+                        ticks: { color: '#64748b', font: { family: 'Sarabun', size: 12, weight: 'bold' } }
+                    }
+                }
             }
+            });
+        };
+
+        makeAdminTrendChart(adminMonthlyCtx, monthlySeries, 'adminMonthlyTrend', 12, true);
+        makeAdminTrendChart(adminCtx, weeklySeries, 'adminTrend', window.innerWidth < 900 ? 8 : 18);
+
+        const leadSourceLabelsPlugin = {
+            id: 'adminLeadSourceLabels',
+            afterDraw: (chart) => {
+                const { ctx } = chart;
+                const values = chart.data.datasets[0].data;
+                const total = values.reduce((sum, value) => sum + (Number(value) || 0), 0);
+                const meta = chart.getDatasetMeta(0);
+                const firstArc = meta.data[0];
+                if (!firstArc) return;
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#07183f';
+                ctx.font = '900 24px Sarabun';
+                ctx.fillText(formatNumber(total), firstArc.x, firstArc.y - 7);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '800 12px Sarabun';
+                ctx.fillText('งานส่งฝ่ายขาย', firstArc.x, firstArc.y + 15);
+                ctx.restore();
+            }
+        };
+
+        charts['adminLeadSource'] = new Chart(adminSourceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['LINE OA', 'Facebook', 'โทรเข้า'],
+                datasets: [{
+                    data: [sourceTotals.line, sourceTotals.facebook, sourceTotals.phone],
+                    backgroundColor: ['#19c069', '#1d6fe7', '#52627a'],
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '58%',
+                layout: { padding: 8 },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.parsed || 0;
+                                const percent = sourceTotal > 0 ? Math.round((value / sourceTotal) * 100) : 0;
+                                return `${context.label}: ${formatNumber(value)} งาน (${percent}%)`;
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [leadSourceLabelsPlugin]
         });
     }, 50);
 }
