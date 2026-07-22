@@ -7245,3 +7245,76 @@
         #mobile-sidebar > div:last-child p.text-slate-400 {
             color: #718096 !important;
         }
+
+        /* Premium blue sidebar finish. */
+        #desktop-sidebar,
+        #mobile-sidebar {
+            background:
+                radial-gradient(115% 42% at 0% 0%, rgba(126, 184, 255, .22), transparent 65%),
+                linear-gradient(180deg, #0f5ec4 0%, #0b3b8f 48%, #082b68 100%) !important;
+            border-color: rgba(174, 213, 255, .28) !important;
+            color: #e5efff;
+        }
+
+        #desktop-sidebar > div:first-child,
+        #mobile-sidebar > div:first-child {
+            background: rgba(2, 16, 50, .16);
+            border-color: rgba(174, 213, 255, .2) !important;
+        }
+
+        #desktop-sidebar > div:last-child,
+        #mobile-sidebar > div:last-child {
+            background: rgba(2, 16, 50, .2);
+            border-color: rgba(174, 213, 255, .2) !important;
+        }
+
+        #desktop-sidebar > div:last-child > div,
+        #mobile-sidebar > div:last-child > div {
+            background: rgba(255, 255, 255, .09) !important;
+            border-color: rgba(255, 255, 255, .16);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 12px 26px rgba(2, 16, 50, .2);
+        }
+
+        #desktop-sidebar h1,
+        #mobile-sidebar h1 {
+            color: #fff !important;
+        }
+
+        #desktop-sidebar > div:first-child p,
+        #mobile-sidebar > div:first-child p {
+            color: #d6e6ff !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar > div > p,
+        #mobile-sidebar .custom-scrollbar > div > p {
+            color: #b7d2fa !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a,
+        #mobile-sidebar .custom-scrollbar a {
+            color: #e0ebff !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a:hover,
+        #mobile-sidebar .custom-scrollbar a:hover {
+            background: rgba(255, 255, 255, .1) !important;
+            color: #fff !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a[class~="bg-blue-600/20"],
+        #mobile-sidebar .custom-scrollbar a[class~="bg-blue-600/20"] {
+            background: rgba(255, 255, 255, .17) !important;
+            border-color: rgba(255, 255, 255, .42) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 8px 18px rgba(2, 16, 50, .16) !important;
+            color: #fff !important;
+        }
+
+        #desktop-sidebar > div:last-child p.text-white,
+        #mobile-sidebar > div:last-child p.text-white {
+            color: #fff !important;
+        }
+
+        #desktop-sidebar > div:last-child p.text-slate-400,
+        #mobile-sidebar > div:last-child p.text-slate-400 {
+            color: #d2e4ff !important;
+        }
