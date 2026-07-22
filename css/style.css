@@ -7174,3 +7174,74 @@
             box-shadow: inset 0 1px 0 rgba(255, 244, 210, .08), 0 10px 24px rgba(0, 0, 0, .18) !important;
             color: #f1cf82 !important;
         }
+
+        /* Premium minimal light sidebar: warm ivory surface with navy accents. */
+        #desktop-sidebar,
+        #mobile-sidebar {
+            background: linear-gradient(180deg, #fbfaf7 0%, #f3f6fa 100%) !important;
+            border-color: #e2e8f0 !important;
+            color: #475569;
+        }
+
+        #desktop-sidebar > div:first-child,
+        #mobile-sidebar > div:first-child {
+            background: rgba(255, 255, 255, .84);
+            border-color: #e5eaf0 !important;
+        }
+
+        #desktop-sidebar > div:last-child,
+        #mobile-sidebar > div:last-child {
+            background: rgba(226, 232, 240, .46);
+            border-color: #e2e8f0 !important;
+        }
+
+        #desktop-sidebar > div:last-child > div,
+        #mobile-sidebar > div:last-child > div {
+            background: rgba(255, 255, 255, .92) !important;
+            border: 1px solid #e1e8f0;
+            box-shadow: 0 10px 24px rgba(30, 50, 80, .08), inset 0 1px 0 #fff;
+        }
+
+        #desktop-sidebar h1,
+        #mobile-sidebar h1 {
+            color: #10213f !important;
+        }
+
+        #desktop-sidebar > div:first-child p,
+        #mobile-sidebar > div:first-child p {
+            color: #718096 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar > div > p,
+        #mobile-sidebar .custom-scrollbar > div > p {
+            color: #7a8aa0 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a,
+        #mobile-sidebar .custom-scrollbar a {
+            color: #526173 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a:hover,
+        #mobile-sidebar .custom-scrollbar a:hover {
+            background: rgba(37, 99, 235, .06) !important;
+            color: #174ea6 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a[class~="bg-blue-600/20"],
+        #mobile-sidebar .custom-scrollbar a[class~="bg-blue-600/20"] {
+            background: #eaf2ff !important;
+            border-color: #cfe0ff !important;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, .08) !important;
+            color: #1d63d8 !important;
+        }
+
+        #desktop-sidebar > div:last-child p.text-white,
+        #mobile-sidebar > div:last-child p.text-white {
+            color: #10213f !important;
+        }
+
+        #desktop-sidebar > div:last-child p.text-slate-400,
+        #mobile-sidebar > div:last-child p.text-slate-400 {
+            color: #718096 !important;
+        }
