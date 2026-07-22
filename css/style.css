@@ -7324,3 +7324,28 @@
         #mobile-sidebar {
             background: #092f72 !important;
         }
+
+        /* Color-only menu icons for a polished blue sidebar. */
+        #desktop-sidebar [data-lucide="pie-chart"],
+        #mobile-sidebar [data-lucide="pie-chart"] { color: #7dd3fc !important; }
+
+        #desktop-sidebar [data-lucide="megaphone"],
+        #mobile-sidebar [data-lucide="megaphone"] { color: #c4b5fd !important; }
+
+        #desktop-sidebar [data-lucide="file-text"],
+        #mobile-sidebar [data-lucide="file-text"] { color: #fde68a !important; }
+
+        #desktop-sidebar [data-lucide="building-2"],
+        #mobile-sidebar [data-lucide="building-2"] { color: #5eead4 !important; }
+
+        #desktop-sidebar [data-lucide="car"],
+        #mobile-sidebar [data-lucide="car"] { color: #fdba74 !important; }
+
+        #desktop-sidebar [data-lucide="wrench"],
+        #mobile-sidebar [data-lucide="wrench"] { color: #f0abfc !important; }
+
+        #desktop-sidebar [data-lucide="message-square"],
+        #mobile-sidebar [data-lucide="message-square"] { color: #f9a8d4 !important; }
+
+        #desktop-sidebar [data-lucide="clipboard-pen-line"],
+        #mobile-sidebar [data-lucide="clipboard-pen-line"] { color: #fde047 !important; }
