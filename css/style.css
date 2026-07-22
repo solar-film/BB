@@ -7127,10 +7127,9 @@
         #desktop-sidebar,
         #mobile-sidebar {
             background:
-                radial-gradient(115% 52% at 0% 0%, rgba(74, 112, 255, .16), transparent 62%),
-                radial-gradient(95% 42% at 100% 100%, rgba(220, 170, 72, .08), transparent 68%),
-                linear-gradient(160deg, #091126 0%, #111c36 52%, #0a1227 100%) !important;
-            border-color: rgba(148, 163, 184, .18) !important;
+                radial-gradient(90% 36% at 100% 0%, rgba(214, 174, 94, .12), transparent 70%),
+                linear-gradient(180deg, #202021 0%, #151516 100%) !important;
+            border-color: rgba(214, 174, 94, .22) !important;
         }
 
         #desktop-sidebar > div:first-child,
@@ -7141,13 +7140,37 @@
 
         #desktop-sidebar > div:last-child,
         #mobile-sidebar > div:last-child {
-            background: rgba(5, 12, 29, .28);
-            border-color: rgba(148, 163, 184, .14) !important;
+            background: rgba(0, 0, 0, .18);
+            border-color: rgba(214, 174, 94, .16) !important;
         }
 
         #desktop-sidebar > div:last-child > div,
         #mobile-sidebar > div:last-child > div {
             background: rgba(255, 255, 255, .055) !important;
-            border: 1px solid rgba(255, 255, 255, .07);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 14px 30px rgba(3, 8, 23, .18);
+            border: 1px solid rgba(214, 174, 94, .14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 14px 30px rgba(0, 0, 0, .22);
+        }
+
+        #desktop-sidebar .custom-scrollbar > div > p,
+        #mobile-sidebar .custom-scrollbar > div > p {
+            color: #ad9975 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a,
+        #mobile-sidebar .custom-scrollbar a {
+            color: #c8c1b6 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a:hover,
+        #mobile-sidebar .custom-scrollbar a:hover {
+            background: rgba(255, 255, 255, .055) !important;
+            color: #f4eee4 !important;
+        }
+
+        #desktop-sidebar .custom-scrollbar a[class~="bg-blue-600/20"],
+        #mobile-sidebar .custom-scrollbar a[class~="bg-blue-600/20"] {
+            background: rgba(214, 174, 94, .14) !important;
+            border-color: rgba(214, 174, 94, .42) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 244, 210, .08), 0 10px 24px rgba(0, 0, 0, .18) !important;
+            color: #f1cf82 !important;
         }
