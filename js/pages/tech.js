@@ -64,7 +64,7 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <div class="tech-kpi-icon"><i data-lucide="layers" class="w-7 h-7"></i></div>
                     <div class="tech-kpi-body">
                         <h3>พื้นที่ติดตั้งสะสม</h3>
-                        <div class="tech-kpi-value">${formatCurrency(ytdArea)} <span>ตร.ม.</span></div>
+                        <div class="tech-kpi-value">${formatCurrency(ytdArea)} <span>ตร.ฟ.</span></div>
                         <div class="tech-progress"><span style="width:${bounded(ytdAreaPercent)}%"></span></div>
                         <div class="tech-kpi-meta"><span>เป้าหมาย ${formatCurrency(YEARLY_AREA_TARGET)}</span><b>${ytdAreaPercent.toFixed(1)}%</b></div>
                     </div>
@@ -118,7 +118,7 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                             <p>สัปดาห์นี้</p>
                         </div>
                     </div>
-                    <div class="tech-week-value">${formatCurrency(t.area.actual)} <span>ตร.ม.</span></div>
+                    <div class="tech-week-value">${formatCurrency(t.area.actual)} <span>ตร.ฟ.</span></div>
                     <div class="tech-progress"><span style="width:${bounded(areaProgress)}%"></span></div>
                     <div class="tech-kpi-meta"><span>เป้า ${formatCurrency(t.area.target)}</span><b>${areaProgress.toFixed(1)}%</b></div>
                     <div class="tech-split-grid">
@@ -137,7 +137,7 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     </div>
                     <div class="tech-eff-list">
                         <div><span>เฉลี่ย งาน/ทีม</span><b>${avgInstallsPerTeam.toFixed(1)} <small>งาน</small></b></div>
-                        <div><span>เฉลี่ย ตร.ม./ทีม</span><b>${formatCurrency(avgAreaPerTeam)} <small>ตร.ม.</small></b></div>
+                        <div><span>เฉลี่ย ตร.ฟ./ทีม</span><b>${formatCurrency(avgAreaPerTeam)} <small>ตร.ฟ.</small></b></div>
                     </div>
                 </article>
 
