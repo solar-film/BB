@@ -17,7 +17,8 @@ function generateMockData() {
             image: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             projYa: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
             projTung: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
-            projTukta: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5}
+            projTukta: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
+            projMoos: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5}
         }
     }];
 }
@@ -81,47 +82,47 @@ async function loadData() {
                     car: { target: cleanNumber(parsed[75]?.[i]), actual: cleanNumber(parsed[82]?.[i]) + cleanNumber(parsed[83]?.[i]), google: carMkGoogleVal, fb: carMkFbVal }
                 },
                 admin: {
-                    contacts: { total: cleanNumber(parsed[112]?.[i]), gfs: { line: cleanNumber(parsed[115]?.[i]), fb: cleanNumber(parsed[116]?.[i]), tel: cleanNumber(parsed[117]?.[i]) }, mhl: { line: cleanNumber(parsed[120]?.[i]), fb: cleanNumber(parsed[121]?.[i]), tel: cleanNumber(parsed[122]?.[i]) }, car: cleanNumber(parsed[371]?.[i]) },
-                    leads: { target: cleanNumber(parsed[125]?.[i]), actual: cleanNumber(parsed[126]?.[i]), gfs: { line: cleanNumber(parsed[129]?.[i]), tel: cleanNumber(parsed[130]?.[i]), fb: cleanNumber(parsed[131]?.[i]) }, mhl: { line: cleanNumber(parsed[134]?.[i]), tel: cleanNumber(parsed[135]?.[i]), fb: cleanNumber(parsed[136]?.[i]) }, car: cleanNumber(parsed[373]?.[i]) },
+                    contacts: { total: cleanNumber(parsed[112]?.[i]), gfs: { line: cleanNumber(parsed[115]?.[i]), fb: cleanNumber(parsed[116]?.[i]), tel: cleanNumber(parsed[117]?.[i]) }, mhl: { line: cleanNumber(parsed[120]?.[i]), fb: cleanNumber(parsed[121]?.[i]), tel: cleanNumber(parsed[122]?.[i]) }, car: cleanNumber(parsed[384]?.[i]) },
+                    leads: { target: cleanNumber(parsed[125]?.[i]), actual: cleanNumber(parsed[126]?.[i]), gfs: { line: cleanNumber(parsed[129]?.[i]), tel: cleanNumber(parsed[130]?.[i]), fb: cleanNumber(parsed[131]?.[i]) }, mhl: { line: cleanNumber(parsed[134]?.[i]), tel: cleanNumber(parsed[135]?.[i]), fb: cleanNumber(parsed[136]?.[i]) }, car: cleanNumber(parsed[386]?.[i]) },
                     sales: { totalInstalls: cleanNumber(parsed[156]?.[i]), newInstalls: { gfs: cleanNumber(parsed[159]?.[i]), mhl: cleanNumber(parsed[160]?.[i]) }, oldInstalls: { gfs: cleanNumber(parsed[163]?.[i]), mhl: cleanNumber(parsed[164]?.[i]) }, totalSales: cleanNumber(parsed[146]?.[i]), newSales: { gfs: cleanNumber(parsed[149]?.[i]), mhl: cleanNumber(parsed[150]?.[i]) }, oldSales: { gfs: cleanNumber(parsed[153]?.[i]), mhl: cleanNumber(parsed[154]?.[i]) } }
                 },
                 tech: {
                     installs: { 
                         target: cleanNumber(parsed[324]?.[i]), 
-                        actual: cleanNumber(parsed[338]?.[i]), 
-                        gfs: cleanNumber(parsed[339]?.[i]), 
-                        mhl: cleanNumber(parsed[340]?.[i]),
-                        ytd: cleanNumber(parsed[330]?.[i])
+                        actual: cleanNumber(parsed[351]?.[i]), 
+                        gfs: cleanNumber(parsed[352]?.[i]), 
+                        mhl: cleanNumber(parsed[353]?.[i]),
+                        ytd: cleanNumber(parsed[343]?.[i])
                     },
                     area: { 
-                        target: cleanNumber(parsed[330]?.[i]), // keep existing or not? Actually target for area was parsed[330]? The user says roll 331 (parsed[330]) is cumulative installs. So area target was wrong previously. We will keep what we have or remove target. I'll just keep it but we know YTD area is parsed[333]. Wait, I will leave target as it was, or 0.
-                        actual: cleanNumber(parsed[344]?.[i]), 
-                        gfs: cleanNumber(parsed[345]?.[i]), 
-                        mhl: cleanNumber(parsed[346]?.[i]),
-                        ytd: cleanNumber(parsed[333]?.[i])
+                        target: cleanNumber(parsed[343]?.[i]),
+                        actual: cleanNumber(parsed[357]?.[i]), 
+                        gfs: cleanNumber(parsed[358]?.[i]), 
+                        mhl: cleanNumber(parsed[359]?.[i]),
+                        ytd: cleanNumber(parsed[346]?.[i])
                     },
-                    teams: cleanNumber(parsed[349]?.[i]),
+                    teams: cleanNumber(parsed[362]?.[i]),
                     damage: { 
-                        totalValue: cleanNumber(parsed[355]?.[i]) || (cleanNumber(parsed[356]?.[i]) + cleanNumber(parsed[357]?.[i])),
-                        ytd: cleanNumber(parsed[354]?.[i]),
-                        byTech: cleanNumber(parsed[356]?.[i]), 
-                        byFilm: cleanNumber(parsed[357]?.[i]), 
-                        claims: cleanNumber(parsed[347]?.[i]), 
-                        filmArea: cleanNumber(parsed[348]?.[i]) 
+                        totalValue: cleanNumber(parsed[368]?.[i]) || (cleanNumber(parsed[369]?.[i]) + cleanNumber(parsed[370]?.[i])),
+                        ytd: cleanNumber(parsed[367]?.[i]),
+                        byTech: cleanNumber(parsed[369]?.[i]), 
+                        byFilm: cleanNumber(parsed[370]?.[i]), 
+                        claims: cleanNumber(parsed[360]?.[i]), 
+                        filmArea: cleanNumber(parsed[361]?.[i]) 
                     }
                 },
                 carDetail: {
-                    sales: { target: cleanNumber(parsed[369]?.[i]), actual: cleanNumber(parsed[370]?.[i]) },
-                    installs: { total: cleanNumber(parsed[373]?.[i]), line: cleanNumber(parsed[374]?.[i]), fb: cleanNumber(parsed[375]?.[i]), tel: cleanNumber(parsed[376]?.[i]), walkin: cleanNumber(parsed[377]?.[i]), showroom: cleanNumber(parsed[378]?.[i]), other: cleanNumber(parsed[379]?.[i]) },
-                    contacts: { total: cleanNumber(parsed[384]?.[i]), tel: cleanNumber(parsed[385]?.[i]), line: cleanNumber(parsed[386]?.[i]), fb: cleanNumber(parsed[387]?.[i]) },
+                    sales: { target: cleanNumber(parsed[382]?.[i]), actual: cleanNumber(parsed[383]?.[i]) },
+                    installs: { total: cleanNumber(parsed[386]?.[i]), line: cleanNumber(parsed[387]?.[i]), fb: cleanNumber(parsed[388]?.[i]), tel: cleanNumber(parsed[389]?.[i]), walkin: cleanNumber(parsed[390]?.[i]), showroom: cleanNumber(parsed[391]?.[i]), other: cleanNumber(parsed[392]?.[i]) },
+                    contacts: { total: cleanNumber(parsed[397]?.[i]), tel: cleanNumber(parsed[398]?.[i]), line: cleanNumber(parsed[399]?.[i]), fb: cleanNumber(parsed[400]?.[i]) },
                     tech: { 
-                        claims: cleanNumber(parsed[390]?.[i]), 
-                        filmIssueCount: cleanNumber(parsed[392]?.[i]), 
-                        filmIssueValue: cleanNumber(parsed[393]?.[i]), 
-                        techIssueCount: cleanNumber(parsed[395]?.[i]), 
-                        techIssueValue: cleanNumber(parsed[396]?.[i]), 
-                        damagePercent: cleanNumber(parsed[384]?.[i]),
-                        teamSize: cleanNumber(parsed[399]?.[i]) 
+                        claims: cleanNumber(parsed[403]?.[i]), 
+                        filmIssueCount: cleanNumber(parsed[405]?.[i]), 
+                        filmIssueValue: cleanNumber(parsed[406]?.[i]), 
+                        techIssueCount: cleanNumber(parsed[408]?.[i]), 
+                        techIssueValue: cleanNumber(parsed[409]?.[i]), 
+                        damagePercent: cleanNumber(parsed[397]?.[i]),
+                        teamSize: cleanNumber(parsed[412]?.[i]) 
                     }
                 },
                 buildingSales: {
@@ -135,7 +136,8 @@ async function loadData() {
                     image: normalizeSalesRepData({ ytd: cleanNumber(parsed[268]?.[i]), meets: imageMeets, installs: imageInstalls, sales: cleanNumber(parsed[271]?.[i]), newMeets: cleanNumber(parsed[273]?.[i]), newInstalls: cleanNumber(parsed[274]?.[i]), newSales: cleanNumber(parsed[275]?.[i]), oldMeets: cleanNumber(parsed[277]?.[i]), oldInstalls: cleanNumber(parsed[278]?.[i]), oldSales: cleanNumber(parsed[279]?.[i]), noInstalls: cleanNumber(parsed[281]?.[i]), noInstallSales: cleanNumber(parsed[282]?.[i]) }),
                     projYa: { ytd: cleanNumber(parsed[289]?.[i]), sales: cleanNumber(parsed[290]?.[i]), installs: cleanNumber(parsed[291]?.[i]), targetMeets: cleanNumber(parsed[294]?.[i]), meets: cleanNumber(parsed[295]?.[i]), newMeets: cleanNumber(parsed[296]?.[i]), oldMeets: cleanNumber(parsed[297]?.[i]) },
                     projTung: { ytd: cleanNumber(parsed[302]?.[i]), sales: cleanNumber(parsed[303]?.[i]), installs: cleanNumber(parsed[304]?.[i]), targetMeets: cleanNumber(parsed[307]?.[i]), meets: cleanNumber(parsed[308]?.[i]), newMeets: cleanNumber(parsed[309]?.[i]), oldMeets: cleanNumber(parsed[310]?.[i]) },
-                    projTukta: { ytd: cleanNumber(parsed[315]?.[i]), sales: cleanNumber(parsed[316]?.[i]), installs: cleanNumber(parsed[317]?.[i]), targetMeets: cleanNumber(parsed[320]?.[i]), meets: cleanNumber(parsed[321]?.[i]), newMeets: cleanNumber(parsed[322]?.[i]), oldMeets: cleanNumber(parsed[323]?.[i]) }
+                    projTukta: { ytd: cleanNumber(parsed[315]?.[i]), sales: cleanNumber(parsed[316]?.[i]), installs: cleanNumber(parsed[317]?.[i]), targetMeets: cleanNumber(parsed[320]?.[i]), meets: cleanNumber(parsed[321]?.[i]), newMeets: cleanNumber(parsed[322]?.[i]), oldMeets: cleanNumber(parsed[323]?.[i]) },
+                    projMoos: { ytd: cleanNumber(parsed[328]?.[i]), sales: cleanNumber(parsed[329]?.[i]), installs: cleanNumber(parsed[330]?.[i]), targetMeets: cleanNumber(parsed[333]?.[i]), meets: cleanNumber(parsed[334]?.[i]), newMeets: cleanNumber(parsed[335]?.[i]), oldMeets: cleanNumber(parsed[336]?.[i]) }
                 }
             });
         }
@@ -275,7 +277,9 @@ function parseRowBasedWeeklyData(parsed) {
                     kat: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(katSales), newMeets: 0, newInstalls: 0, newSales: repActual(katSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     image: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(imageSales), newMeets: 0, newInstalls: 0, newSales: repActual(imageSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     projYa: { ytd: 0, sales: repActual(yaSales), installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
-                    projTung: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 }
+                    projTung: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
+                    projTukta: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
+                    projMoos: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 }
                 },
                 sourceMode: 'row-weekly-plan',
                 totalTarget
