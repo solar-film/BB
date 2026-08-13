@@ -1802,11 +1802,11 @@
             top: 1.72rem;
         }
 
-        .building-project-grid {
-            display: grid !important;
-            gap: .9rem !important;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        }
+.building-project-grid {
+    display: grid !important;
+    gap: .9rem !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
 
         .building-project-grid > div {
             border-color: #dfe7f2;
