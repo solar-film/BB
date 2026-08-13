@@ -45,7 +45,8 @@ function renderBuildingSalesHTML(current, m, opt, container) {
     const projects = [
         { id: 'YA', title: 'Sales Project', data: { ...b.projYa, ytd: getYtd('projYa') }, c: 'amber' },
         { id: 'Tung', title: 'Sales Project', data: { ...b.projTung, ytd: getYtd('projTung') }, c: 'amber' },
-        { id: 'Tukta', title: 'Sales Project', data: { ...b.projTukta, ytd: getYtd('projTukta') }, c: 'amber' }
+        { id: 'Tukta', title: 'Sales Project', data: { ...b.projTukta, ytd: getYtd('projTukta') }, c: 'amber' },
+        { id: 'Moos', title: 'Sales Project', data: { ...b.projMoos, ytd: getYtd('projMoos') }, c: 'amber' }
     ].sort((a,b) => b.data.sales - a.data.sales);
 
     const allSalesPeople = [...reps, ...projects];
@@ -54,7 +55,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
     const weeklyChartPeople = [...allSalesPeople].sort((a, b) => b.data.sales - a.data.sales);
     const ytdChartPeople = [...allSalesPeople].sort((a, b) => b.data.ytd - a.data.ytd);
     const weeklyPeopleSales = weeklyChartPeople.reduce((sum, person) => sum + (person.data.sales || 0), 0);
-    const weeklyShareColors = ['#2057e0', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f97316', '#eab308', '#14b8a6'];
+    const weeklyShareColors = ['#2057e0', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f97316', '#eab308', '#14b8a6', '#0ea5e9'];
 
     container.innerHTML = `
         <div class="building-sales-dashboard">
@@ -517,7 +518,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 dashboardData.forEach(d => {
                     const monthGroup = extractMonthGroup(d.dateRange);
                     if (!monthlyRepDataMap[monthGroup]) {
-                        monthlyRepDataMap[monthGroup] = { label: monthGroup, bom: 0, jay: 0, saifha: 0, kat: 0, image: 0, projYa: 0, projTung: 0 };
+                        monthlyRepDataMap[monthGroup] = { label: monthGroup, bom: 0, jay: 0, saifha: 0, kat: 0, image: 0, projYa: 0, projTung: 0, projMoos: 0 };
                         monthsOrderRep.push(monthGroup);
                     }
                     if (d.buildingSales) {
@@ -528,10 +529,11 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                         monthlyRepDataMap[monthGroup].image += d.buildingSales.image.sales || 0;
                         monthlyRepDataMap[monthGroup].projYa += d.buildingSales.projYa.sales || 0;
                         monthlyRepDataMap[monthGroup].projTung += d.buildingSales.projTung.sales || 0;
+                        monthlyRepDataMap[monthGroup].projMoos += d.buildingSales.projMoos.sales || 0;
                     }
                 });
 
-                repDataList = monthsOrderRep.map(m => monthlyRepDataMap[m]).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung) > 0);
+                repDataList = monthsOrderRep.map(m => monthlyRepDataMap[m]).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung + d.projMoos) > 0);
                 repLabels = repDataList.map(d => d.label);
             } else {
                 repDataList = dashboardData.map(d => {
@@ -543,9 +545,10 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                         kat: d.buildingSales?.kat?.sales || 0,
                         image: d.buildingSales?.image?.sales || 0,
                         projYa: d.buildingSales?.projYa?.sales || 0,
-                        projTung: d.buildingSales?.projTung?.sales || 0
+                        projTung: d.buildingSales?.projTung?.sales || 0,
+                        projMoos: d.buildingSales?.projMoos?.sales || 0
                     };
-                }).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung) > 0).slice(-12);
+                }).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung + d.projMoos) > 0).slice(-12);
                 repLabels = repDataList.map(d => d.label);
             }
 
@@ -556,7 +559,8 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 { label: 'Kat', key: 'kat', color: '#8b5cf6' },
                 { label: 'Image', key: 'image', color: '#ec4899' },
                 { label: 'Proj YA', key: 'projYa', color: '#f97316', dash: [5,5] },
-                { label: 'Proj Tung', key: 'projTung', color: '#eab308', dash: [5,5] }
+                { label: 'Proj Tung', key: 'projTung', color: '#eab308', dash: [5,5] },
+                { label: 'Proj Moos', key: 'projMoos', color: '#0ea5e9', dash: [5,5] }
             ];
 
             const repDatasets = dsConfigs.map(conf => ({
