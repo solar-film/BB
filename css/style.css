@@ -3691,6 +3691,14 @@
             line-height: 1;
         }
 
+        .admin-revenue-card strong span {
+            display: inline-block;
+            font-size: clamp(1rem, 1.3vw, 1.18rem);
+            font-weight: 900;
+            margin-left: .25rem;
+            vertical-align: .08em;
+        }
+
         .admin-revenue-card p {
             color: #dbe6ff;
         }
@@ -3705,6 +3713,10 @@
 
         .admin-revenue-card.is-revenue-secondary strong {
             color: #059669;
+        }
+
+        .admin-revenue-card.is-revenue-secondary strong span {
+            color: #047857;
         }
 
         .admin-revenue-card.is-revenue-secondary .admin-revenue-icon {
@@ -5716,7 +5728,14 @@
         }
 
         .tech-kpi-grid {
+            background:
+                linear-gradient(90deg, rgba(20, 100, 244, .2), rgba(10, 163, 91, .18) 50%, rgba(239, 29, 45, .2)),
+                linear-gradient(180deg, rgba(241, 245, 249, .98), rgba(226, 232, 240, .88));
+            border: 1px solid rgba(100, 116, 139, .36);
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .76), 0 14px 32px rgba(15, 23, 42, .08);
             grid-template-columns: repeat(3, minmax(0, 1fr));
+            padding: .78rem;
         }
 
         .tech-week-grid {
@@ -5866,6 +5885,12 @@
             margin-left: 0 !important;
         }
 
+        .tech-damage-amount small {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
         .tech-kpi-value span,
         .tech-week-value span {
             color: var(--tech-muted);
@@ -5932,6 +5957,55 @@
             margin: .2rem 0 0;
             padding: .34rem .55rem;
             white-space: nowrap;
+        }
+
+        .tech-ytd-damage-breakdown {
+            display: grid;
+            gap: .55rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: .75rem;
+        }
+
+        .tech-ytd-damage-breakdown div {
+            background: rgba(255, 255, 255, .66);
+            border: 1px solid color-mix(in srgb, #ef1d2d 18%, #ffffff);
+            border-radius: 8px;
+            color: #ef1d2d;
+            display: grid;
+            gap: .16rem;
+            min-width: 0;
+            padding: .5rem .65rem;
+        }
+
+        .tech-ytd-damage-breakdown span {
+            color: #ef1d2d;
+            font-size: .82rem;
+            font-weight: 900;
+            line-height: 1.05;
+        }
+
+        .tech-ytd-damage-breakdown b {
+            color: #ef1d2d;
+            font-size: 1.18rem;
+            font-weight: 900;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .tech-ytd-damage-breakdown small,
+        .tech-ytd-damage-breakdown em {
+            color: #ef1d2d;
+            font-style: normal;
+            font-weight: 900;
+        }
+
+        .tech-ytd-damage-breakdown small {
+            font-size: .72rem;
+        }
+
+        .tech-ytd-damage-breakdown em {
+            font-size: .72rem;
+            line-height: 1.1;
         }
 
         .tech-section-title {
@@ -6041,6 +6115,20 @@
             white-space: nowrap;
         }
 
+        .tech-split-grid b small {
+            font-size: .78rem;
+            font-weight: 900;
+        }
+
+        .tech-split-grid em {
+            display: block;
+            font-size: .68rem;
+            font-style: normal;
+            font-weight: 900;
+            line-height: 1.08;
+            margin-top: .24rem;
+        }
+
         .tech-week-card.is-red .tech-split-grid div,
         .tech-damage-box {
             background: rgba(255, 255, 255, .58);
@@ -6052,6 +6140,14 @@
         .tech-damage-box span,
         .tech-damage-box b {
             color: #ef1d2d;
+        }
+
+        .tech-week-card.is-red .tech-split-grid b small,
+        .tech-week-card.is-red .tech-split-grid em,
+        .tech-damage-box b small {
+            color: #ef1d2d;
+            font-size: .78rem;
+            font-weight: 900;
         }
 
         .tech-eff-list {
@@ -6370,6 +6466,10 @@
                 font-size: 2.55rem;
             }
 
+            .tech-ytd-damage-breakdown {
+                grid-template-columns: 1fr;
+            }
+
             .tech-chart-head h3 {
                 white-space: normal;
             }
@@ -6589,6 +6689,19 @@
         .tech-week-grid .tech-split-grid > div:nth-child(2) span,
         .tech-week-grid .tech-split-grid > div:nth-child(2) b {
             color: #5b35bd;
+        }
+
+        .tech-week-grid .tech-week-card.is-red .tech-split-grid > div {
+            background: rgba(255, 255, 255, .58);
+            border-color: color-mix(in srgb, #ef1d2d 20%, #ffffff);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .68);
+        }
+
+        .tech-week-grid .tech-week-card.is-red .tech-split-grid span,
+        .tech-week-grid .tech-week-card.is-red .tech-split-grid b,
+        .tech-week-grid .tech-week-card.is-red .tech-split-grid small,
+        .tech-week-grid .tech-week-card.is-red .tech-split-grid em {
+            color: #ef1d2d;
         }
 
         /* Keep winner identity and sales value on the same row. */
