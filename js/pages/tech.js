@@ -11,8 +11,12 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
     const ytdInstalls = t.installs.ytd != null ? t.installs.ytd : ytdData.reduce((sum, d) => sum + d.tech.installs.actual, 0);
     const ytdArea = t.area.ytd != null ? t.area.ytd : ytdData.reduce((sum, d) => sum + d.tech.area.actual, 0);
     const ytdDamageValue = t.damage.ytd != null ? t.damage.ytd : ytdData.reduce((sum, d) => sum + d.tech.damage.totalValue, 0);
+    const ytdDamageByTech = ytdData.reduce((sum, d) => sum + (d.tech.damage.byTech || 0), 0);
+    const ytdDamageByFilm = ytdData.reduce((sum, d) => sum + (d.tech.damage.byFilm || 0), 0);
     const ytdBuildingSales = ytdData.reduce((sum, d) => sum + (d.gfs.actual || 0) + (d.mhl.actual || 0), 0);
     const ytdDamagePercentSales = ytdBuildingSales > 0 ? (ytdDamageValue / ytdBuildingSales) * 100 : 0;
+    const ytdDamageByTechPercentSales = ytdBuildingSales > 0 ? (ytdDamageByTech / ytdBuildingSales) * 100 : 0;
+    const ytdDamageByFilmPercentSales = ytdBuildingSales > 0 ? (ytdDamageByFilm / ytdBuildingSales) * 100 : 0;
     const isYtdDamageOverLimit = ytdDamagePercentSales > DAMAGE_LIMIT_PERCENT;
 
     const ytdInstallPercent = YEARLY_INSTALL_TARGET > 0 ? (ytdInstalls / YEARLY_INSTALL_TARGET) * 100 : 0;
@@ -23,6 +27,8 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
     const avgAreaPerTeam = t.teams > 0 ? (t.area.actual / t.teams) : 0;
     const buildingSales = (current.gfs.actual || 0) + (current.mhl.actual || 0);
     const damagePercentSales = buildingSales > 0 ? (t.damage.totalValue / buildingSales) * 100 : 0;
+    const damageByTechPercentSales = buildingSales > 0 ? (t.damage.byTech / buildingSales) * 100 : 0;
+    const damageByFilmPercentSales = buildingSales > 0 ? (t.damage.byFilm / buildingSales) * 100 : 0;
     const bounded = value => Math.max(0, Math.min(value, 100));
     const baht = value => formatBaht(value);
 
@@ -76,12 +82,24 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <div class="tech-kpi-body">
                         <h3>มูลค่าความเสียหายสะสม</h3>
                         <div class="tech-kpi-value tech-damage-value">
-                            <span class="tech-damage-amount">${baht(ytdDamageValue)}</span>
+                            <span class="tech-damage-amount">${formatCurrency(ytdDamageValue)} <small>บาท</small></span>
                             ${isYtdDamageOverLimit ? `
                                 <span class="tech-damage-alert"><i data-lucide="triangle-alert" class="w-4 h-4"></i> เกินเกณฑ์ ${DAMAGE_LIMIT_PERCENT}%</span>
                             ` : ''}
                         </div>
                         <p class="tech-damage-note">คิดเป็น <b>${ytdDamagePercentSales.toFixed(2)}%</b> ของยอดขายสะสม</p>
+                        <div class="tech-ytd-damage-breakdown">
+                            <div>
+                                <span>จากทีมช่าง</span>
+                                <b>${formatCurrency(ytdDamageByTech)} <small>บาท</small></b>
+                                <em>${ytdDamageByTechPercentSales.toFixed(2)}% ของยอดขาย</em>
+                            </div>
+                            <div>
+                                <span>จากฟิล์ม</span>
+                                <b>${formatCurrency(ytdDamageByFilm)} <small>บาท</small></b>
+                                <em>${ytdDamageByFilmPercentSales.toFixed(2)}% ของยอดขาย</em>
+                            </div>
+                        </div>
                     </div>
                 </article>
             </div>
@@ -105,8 +123,8 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <div class="tech-progress"><span style="width:${bounded(installProgress)}%"></span></div>
                     <div class="tech-kpi-meta"><span>เป้า ${formatCurrency(t.installs.target)}</span><b>${installProgress.toFixed(1)}%</b></div>
                     <div class="tech-split-grid">
-                        <div><span>GFS</span><b>${formatCurrency(t.installs.gfs)}</b></div>
-                        <div><span>MHL</span><b>${formatCurrency(t.installs.mhl)}</b></div>
+                        <div><span>GFS</span><b>${formatCurrency(t.installs.gfs)} <small>งาน</small></b></div>
+                        <div><span>MHL</span><b>${formatCurrency(t.installs.mhl)} <small>งาน</small></b></div>
                     </div>
                 </article>
 
@@ -122,8 +140,8 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     <div class="tech-progress"><span style="width:${bounded(areaProgress)}%"></span></div>
                     <div class="tech-kpi-meta"><span>เป้า ${formatCurrency(t.area.target)}</span><b>${areaProgress.toFixed(1)}%</b></div>
                     <div class="tech-split-grid">
-                        <div><span>GFS</span><b>${formatCurrency(t.area.gfs)}</b></div>
-                        <div><span>MHL</span><b>${formatCurrency(t.area.mhl)}</b></div>
+                        <div><span>GFS</span><b>${formatCurrency(t.area.gfs)} <small>ตรฟ.</small></b></div>
+                        <div><span>MHL</span><b>${formatCurrency(t.area.mhl)} <small>ตรฟ.</small></b></div>
                     </div>
                 </article>
 
@@ -151,11 +169,11 @@ function renderTechDeepDiveHTML(current, m, opt, container) {
                     </div>
                     <div class="tech-damage-box">
                         <span>มูลค่าความเสียหาย</span>
-                        <b>${baht(t.damage.totalValue)}</b>
+                        <b>${formatCurrency(t.damage.totalValue)} <small>บาท</small></b>
                     </div>
                     <div class="tech-split-grid">
-                        <div><span>ลูกค้า</span><b>${baht(t.damage.byTech)}</b></div>
-                        <div><span>งานฟิล์ม</span><b>${baht(t.damage.byFilm)}</b></div>
+                        <div><span>จากทีมช่าง</span><b>${formatCurrency(t.damage.byTech)} <small>บาท</small></b><em>${damageByTechPercentSales.toFixed(2)}% ของยอดขาย</em></div>
+                        <div><span>จากฟิล์ม</span><b>${formatCurrency(t.damage.byFilm)} <small>บาท</small></b><em>${damageByFilmPercentSales.toFixed(2)}% ของยอดขาย</em></div>
                     </div>
                 </article>
             </div>

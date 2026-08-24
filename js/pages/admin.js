@@ -144,7 +144,7 @@ function renderAdminDeepDiveHTML(current, m, opt, container) {
                     <div class="admin-revenue-icon"><i data-lucide="award" class="w-8 h-8"></i></div>
                     <div>
                         <h3>ยอดขายจากแอดมิน</h3>
-                        <strong>${formatBaht(currentAdminSales)}</strong>
+                        <strong>${formatBaht(currentAdminSales)} <span>บาท</span></strong>
                         <p>ยอดขายจากงานแอดมินปิดเอง</p>
                     </div>
                 </article>

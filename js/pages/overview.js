@@ -90,7 +90,7 @@ function renderOverviewHTML(current, m, opt, container) {
         </article>
     `;
 
-    const pulseCard = ({ tone, icon, title, subtitle, value, unit, leftLabel, leftValue, rightLabel, rightValue, progressValue, progressTone }) => `
+    const pulseCard = ({ tone, icon, title, subtitle, value, unit, leftLabel, leftValue, leftTone, rightLabel, rightValue, progressValue, progressTone }) => `
         <article class="overview-pulse-card is-${tone}">
             <div class="overview-pulse-head">
                 <span class="overview-pulse-icon"><i data-lucide="${icon}" class="w-7 h-7"></i></span>
@@ -104,7 +104,7 @@ function renderOverviewHTML(current, m, opt, container) {
             <div class="overview-pulse-foot">
                 <div>
                     <p>${leftLabel}</p>
-                    <strong>${leftValue}</strong>
+                    <strong class="${leftTone || ''}">${leftValue}</strong>
                 </div>
                 <div>
                     <p>${rightLabel}</p>
@@ -181,9 +181,10 @@ function renderOverviewHTML(current, m, opt, container) {
                     icon: 'megaphone',
                     title: '1. การตลาด',
                     subtitle: 'ออนไลน์',
-                    value: currency(mktSpend),
+                    value: formatCurrency(mktSpend),
+                    unit: 'บาท',
                     leftLabel: 'งบตั้งไว้',
-                    leftValue: currency(mktBud),
+                    leftValue: `${formatCurrency(mktBud)} บาท`,
                     rightLabel: 'ROAS',
                     rightValue: `${m.weekly.r}x`,
                     progressTone: 'is-orange'
@@ -205,9 +206,10 @@ function renderOverviewHTML(current, m, opt, container) {
                     icon: 'building-2',
                     title: '3. ฝ่ายขาย (อาคาร)',
                     subtitle: 'ปิดยอดขาย',
-                    value: currency(buildingSales),
+                    value: formatCurrency(buildingSales),
+                    unit: 'บาท',
                     leftLabel: 'เป้า',
-                    leftValue: currency(buildingTarget),
+                    leftValue: `${formatCurrency(buildingTarget)} บาท`,
                     rightLabel: '',
                     rightValue: `ผลงาน ${buildingProgress.toFixed(1)}%`,
                     progressValue: buildingProgress,
@@ -221,7 +223,8 @@ function renderOverviewHTML(current, m, opt, container) {
                     value: formatCurrency(buildingInstalls),
                     unit: 'งาน',
                     leftLabel: 'มูลค่าความเสียหาย',
-                    leftValue: currency(buildingDamageValue),
+                    leftValue: `${formatCurrency(buildingDamageValue)} บาท`,
+                    leftTone: 'is-red',
                     rightLabel: '% เสียหาย',
                     rightValue: `${damagePercent.toFixed(2)}%`,
                     progressTone: damagePercent > 1 ? 'is-red' : 'is-green'
@@ -248,9 +251,9 @@ function renderOverviewHTML(current, m, opt, container) {
                     <div class="overview-donut-layout">
                         <div class="overview-donut-wrap"><canvas id="donutTopCanvas"></canvas></div>
                         <div class="overview-donut-list">
-                            <div><span><i class="overview-dot is-blue"></i>GFS (อาคาร)</span><strong>${currency(current.gfs.actual)}</strong></div>
-                            <div><span><i class="overview-dot is-orange"></i>MHL (อาคาร)</span><strong>${currency(current.mhl.actual)}</strong></div>
-                            <div><span><i class="overview-dot is-green"></i>CAR (รถยนต์)</span><strong>${currency(current.car.actual)}</strong></div>
+                            <div><span><i class="overview-dot is-blue"></i>GFS (อาคาร)</span><strong>${currency(current.gfs.actual)} บาท</strong></div>
+                            <div><span><i class="overview-dot is-orange"></i>MHL (อาคาร)</span><strong>${currency(current.mhl.actual)} บาท</strong></div>
+                            <div><span><i class="overview-dot is-green"></i>CAR (รถยนต์)</span><strong>${currency(current.car.actual)} บาท</strong></div>
                         </div>
                     </div>
                 </article>
