@@ -160,8 +160,8 @@
     function departmentTrendCard(key, title, month) {
         const targetOutcome = ['building', 'car'].includes(key) ? ' ถ้วยรางวัลแสดงเดือนที่ยอดขายถึงเป้าหมาย' : '';
         return `<article class="monthly-department-trend" aria-labelledby="monthly-${key}-trend-title">
-            <div class="monthly-department-trend-head"><span><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span><div><h4 id="monthly-${key}-trend-title">${title}</h4><p>มกราคม – ธันวาคม ${month.year}</p></div></div>
-            <div class="monthly-department-trend-wrap" tabindex="0" role="region" aria-label="${title} ตลอดปี ${month.year} เลื่อนแนวนอนเพื่อดูครบ"><div class="monthly-department-trend-plot"><canvas id="monthly-${key}-trend-chart" role="img" aria-label="${title} เดือนมกราคมถึงธันวาคม ${month.year}${targetOutcome}"></canvas></div></div>
+            <div class="monthly-department-trend-head"><span><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span><div><h4 id="monthly-${key}-trend-title">${title}</h4><p>เดือนที่มีข้อมูล · ${month.year}</p></div></div>
+            <div class="monthly-department-trend-wrap" tabindex="0" role="region" aria-label="${title} เฉพาะเดือนที่มีข้อมูล ปี ${month.year} เลื่อนแนวนอนเพื่อดูครบ"><div class="monthly-department-trend-plot"><canvas id="monthly-${key}-trend-chart" role="img" aria-label="${title} เฉพาะเดือนที่มีข้อมูล ปี ${month.year}${targetOutcome}"></canvas></div></div>
             <p id="monthly-${key}-trend-status" class="monthly-department-trend-status" role="status"></p>
         </article>`;
     }
@@ -473,12 +473,20 @@
                             <div class="monthly-company-progress"><div class="monthly-progress" aria-hidden="true"><span style="width:${planDerived || progress === null ? 0 : Math.max(0, Math.min(progress, 100))}%"></span></div><span class="monthly-company-rate">${rate(progress)}</span></div>
                             <div class="monthly-company-meta"><span>เป้า ${money(company.target)} บาท</span></div></div></div>`;
                     }).join('')}</div>
+                    <div class="monthly-department-sales" aria-labelledby="monthly-department-sales-title">
+                        <div class="monthly-department-sales-head"><h4 id="monthly-department-sales-title">ยอดขายแยกฝ่าย</h4><span>มุมมองผู้รับผิดชอบ · ไม่บวกซ้ำกับยอดรวม</span></div>
+                        <div class="monthly-department-sales-list" role="list">
+                            <div class="monthly-department-sales-item monthly-department-sales-rep" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="users-round" aria-hidden="true"></i></span><div><p>ยอดขาย Sales Representative</p><strong>${money(month.building.repSales)} <small>บาท</small></strong></div></div>
+                            <div class="monthly-department-sales-item monthly-department-sales-project" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="briefcase-business" aria-hidden="true"></i></span><div><p>ยอดขาย Project Sales Executive</p><strong>${money(month.building.projectSales)} <small>บาท</small></strong></div></div>
+                            <div class="monthly-department-sales-item monthly-department-sales-admin" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="headset" aria-hidden="true"></i></span><div><p>ยอดขาย Admin</p><strong>${money(month.admin.sales)} <small>บาท</small></strong></div></div>
+                        </div>
+                    </div>
                     ${mismatched ? `<p class="monthly-data-note">ผลรวมรายธุรกิจต่างจาก Total Sales: ยอดขาย ${signed(salesDifference)} บาท / เป้า ${signed(targetDifference)} บาท · การ์ดยอดรวมยึดต้นทาง ไม่ปรับยอดให้เท่ากัน</p>` : ''}
                 </article>
             </div>
             <div class="monthly-main-grid">
                 <article class="monthly-card monthly-chart-card monthly-chart-card-wide">
-                    <div class="monthly-card-heading monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="chart-column-increasing" aria-hidden="true"></i></span><div><h3>ยอดขายเทียบเป้ารายเดือน</h3><p>ปี ${month.year} · หน่วยบาท · รวมตามสัปดาห์ของแต่ละเดือน</p></div></div>
+                    <div class="monthly-card-heading monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="chart-column-increasing" aria-hidden="true"></i></span><div><h3>ยอดขายเทียบเป้ารายเดือน</h3><p>ปี ${month.year} · หน่วยบาท · เฉพาะเดือนที่มียอดขาย</p></div></div>
                     <div class="monthly-chart-wrap" tabindex="0" role="region" aria-label="กราฟยอดขายรายเดือน เลื่อนแนวนอนเพื่อดูครบ"><div class="monthly-chart-plot"><canvas id="monthly-sales-chart" role="img" aria-label="กราฟแท่งยอดขายรายเดือนและเส้นเป้าหมาย ถ้วยรางวัลเมื่อถึงเป้า สีหน้าผิดหวังเมื่อยังไม่ถึงเป้า ข้อมูลตัวเลขอยู่ในตารางด้านล่าง"></canvas></div></div>
                     <p id="monthly-chart-status" class="monthly-caption" role="status" hidden></p>
                     <details class="monthly-details"><summary>ดูตัวเลขรายเดือน</summary><div class="monthly-table-wrap" tabindex="0" role="region" aria-label="ตารางยอดขายรายเดือน"><table class="monthly-table"><thead><tr><th scope="col">เดือน</th><th scope="col">ยอดตาม Weekly (บาท)</th><th scope="col">เป้าหมาย (บาท)</th><th scope="col">ผลต่างเทียบเป้า (%)</th></tr></thead><tbody>
@@ -506,6 +514,7 @@
     // Existing Chart.js runtime; zero baseline, baht, chronological order; table fallback.
     // Blue actual bars vs a neutral dashed target line; labels and result artwork are drawn locally.
     const CHART_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    const chartMonths = (months, key) => months.filter(month => Boolean(month.coverage?.chartData?.[key]));
     const compactChartValue = value => {
         const amount = Number(value);
         if (!Number.isFinite(amount)) return '—';
@@ -577,9 +586,6 @@
 
     function renderDepartmentCharts(months, selectedKey) {
         const year = months[0]?.year;
-        const byNumber = new Map(months.map(month => [month.month, month]));
-        const slots = Array.from({ length: 12 }, (_, index) => byNumber.get(index + 1) || null);
-        const labels = slots.map((month, index) => `${CHART_MONTHS[index]}${month?.key === selectedKey ? ' •' : ''}`);
         const specs = [
             {
                 key: 'marketing', axis: 'บาท',
@@ -631,6 +637,8 @@
         ];
 
         specs.forEach(spec => {
+            const plottedMonths = chartMonths(months, spec.key);
+            const labels = plottedMonths.map(month => `${CHART_MONTHS[month.month - 1]}${month.key === selectedKey ? ' •' : ''}`);
             const canvas = document.getElementById(`monthly-${spec.key}-trend-chart`);
             const status = document.getElementById(`monthly-${spec.key}-trend-status`);
             if (!canvas || typeof Chart === 'undefined') {
@@ -645,8 +653,8 @@
                         if (!chart.isDatasetVisible(0)) return;
                         const { ctx, chartArea } = chart;
                         const actualBars = chart.getDatasetMeta(0).data;
-                        slots.forEach((month, index) => {
-                            if (!month || month.coverage.hasPlanDerived || month.coverage.isFuture) return;
+                        plottedMonths.forEach((month, index) => {
+                            if (month.coverage.hasPlanDerived || month.coverage.isFuture) return;
                             const actual = Number(spec.datasets[0][1](month));
                             const target = Number(spec.datasets[1][1](month));
                             if (!Number.isFinite(actual) || !Number.isFinite(target) || target <= 0 || actual < target) return;
@@ -667,7 +675,7 @@
                             return {
                                 type: isBar ? 'bar' : 'line',
                                 label,
-                                data: slots.map(month => month ? read(month) : null),
+                                data: plottedMonths.map(month => read(month)),
                                 unit,
                                 yAxisID: yAxisID || 'y',
                                 borderColor,
@@ -679,7 +687,7 @@
                                 barPercentage: isBar ? .58 : undefined,
                                 categoryPercentage: isBar ? .72 : undefined,
                                 pointStyle: isBar ? 'rectRounded' : 'line',
-                                pointRadius: isBar ? 0 : slots.map(month => month?.key === selectedKey ? 5 : month ? 3 : 0),
+                                pointRadius: isBar ? 0 : plottedMonths.map(month => month.key === selectedKey ? 5 : 3),
                                 pointHoverRadius: isBar ? 0 : 6,
                                 pointBackgroundColor: '#fff',
                                 pointBorderColor: borderColor,
@@ -698,8 +706,8 @@
                             legend: { display: spec.datasets.length > 1, position: 'top', align: 'end', labels: { usePointStyle: true, padding: 16, font: { family: 'Sarabun', size: 13, weight: '600' } } },
                             tooltip: { callbacks: {
                                 title: items => {
-                                    const month = slots[items[0].dataIndex];
-                                    return month ? `${month.label}${periodNotes(month)}` : `${CHART_MONTHS[items[0].dataIndex]} ${year}`;
+                                    const month = plottedMonths[items[0].dataIndex];
+                                    return month ? `${month.label}${periodNotes(month)}` : String(year || '');
                                 },
                                 label: item => `${item.dataset.label}: ${money(item.raw)} ${item.dataset.unit}`
                             } }
@@ -714,7 +722,7 @@
                                 ticks: { callback: value => compactChartValue(value), color: axis.color, font: { family: 'Sarabun', size: 12 } },
                                 grid: { drawOnChartArea: false, drawBorder: false }
                             }])),
-                            x: { grid: { display: false, drawBorder: false }, ticks: { maxRotation: 0, minRotation: 0, color: context => slots[context.index]?.key === selectedKey ? '#173f7a' : '#64748b', font: context => ({ family: 'Sarabun', size: 12, weight: slots[context.index]?.key === selectedKey ? '800' : '600' }), padding: 8 } }
+                            x: { grid: { display: false, drawBorder: false }, ticks: { maxRotation: 0, minRotation: 0, color: context => plottedMonths[context.index]?.key === selectedKey ? '#173f7a' : '#64748b', font: context => ({ family: 'Sarabun', size: 12, weight: plottedMonths[context.index]?.key === selectedKey ? '800' : '600' }), padding: 8 } }
                         }
                     }
                 });
@@ -726,6 +734,7 @@
 
     function renderChart(months, selectedKey) {
         try {
+            months = chartMonths(months, 'sales');
             const canvas = document.getElementById('monthly-sales-chart');
             if (!canvas || typeof Chart === 'undefined') throw new Error('Chart unavailable');
             charts.monthlySales = new Chart(canvas.getContext('2d'), {
