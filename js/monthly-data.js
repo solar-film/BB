@@ -95,7 +95,13 @@
             tech: { installs: 0, area: 0, damage: 0, damageRate: null, details: {
                 installs: zeros(BUILDING_COMPANIES), area: zeros(BUILDING_COMPANIES), byTech: 0, byFilm: 0, claims: 0, filmArea: 0
             } },
-            coverage: { weekCount: 0, elapsedWeekCount: 0, nonZeroWeekCount: 0, lastActivityWeek: '', lastActivityEnd: '', isFuture: period.key > thisMonth, isOpen: period.key === thisMonth, hasPlanDerived: false, hasFutureActual: false, unconfirmedWeeks: [] }
+            coverage: {
+                weekCount: 0, elapsedWeekCount: 0, nonZeroWeekCount: 0,
+                lastActivityWeek: '', lastActivityEnd: '',
+                isFuture: period.key > thisMonth, isOpen: period.key === thisMonth,
+                hasPlanDerived: false, hasFutureActual: false, unconfirmedWeeks: [],
+                chartData: { sales: false, marketing: false, admin: false, building: false, car: false, tech: false }
+            }
         };
     }
 
@@ -179,6 +185,23 @@
                 salesActual: actual, salesTarget: target, marketingActual, hasActivity,
                 planDerived: row.sourceMode === 'row-weekly-plan'
             };
+            // Chart coverage tracks non-zero reported results per subject. A target or
+            // a plan-derived row must not create an otherwise empty month on a chart.
+            if (!entry.planDerived) {
+                const adminSales = number(row.admin?.sales?.totalSales) || number(row.buildingSales?.totalAdminSales);
+                month.coverage.chartData.sales ||= actual !== 0;
+                month.coverage.chartData.marketing ||= marketingActual !== 0;
+                month.coverage.chartData.admin ||= [
+                    number(row.admin?.contacts?.total), number(row.admin?.leads?.actual),
+                    number(row.admin?.sales?.totalInstalls), adminSales
+                ].some(value => value !== 0);
+                month.coverage.chartData.building ||= BUILDING_COMPANIES.some(company => number(row[company]?.actual) !== 0);
+                month.coverage.chartData.car ||= number(row.carDetail?.sales?.actual) !== 0;
+                month.coverage.chartData.tech ||= [
+                    number(row.tech?.installs?.actual), number(row.tech?.area?.actual),
+                    number(row.tech?.damage?.totalValue)
+                ].some(value => value !== 0);
+            }
             month.entries.push(entry);
             month.coverage.weekCount++;
             if (period.end <= today) month.coverage.elapsedWeekCount++;
