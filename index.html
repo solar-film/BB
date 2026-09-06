@@ -21,6 +21,8 @@
     <!-- ตั้งค่าฟอนต์ -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="css/style.css?v=20260722-10">
+    <link rel="stylesheet" href="css/monthly.css?v=20260906-10">
+    <link rel="stylesheet" href="css/fullscreen.css?v=20260905-1">
 </head>
 <body class="h-screen overflow-hidden flex text-slate-800 font-medium text-sm">
 
@@ -54,6 +56,7 @@
                 <p class="px-2 text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Main Dashboard</p>
                 <ul class="space-y-1">
                     <li><a href="#" id="mobile-menu-overview" onclick="changePage('overview')" class="flex items-center gap-3 px-3 py-3 bg-blue-600/20 text-blue-400 border border-blue-500/20 shadow-md rounded-xl transition-all font-bold"><i data-lucide="pie-chart" class="w-5 h-5"></i> ภาพรวมธุรกิจ (Overview)</a></li>
+                    <li><a href="#" id="mobile-menu-monthly" onclick="changePage('monthly'); return false;" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="calendar-range" class="w-5 h-5"></i> สรุปรายเดือน (Monthly)</a></li>
                 </ul>
             </div>
 
@@ -108,6 +111,7 @@
                 <p class="px-2 text-sm font-bold text-slate-500 mb-3 uppercase tracking-widest">Main Dashboard</p>
                 <ul class="space-y-1">
                     <li><a href="#" id="menu-overview" onclick="changePage('overview')" class="flex items-center gap-3 px-3 py-3 bg-blue-600/20 text-blue-400 border border-blue-500/20 shadow-md rounded-xl transition-all font-bold"><i data-lucide="pie-chart" class="w-5 h-5"></i> ภาพรวมธุรกิจ (Overview)</a></li>
+                    <li><a href="#" id="menu-monthly" onclick="changePage('monthly'); return false;" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="calendar-range" class="w-5 h-5"></i> สรุปรายเดือน (Monthly)</a></li>
                 </ul>
             </div>
 
@@ -164,7 +168,8 @@
             </div>
             <div class="flex items-center gap-3 sm:gap-4 shrink-0">
                 <div id="header-week-control" class="hidden"></div>
-                <button onclick="loadData()" class="px-4 sm:px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 text-sm sm:text-base">
+                <div id="header-monthly-control" class="hidden"></div>
+                <button onclick="loadData()" aria-label="รีเฟรชข้อมูล" class="px-4 sm:px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 text-sm sm:text-base">
                     <i data-lucide="refresh-cw" class="w-5 h-5"></i> <span class="hidden sm:inline">รีเฟรชข้อมูล</span>
                 </button>
             </div>
@@ -184,7 +189,9 @@
     <script src="js/pages/marketing.js"></script>
     <script src="js/pages/tech.js"></script>
     <script src="js/pages/admin.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/monthly-data.js?v=20260905-3"></script>
+    <script src="js/pages/monthly.js?v=20260906-13"></script>
+    <script src="js/app.js?v=20260905-3"></script>
 
     <!-- No-Install Reason Popup -->
     <div id="no-install-popup" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,23,42,0.6);backdrop-filter:blur(4px)">
