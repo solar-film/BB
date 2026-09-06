@@ -97,7 +97,7 @@ window.changePage = (page) => {
     currentPage = page;
     updateDashboardUI();
     
-    const menus = ['overview', 'sales', 'car', 'marketing', 'tech', 'admin', 'feedback'];
+    const menus = ['overview', 'monthly', 'sales', 'car', 'marketing', 'tech', 'admin', 'feedback'];
     menus.forEach(m => {
         ['menu-', 'mobile-menu-'].forEach(prefix => {
             const el = document.getElementById(prefix + m);
@@ -109,6 +109,12 @@ window.changePage = (page) => {
 };
 
 function updateDashboardUI() {
+    document.getElementById('app-view')?.classList.toggle('monthly-shell', currentPage === 'monthly');
+    const headerMonthlyControl = document.getElementById('header-monthly-control');
+    if (headerMonthlyControl) {
+        headerMonthlyControl.className = 'hidden';
+        headerMonthlyControl.innerHTML = '';
+    }
     document.getElementById('app-view')?.classList.toggle('overview-shell', currentPage === 'overview');
     document.getElementById('app-view')?.classList.toggle('admin-shell', currentPage === 'admin');
     document.getElementById('app-view')?.classList.toggle('marketing-shell', currentPage === 'marketing');
@@ -125,6 +131,28 @@ function updateDashboardUI() {
         document.getElementById('error-banner-container').innerHTML = '';
         destroyAllCharts();
         renderFeedbackHTML(document.getElementById('dashboard-content'));
+        lucide.createIcons();
+        updateFullscreenButtons();
+        return;
+    }
+
+    // Monthly is a separate read-only view; never feed monthly IDs into Weekly state.
+    if (currentPage === 'monthly') {
+        destroyAllCharts();
+        const contentDiv = document.getElementById('dashboard-content');
+        try {
+            BBMonthlyPage.render(contentDiv);
+        } catch (error) {
+            if (headerMonthlyControl) {
+                headerMonthlyControl.className = 'hidden';
+                headerMonthlyControl.innerHTML = '';
+            }
+            document.getElementById('error-banner-container').innerHTML = '';
+            document.getElementById('header-title').innerText = 'สรุปรายเดือน (Monthly)';
+            document.getElementById('header-subtitle').innerText = 'Weekly ยังคงใช้งานได้ตามเดิม';
+            contentDiv.innerHTML = '<section class="monthly-dashboard"><div class="monthly-empty" role="alert"><h2>Monthly ยังไม่พร้อมแสดงผล</h2><p>กรุณารีเฟรชหน้าเว็บ หรือนำเสนอแบบ Weekly ได้ตามเดิม</p><button type="button" class="monthly-button" onclick="changePage(\'overview\')">กลับ Weekly</button></div></section>';
+            console.warn('Monthly could not render; Weekly remains available.', error);
+        }
         lucide.createIcons();
         updateFullscreenButtons();
         return;
