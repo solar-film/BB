@@ -100,6 +100,25 @@
 .monthly-result-pending.monthly-target-status { border-color: #dce5f1; background: #f4f7fb; }
 .monthly-result-pending .monthly-sales-status { --monthly-status-ink: #526781; background: linear-gradient(145deg, #fafcff, #edf2f8); }
 .monthly-main-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.monthly-sales-expenses-card .monthly-chart-plot { min-width: 850px; }
+.monthly-sales-expenses-card .monthly-table { min-width: 980px; }
+.monthly-sales-expenses-card .monthly-table .monthly-sales-value { color: #166534; background: #ecfdf3; font-weight: 700; }
+.monthly-sales-expenses-card .monthly-table thead .monthly-sales-value { background: #d1fae5; }
+.monthly-sales-expenses-card .monthly-table .monthly-expense-value { color: #b91c1c; background: #fff1f2; font-weight: 700; }
+.monthly-sales-expenses-card .monthly-table thead .monthly-expense-value { background: #ffe4e6; }
+.monthly-sales-expenses-card .monthly-selected-row .monthly-sales-value { background: #d1fae5; }
+.monthly-sales-expenses-card .monthly-selected-row .monthly-expense-value { background: #ffe4e6; }
+.monthly-sales-expenses-card .monthly-expense-difference { font-weight: 700; white-space: nowrap; }
+.monthly-difference-formula { display: block; margin-top: .2rem; font-size: .78rem; font-weight: 500; white-space: nowrap; }
+.monthly-sales-expenses-card .monthly-summary-totals th, .monthly-sales-expenses-card .monthly-summary-totals td { border-top: 2px solid #bfcee3; padding-top: 1rem; padding-bottom: 1rem; font-weight: 800; }
+.monthly-sales-expenses-card .monthly-summary-totals .monthly-sales-value { background: #d1fae5; }
+.monthly-sales-expenses-card .monthly-summary-totals .monthly-expense-value { background: #ffe4e6; }
+.monthly-sales-expenses-card .monthly-total-note { display: block; margin-top: .3rem; font-size: .75rem; line-height: 1.5; font-weight: 500; color: #526581; white-space: normal; }
+.monthly-expense-notice { padding: .75rem 1rem; border: 1px solid #f5d89c; border-radius: .75rem; background: #fffbeb; color: #854d0e; font-size: .88rem; line-height: 1.7; }
+.monthly-expense-notice p { margin: .2rem 0 0; overflow-wrap: anywhere; }
+.monthly-expense-source { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem; margin-top: .8rem; color: #64748b; font-size: .8rem; line-height: 1.6; }
+.monthly-expense-source a { color: #9a3412; text-decoration: underline; text-underline-offset: 3px; }
+.monthly-expense-load-status { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin-top: .75rem; color: #64748b; font-size: .85rem; }
 .monthly-chart-card-wide { width: 100%; }
 .monthly-chart-card { padding: 1rem 1.15rem .7rem; }
 .monthly-card-heading h3 { font-size: 1.125rem; font-weight: 800; margin: 0; }
@@ -867,4 +886,124 @@
     .monthly-tech-summary-head p { max-width: 15rem; }
     .monthly-tech-quality-cards { grid-template-columns: minmax(0, 1fr); }
     .monthly-weeks-head-icon { width: 2.8rem; height: 2.8rem; }
+}
+
+/* Monthly sales showcase: one sales story on the left, business and owner
+   views on the right.  Values retain the normal Monthly data contract. */
+.monthly-performance-head { display: none; }
+.monthly-metrics { align-items: stretch; gap: 1rem; }
+.monthly-card.monthly-metric { min-height: 396px; padding: 0; border: 1px solid #9bcaff; border-radius: 1.45rem; background: radial-gradient(circle at 86% 11%, rgba(86, 185, 255, .38), transparent 29%), linear-gradient(135deg, #fff 0%, #edf7ff 62%, #e1f2ff 100%); box-shadow: 0 12px 30px rgba(38, 110, 194, .13); }
+.monthly-card.monthly-metric::before { width: 0; }
+.monthly-metric-main { display: grid; grid-template-columns: minmax(0, 1fr) 184px; grid-template-rows: minmax(0, 1fr) auto; gap: .9rem 1.15rem; padding: 1.55rem 1.4rem 1.25rem; }
+.monthly-metric-copy { min-width: 0; align-self: center; }
+.monthly-metric-watermark { display: none; }
+.monthly-metric-title-row { align-items: center; gap: .85rem; }
+.monthly-metric-title-row > div { min-width: 0; }
+.monthly-metric-title-row p { margin: .1rem 0 0; color: #5475a4; font-size: .78rem; font-weight: 600; line-height: 1.45; }
+.monthly-metric-title-icon { width: 58px; height: 58px; box-shadow: 0 0 0 8px rgba(207, 230, 255, .72), 0 7px 16px rgba(8, 121, 237, .2); }
+.monthly-metric-title-icon svg { width: 29px; height: 29px; }
+.monthly-metric-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .6rem; font-size: clamp(1.45rem, 2vw, 2rem); }
+.monthly-metric-month { color: #5076a9; font-size: clamp(.88rem, 1.2vw, 1.08rem); font-weight: 800; letter-spacing: 0; }
+.monthly-metric-value { margin: 1rem 0 .8rem; font-size: clamp(3rem, 5vw, 5.1rem); }
+.monthly-metric-attainment { gap: 0; }
+.monthly-sales-progress { height: .9rem; }
+.monthly-metric-progress-scale { display: flex; justify-content: space-between; gap: .75rem; margin-top: .35rem; color: #5476a7; font-size: .78rem; font-weight: 700; }
+.monthly-metric-result { display: flex; align-items: baseline; flex-wrap: wrap; gap: .25rem .5rem; margin: .55rem 0 0; font-size: .78rem; font-weight: 700; line-height: 1.35; }
+.monthly-metric-result strong { font-weight: 900; }
+.monthly-metric-result[data-status="below"] { color: #c92847; }
+.monthly-metric-result[data-status="achieved"] { color: #9a6700; }
+.monthly-metric-result[data-status="pending"] { color: #526781; }
+.monthly-metric-ring { align-self: center; justify-self: center; display: grid; place-items: center; width: 184px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(#2086f1 calc(var(--monthly-ring-progress) * 1%), #d8e9ff 0); box-shadow: 0 9px 25px rgba(25, 117, 220, .17); }
+.monthly-metric-ring::before { content: ''; grid-area: 1 / 1; width: calc(100% - 1.35rem); aspect-ratio: 1; border-radius: inherit; background: rgba(255, 255, 255, .96); box-shadow: inset 0 1px 8px rgba(29, 101, 180, .09); }
+.monthly-metric-ring > div { grid-area: 1 / 1; display: grid; justify-items: center; gap: .05rem; text-align: center; }
+.monthly-metric-badge { padding: 0; border: 0; border-radius: 0; color: #0c2c63; background: transparent; box-shadow: none; font-size: clamp(1.7rem, 2.5vw, 2.35rem); line-height: 1.1; }
+.monthly-metric-ring small { color: #57749c; font-size: .78rem; font-weight: 700; }
+.monthly-metric-target-icon { grid-area: 1 / 1; align-self: end; justify-self: start; z-index: 2; display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid #fff; border-radius: 50%; transform: translate(-16%, 16%); box-shadow: 0 6px 16px rgba(19, 58, 110, .2); }
+.monthly-metric-target-icon svg { width: 27px; height: 27px; stroke-width: 2.6; }
+.monthly-metric-target-icon[data-status="achieved"] { color: #9a6300; background: linear-gradient(135deg, #fff7b1, #f9c53d); }
+.monthly-metric-target-icon[data-status="below"] { color: #c92847; background: linear-gradient(135deg, #ffe2e8, #ff9bad); }
+.monthly-metric-target-icon[data-status="pending"] { color: #526781; background: linear-gradient(135deg, #edf2f8, #cbd8e8); }
+.monthly-metric-detail { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin: 0; color: #42658f; font-size: clamp(.88rem, 1.05vw, 1rem); line-height: 1.5; }
+.monthly-metric-detail-item { min-height: 78px; padding: .8rem .9rem; border: 1px solid rgba(166, 203, 244, .76); border-radius: .95rem; background: rgba(255, 255, 255, .68); }
+.monthly-metric-detail-item:first-child { padding-left: .8rem; }
+.monthly-metric-detail-item + .monthly-metric-detail-item { border-left: 0; }
+.monthly-metric-detail-item > svg { color: #1683ec; }
+.monthly-metric-gap { display: contents; }
+.monthly-metric-gap > svg { display: none; }
+.monthly-metric-gap-copy { display: contents; }
+.monthly-metric-gap-value, .monthly-metric-comparison-inline { min-width: 0; display: block; padding: .8rem .9rem; border: 1px solid rgba(255, 192, 204, .85); border-radius: .95rem; background: linear-gradient(135deg, rgba(255, 247, 249, .96), rgba(255, 237, 241, .86)); }
+.monthly-metric-gap-value { color: #c92847; font-size: clamp(.95rem, 1.1vw, 1.08rem); font-weight: 900; }
+.monthly-metric-comparison-inline { border-color: rgba(200, 215, 249, .85); color: #50709a; background: linear-gradient(135deg, rgba(249, 251, 255, .96), rgba(238, 245, 255, .92)); font-size: clamp(.84rem, .98vw, .95rem); }
+.monthly-metric-comparison-inline strong { display: block; margin-bottom: .12rem; color: #356195; }
+.monthly-metric-comparison-card { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.monthly-metric-comparison-card .monthly-metric-comparison-inline { min-height: 78px; display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: 1rem; padding: .85rem 1rem; }
+.monthly-metric-comparison-card .monthly-metric-comparison-inline strong { display: block; margin: 0; padding-right: 1rem; border-right: 1px solid #c6d8ef; color: #315d96; font-size: .9em; white-space: nowrap; }
+.monthly-metric-comparison-card .monthly-metric-comparison-inline > span { min-width: 0; color: #3e6394; font-weight: 800; line-height: 1.45; }
+.monthly-target-status { min-height: 142px; padding: 0; border-radius: 1.15rem; box-shadow: 0 6px 18px rgba(190, 62, 89, .08); }
+.monthly-sales-status { flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1.2rem; text-align: left; }
+.monthly-status-heading { justify-content: flex-start; gap: .8rem; }
+.monthly-status-visual { width: 68px; height: 68px; }
+.monthly-status-title { font-size: clamp(1.2rem, 1.75vw, 1.65rem); }
+.monthly-status-encouragement { font-size: .78rem; }
+.monthly-status-quote { max-width: 220px; margin: 0; padding: .65rem .75rem; font-size: .72rem; text-align: center; }
+.monthly-business-summary { min-height: 0; padding: 1.15rem; border: 1px solid #d5e5f8; border-radius: 1.45rem; background: linear-gradient(145deg, #fff, #fbfdff); box-shadow: 0 8px 22px rgba(38, 81, 136, .07); }
+.monthly-business-summary .monthly-panel-heading { padding: 0; }
+.monthly-business-summary .monthly-panel-icon { width: 52px; height: 52px; border-radius: 1rem; background: #edf5ff; }
+.monthly-business-summary .monthly-panel-icon svg { width: 30px; height: 30px; }
+.monthly-business-summary .monthly-panel-heading > div { display: block; }
+.monthly-business-summary .monthly-panel-heading h3 { padding: 0; border: 0; color: #0d2c62; font-size: clamp(1.35rem, 1.8vw, 1.85rem); }
+.monthly-business-summary .monthly-panel-heading p { margin-top: .08rem; font-weight: 600; }
+.monthly-business-summary .monthly-company-list { display: flex; flex-direction: column; gap: .7rem; margin: .9rem 0 0; }
+.monthly-business-summary .monthly-company { min-height: 0; padding: .75rem .85rem; border: 1px solid #c9ddf7; border-radius: 1rem; box-shadow: none; }
+.monthly-company-icon { width: 46px; height: 46px; }
+.monthly-company-top h4 { font-size: 1.12rem; }
+.monthly-company-top strong { font-size: 1.22rem; }
+.monthly-company-progress { margin: .38rem 0 .1rem; }
+.monthly-company-progress .monthly-progress { height: .65rem; }
+.monthly-department-sales { margin-top: .9rem; padding-top: .9rem; }
+.monthly-department-sales-head { margin-bottom: .65rem; padding: 0; }
+.monthly-department-sales-head h4 { font-size: clamp(1.2rem, 1.6vw, 1.55rem); }
+.monthly-department-sales-list { gap: .6rem; }
+.monthly-department-sales-item { align-items: flex-start; gap: .6rem; padding: .72rem; border-radius: .9rem; }
+.monthly-department-sales-icon { width: 2.45rem; height: 2.45rem; border-radius: .75rem; }
+.monthly-department-sales-item p { font-size: .7rem; }
+.monthly-department-sales-item strong { font-size: clamp(1.05rem, 1.45vw, 1.4rem); }
+
+@media (min-width: 801px) {
+    .monthly-metrics { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .monthly-card.monthly-metric { grid-column: span 6; }
+    .monthly-business-summary { grid-column: 7 / -1; grid-row: auto; }
+}
+@media (max-width: 800px) {
+    .monthly-performance-head { display: none; }
+    .monthly-card.monthly-metric { min-height: 0; }
+    .monthly-metric-main { grid-template-columns: minmax(0, 1fr) 124px; padding: 1.15rem; }
+    .monthly-metric-ring { width: 124px; }
+    .monthly-metric-target-icon { width: 42px; height: 42px; border-width: 2px; }
+    .monthly-metric-target-icon svg { width: 22px; height: 22px; }
+    .monthly-metric-badge { font-size: 1.45rem; }
+    .monthly-metric-ring small { font-size: .64rem; }
+    .monthly-metric-title-row p { max-width: 11rem; }
+    .monthly-metric-value { margin-top: .9rem; font-size: clamp(2.25rem, 9vw, 3.25rem); }
+    .monthly-metric-detail { grid-template-columns: minmax(0, 1fr); }
+    .monthly-metric-detail-item, .monthly-metric-gap-value, .monthly-metric-comparison-inline { min-height: 0; }
+    .monthly-metric-comparison-card .monthly-metric-comparison-inline { grid-template-columns: minmax(0, 1fr); gap: .25rem; }
+    .monthly-metric-comparison-card .monthly-metric-comparison-inline strong { padding-right: 0; border-right: 0; }
+    .monthly-target-status { min-height: 0; }
+    .monthly-sales-status { align-items: stretch; flex-direction: column; padding: .9rem 1rem; }
+    .monthly-status-heading { justify-content: flex-start; }
+    .monthly-status-quote { max-width: none; }
+    .monthly-business-summary { padding: 1rem; }
+}
+@media (max-width: 480px) {
+    .monthly-metric-main { grid-template-columns: minmax(0, 1fr) 104px; gap: .8rem; }
+    .monthly-metric-ring { width: 104px; }
+    .monthly-metric-target-icon { width: 36px; height: 36px; }
+    .monthly-metric-target-icon svg { width: 19px; height: 19px; }
+    .monthly-metric-title-icon { width: 46px; height: 46px; }
+    .monthly-metric-title-icon svg { width: 23px; height: 23px; }
+    .monthly-metric-heading { font-size: 1.2rem; }
+    .monthly-metric-title-row p { font-size: .65rem; }
+    .monthly-metric-progress-scale { font-size: .66rem; }
+    .monthly-business-summary .monthly-panel-heading h3 { font-size: 1.25rem; }
 }

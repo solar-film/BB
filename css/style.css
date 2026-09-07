@@ -1529,7 +1529,7 @@
         .building-rep-grid {
             display: grid !important;
             gap: .65rem !important;
-            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
 
         .building-rep-grid > div {
@@ -6937,6 +6937,32 @@
                 grid-column: 2;
                 text-align: left;
             }
+        }
+
+        /* Give the two sales rosters their own clearly separated surfaces. */
+        .building-sales-dashboard > h3 + .building-rep-grid {
+            background: linear-gradient(180deg, #f5f9ff 0%, #eef5ff 100%);
+            border: 1px solid #c9dcfa;
+            border-top: .28rem solid #2563eb;
+            border-radius: 1.15rem;
+            padding: 1rem;
+        }
+
+        .building-sales-dashboard > .building-rep-grid + h3 {
+            background: linear-gradient(90deg, #fff7ed 0%, #fffbeb 100%);
+            border: 1px solid #fed7aa;
+            border-left: .38rem solid #f59e0b;
+            border-radius: .9rem;
+            color: #92400e;
+            margin: 1.35rem 0 .55rem;
+            padding: .72rem 1rem;
+        }
+
+        .building-sales-dashboard > .building-rep-grid + h3 + .building-project-grid {
+            background: linear-gradient(180deg, #fffaf0 0%, #fff7e6 100%);
+            border: 1px solid #fed7aa;
+            border-radius: 1.15rem;
+            padding: 1rem;
         }
 
         /* Project cards: orange hero header with icon-led performance blocks. */
