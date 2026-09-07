@@ -83,8 +83,8 @@
                 newInstalls: zeros(BUILDING_COMPANIES), oldInstalls: zeros(BUILDING_COMPANIES)
             } },
             building: { actual: 0, target: 0, progress: null,
-                reps: emptyPeople([['bom', 'BOM'], ['jay', 'Jay'], ['saifha', 'Saifha'], ['kat', 'Kat'], ['image', 'Image']], REP_FIELDS),
-                projects: emptyPeople([['projYa', 'YA'], ['projTung', 'Tung'], ['projTukta', 'Tukta']], PROJECT_FIELDS),
+                reps: emptyPeople([['bom', 'BOM'], ['jay', 'Jay'], ['saifha', 'Saifha'], ['kat', 'Kat'], ['image', 'Image'], ['tung', 'Tung']], REP_FIELDS),
+                projects: emptyPeople([['projYa', 'YA'], ['projTukta', 'Tukta']], PROJECT_FIELDS),
                 repSales: 0, projectSales: 0, meets: 0, installs: 0, closeRate: null
             },
             car: { actual: 0, target: 0, progress: null, installs: 0, installChannels: zeros(INSTALL_CHANNELS),

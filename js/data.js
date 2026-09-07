@@ -14,7 +14,8 @@ function generateMockData() {
             jay: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             saifha: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
             kat: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60},
-            image: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60}, 
+            image: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60},
+            tung: {ytd:1000000, meets:5, installs:3, sales:100000, newMeets:3, newInstalls:2, newSales:60000, oldMeets:2, oldInstalls:1, oldSales:40000, noInstalls:2, noInstallSales:10000, sr:60},
             projYa: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
             projTung: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
             projTukta: {ytd:1000000, sales:100000, installs:2, targetMeets:12, meets:10, newMeets:5, oldMeets:5},
@@ -23,9 +24,149 @@ function generateMockData() {
     }];
 }
 
+// Locate the sales-team blocks by their labels rather than fixed row numbers.
+// The source sheet is maintained manually, so inserting a representative must
+// not redirect every later metric to an unrelated row.
+function normalizedSourceText(value) {
+    return String(value || '').trim().toLocaleLowerCase('en-US');
+}
+
+function sourceMetricHas(row, ...parts) {
+    const metric = normalizedSourceText(row?.[2]);
+    return parts.every(part => metric.includes(normalizedSourceText(part)));
+}
+
+function findRowInSourceBlock(parsed, start, length, ...parts) {
+    const end = Math.min(parsed.length, start + length);
+    for (let index = start; index < end; index++) {
+        if (sourceMetricHas(parsed[index], ...parts)) return index;
+    }
+    return -1;
+}
+
+function findPersonSourceBlock(parsed, name, type) {
+    const wantedName = normalizedSourceText(name);
+    for (let index = 0; index < parsed.length; index++) {
+        const row = parsed[index];
+        const isNamedYtd = sourceMetricHas(row, 'ยอดขายสะสม') && [row?.[0], row?.[1]]
+            .some(value => normalizedSourceText(value) === wantedName);
+        if (!isNamedYtd) continue;
+
+        const hasNoInstallMetric = findRowInSourceBlock(parsed, index, 16, 'จำนวนไม่ติดตั้ง') >= 0;
+        const hasProjectTarget = findRowInSourceBlock(parsed, index, 12, 'เป้าพบลูกค้า') >= 0;
+        if ((type === 'rep' && hasNoInstallMetric) || (type === 'project' && hasProjectTarget && !hasNoInstallMetric)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+function mapSalesRepSourceBlock(parsed, name) {
+    const start = findPersonSourceBlock(parsed, name, 'rep');
+    if (start < 0) return {};
+    return {
+        ytd: start,
+        meets: findRowInSourceBlock(parsed, start, 16, 'จำนวนพบลูกค้า', 'รายสัปดาห์'),
+        installs: findRowInSourceBlock(parsed, start, 16, 'จำนวนติดตั้ง', 'รายสัปดาห์'),
+        sales: findRowInSourceBlock(parsed, start, 16, 'ยอดขายรวม', 'รายสัปดาห์'),
+        newMeets: findRowInSourceBlock(parsed, start, 16, 'จำนวนพบ', 'ลค.ใหม่'),
+        newInstalls: findRowInSourceBlock(parsed, start, 16, 'จำนวนติดตั้ง', 'ลค.ใหม่'),
+        newSales: findRowInSourceBlock(parsed, start, 16, 'ยอดขาย', 'ลค.ใหม่'),
+        oldMeets: findRowInSourceBlock(parsed, start, 16, 'จำนวนพบ', 'ลค.เก่า'),
+        oldInstalls: findRowInSourceBlock(parsed, start, 16, 'จำนวนติดตั้ง', 'ลค.เก่า'),
+        oldSales: findRowInSourceBlock(parsed, start, 16, 'ยอดขาย', 'ลค.เก่า'),
+        noInstalls: findRowInSourceBlock(parsed, start, 16, 'จำนวนไม่ติดตั้ง'),
+        noInstallSales: findRowInSourceBlock(parsed, start, 16, 'ยอดที่ไม่ติดตั้ง'),
+        sr: findRowInSourceBlock(parsed, start, 16, 'ความสำเร็จเทียบกับพบลูกค้า')
+    };
+}
+
+function mapProjectSourceBlock(parsed, name) {
+    const start = findPersonSourceBlock(parsed, name, 'project');
+    if (start < 0) return {};
+    return {
+        ytd: start,
+        sales: findRowInSourceBlock(parsed, start, 12, 'ยอดขายรวม', 'รายสัปดาห์'),
+        installs: findRowInSourceBlock(parsed, start, 12, 'จำนวนงานติดตั้ง', 'รายสัปดาห์'),
+        targetMeets: findRowInSourceBlock(parsed, start, 12, 'เป้าพบลูกค้า'),
+        meets: findRowInSourceBlock(parsed, start, 12, 'จำนวนพบลูกค้า', 'รายสัปดาห์'),
+        newMeets: findRowInSourceBlock(parsed, start, 12, 'จำนวนพบ', 'ลค.ใหม่'),
+        oldMeets: findRowInSourceBlock(parsed, start, 12, 'จำนวนพบ', 'ลค.เก่า')
+    };
+}
+
+function findSourceSection(parsed, ...parts) {
+    return parsed.findIndex(row => sourceMetricHas(row, ...parts));
+}
+
+function mapBuildingSourceRows(parsed) {
+    const techStart = findSourceSection(parsed, 'ทีมช่างอาคาร');
+    const carStart = parsed.findIndex(row => normalizedSourceText(row?.[0]) === 'ฟิล์มรถยนต์' && sourceMetricHas(row, 'ฝ่ายขาย'));
+    const inTech = (...parts) => techStart < 0 ? -1 : findRowInSourceBlock(parsed, techStart, 36, ...parts);
+    const inCar = (...parts) => carStart < 0 ? -1 : findRowInSourceBlock(parsed, carStart, 34, ...parts);
+
+    return {
+        reps: Object.fromEntries(['BOM', 'Jay', 'Saifha', 'Kat', 'Image', 'Tung']
+            .map(name => [name.toLocaleLowerCase('en-US'), mapSalesRepSourceBlock(parsed, name)])),
+        projects: Object.fromEntries(['YA', 'Tung', 'Tukta', 'Moos']
+            .map(name => [`proj${name === 'YA' ? 'Ya' : name}`, mapProjectSourceBlock(parsed, name)])),
+        tech: {
+            installsTarget: inTech('เป้างานติดตั้ง', 'รายสัปดาห์'),
+            installsActual: techStart < 0 ? -1 : findRowInSourceBlock(parsed, techStart + 8, 6, 'จำนวนงานติดตั้ง'),
+            installsGfs: inTech('goodfilm'),
+            installsMhl: inTech('maholan'),
+            installsYtd: inTech('จำนวนงานติดตั้งสะสม'),
+            areaTarget: inTech('เป้าพื้นที่ติดตั้ง', 'รายสัปดาห์'),
+            areaActual: techStart < 0 ? -1 : findRowInSourceBlock(parsed, techStart + 15, 5, 'พื้นที่ติดตั้ง', 'หน้ากระจก'),
+            areaGfs: techStart < 0 ? -1 : findRowInSourceBlock(parsed, techStart + 15, 8, 'goodfilm'),
+            areaMhl: techStart < 0 ? -1 : findRowInSourceBlock(parsed, techStart + 15, 8, 'maholan'),
+            areaYtd: inTech('พื้นที่ติดตั้งสะสม'),
+            teams: inTech('จำนวนทีมช่าง'),
+            damageTotal: inTech('มูลค่าความเสียหาย', 'บาท'),
+            damageYtd: inTech('มูลค่าความเสียหายสะสม'),
+            damageByTech: inTech('ความเสียหายที่เกิดจากช่าง'),
+            damageByFilm: inTech('ความเสียหายจากฟิล์ม'),
+            damageClaims: inTech('จำนวนงานเคลม'),
+            damageFilmArea: inTech('ปริมาณฟิล์มที่เสียหาย')
+        },
+        car: {
+            salesTarget: inCar('เป้ายอดขาย', 'รายสัปดาห์'),
+            salesActual: inCar('ยอดขายรายสัปดาห์'),
+            installsTotal: inCar('ปริมาณรถติดตั้งใหม่'),
+            installsLine: inCar('line'),
+            installsFb: inCar('facebook'),
+            installsTel: inCar('โทรศัพท์'),
+            installsWalkin: inCar('walk-in'),
+            installsShowroom: inCar('showroom'),
+            installsOther: inCar('ช่องทางอื่น'),
+            contactsTotal: inCar('ปริมาณการติดต่อรวม'),
+            contactsTel: inCar('จำนวนสายโทรเข้า'),
+            contactsLine: inCar('ติดต่อ line'),
+            contactsFb: inCar('ติดต่อ fb'),
+            claims: inCar('จำนวนรถเคลม'),
+            filmIssueCount: inCar('จำนวน จากปัญหาฟิล์ม'),
+            filmIssueValue: inCar('มูลค่าความเสียหาย จากฟิล์ม'),
+            techIssueCount: inCar('จำนวนจากงานติดตั้งช่าง'),
+            techIssueValue: inCar('มูลค่าความเสียหาย จากช่าง'),
+            damagePercent: inCar('เทียบกับยอดขาย', 'ช่าง'),
+            teamSize: inCar('จำนวนช่างติดตั้ง')
+        }
+    };
+}
+
+function mappedNumber(parsed, rowMap, key, column, fallbackRow) {
+    const mappedRow = rowMap?.[key];
+    const sourceRow = Number.isInteger(mappedRow) && mappedRow >= 0 ? mappedRow : fallbackRow;
+    return cleanNumber(parsed[sourceRow]?.[column]);
+}
+
 async function loadData() {
     document.getElementById('loading-view').classList.remove('hidden');
     isUsingMock = false; errorMessage = null; feedbackErrorMessage = null;
+    // Expenses load independently: source failure must never replace sales data.
+    if (typeof BBExpenseData !== 'undefined') BBExpenseData.load().then(() => {
+        if (currentPage === 'monthly') updateDashboardUI();
+    });
     try {
         const sheetId = '12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo';
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=702501167`;
@@ -33,6 +174,7 @@ async function loadData() {
         if (!response.ok) throw new Error('Cannot fetch data');
         const csvText = await response.text();
         const parsed = parseCSV(csvText);
+        const buildingSourceRows = mapBuildingSourceRows(parsed);
         const rowBasedWeeksData = parseRowBasedWeeklyData(parsed);
         if (rowBasedWeeksData.length > 0) {
             dashboardData = rowBasedWeeksData;
@@ -57,17 +199,35 @@ async function loadData() {
             const carMkGoogleVal = cleanNumber(parsed[82]?.[i]);
             const carMkFbVal = cleanNumber(parsed[83]?.[i]);
 
-            // Sales Reps Meetings/Installs
-            const bomMeets = cleanNumber(parsed[173]?.[i]);
-            const bomInstalls = cleanNumber(parsed[174]?.[i]);
-            const jayMeets = cleanNumber(parsed[193]?.[i]);
-            const jayInstalls = cleanNumber(parsed[194]?.[i]);
-            const saifhaMeets = cleanNumber(parsed[229]?.[i]);
-            const saifhaInstalls = cleanNumber(parsed[230]?.[i]);
-            const katMeets = cleanNumber(parsed[249]?.[i]);
-            const katInstalls = cleanNumber(parsed[250]?.[i]);
-            const imageMeets = cleanNumber(parsed[269]?.[i]);
-            const imageInstalls = cleanNumber(parsed[270]?.[i]);
+            const salesRep = (key, fallback) => {
+                const rows = buildingSourceRows.reps[key];
+                const value = field => mappedNumber(parsed, rows, field, i, fallback[field]);
+                return normalizeSalesRepData({
+                    ytd: value('ytd'), meets: value('meets'), installs: value('installs'), sales: value('sales'),
+                    newMeets: value('newMeets'), newInstalls: value('newInstalls'), newSales: value('newSales'),
+                    oldMeets: value('oldMeets'), oldInstalls: value('oldInstalls'), oldSales: value('oldSales'),
+                    noInstalls: value('noInstalls'), noInstallSales: value('noInstallSales'), sr: value('sr')
+                });
+            };
+            const project = (key, fallback) => {
+                const rows = buildingSourceRows.projects[key];
+                const value = field => mappedNumber(parsed, rows, field, i, fallback[field]);
+                return {
+                    ytd: value('ytd'), sales: value('sales'), installs: value('installs'), targetMeets: value('targetMeets'),
+                    meets: value('meets'), newMeets: value('newMeets'), oldMeets: value('oldMeets')
+                };
+            };
+
+            const bom = salesRep('bom', { ytd: 172, meets: 173, installs: 174, sales: 175, newMeets: 177, newInstalls: 178, newSales: 179, oldMeets: 181, oldInstalls: 182, oldSales: 183, noInstalls: 185, noInstallSales: 186, sr: 188 });
+            const jay = salesRep('jay', { ytd: 192, meets: 193, installs: 194, sales: 195, newMeets: 197, newInstalls: 198, newSales: 199, oldMeets: 201, oldInstalls: 202, oldSales: 203, noInstalls: 205, noInstallSales: 206, sr: 208 });
+            const saifha = salesRep('saifha', { ytd: 228, meets: 229, installs: 230, sales: 231, newMeets: 233, newInstalls: 234, newSales: 235, oldMeets: 237, oldInstalls: 238, oldSales: 239, noInstalls: 241, noInstallSales: 242, sr: 244 });
+            const kat = salesRep('kat', { ytd: 248, meets: 249, installs: 250, sales: 251, newMeets: 253, newInstalls: 254, newSales: 255, oldMeets: 257, oldInstalls: 258, oldSales: 259, noInstalls: 261, noInstallSales: 262, sr: 264 });
+            const image = salesRep('image', { ytd: 268, meets: 269, installs: 270, sales: 271, newMeets: 273, newInstalls: 274, newSales: 275, oldMeets: 277, oldInstalls: 278, oldSales: 279, noInstalls: 281, noInstallSales: 282, sr: 284 });
+            const tung = salesRep('tung', { ytd: 288, meets: 289, installs: 290, sales: 291, newMeets: 293, newInstalls: 294, newSales: 295, oldMeets: 297, oldInstalls: 298, oldSales: 299, noInstalls: 301, noInstallSales: 302, sr: 304 });
+            const projYa = project('projYa', { ytd: 309, sales: 310, installs: 311, targetMeets: 314, meets: 315, newMeets: 316, oldMeets: 317 });
+            const projTung = project('projTung', { ytd: 322, sales: 323, installs: 324, targetMeets: 327, meets: 328, newMeets: 329, oldMeets: 330 });
+            const projTukta = project('projTukta', { ytd: 335, sales: 336, installs: 337, targetMeets: 340, meets: 341, newMeets: 342, oldMeets: 343 });
+            const projMoos = project('projMoos', { ytd: 348, sales: 349, installs: 350, targetMeets: 353, meets: 354, newMeets: 355, oldMeets: 356 });
 
             weeksData.push({
                 id: `col-${i}`, week: weekName, dateRange: parsed[2][i]?.trim() || '-',
@@ -88,56 +248,51 @@ async function loadData() {
                 },
                 tech: {
                     installs: { 
-                        target: cleanNumber(parsed[324]?.[i]), 
-                        actual: cleanNumber(parsed[351]?.[i]), 
-                        gfs: cleanNumber(parsed[352]?.[i]), 
-                        mhl: cleanNumber(parsed[353]?.[i]),
-                        ytd: cleanNumber(parsed[343]?.[i])
+                        target: mappedNumber(parsed, buildingSourceRows.tech, 'installsTarget', i, 370),
+                        actual: mappedNumber(parsed, buildingSourceRows.tech, 'installsActual', i, 371),
+                        gfs: mappedNumber(parsed, buildingSourceRows.tech, 'installsGfs', i, 372),
+                        mhl: mappedNumber(parsed, buildingSourceRows.tech, 'installsMhl', i, 373),
+                        ytd: mappedNumber(parsed, buildingSourceRows.tech, 'installsYtd', i, 363)
                     },
                     area: { 
-                        target: cleanNumber(parsed[343]?.[i]),
-                        actual: cleanNumber(parsed[357]?.[i]), 
-                        gfs: cleanNumber(parsed[358]?.[i]), 
-                        mhl: cleanNumber(parsed[359]?.[i]),
-                        ytd: cleanNumber(parsed[346]?.[i])
+                        target: mappedNumber(parsed, buildingSourceRows.tech, 'areaTarget', i, 376),
+                        actual: mappedNumber(parsed, buildingSourceRows.tech, 'areaActual', i, 377),
+                        gfs: mappedNumber(parsed, buildingSourceRows.tech, 'areaGfs', i, 378),
+                        mhl: mappedNumber(parsed, buildingSourceRows.tech, 'areaMhl', i, 379),
+                        ytd: mappedNumber(parsed, buildingSourceRows.tech, 'areaYtd', i, 367)
                     },
-                    teams: cleanNumber(parsed[362]?.[i]),
+                    teams: mappedNumber(parsed, buildingSourceRows.tech, 'teams', i, 382),
                     damage: { 
-                        totalValue: cleanNumber(parsed[368]?.[i]) || (cleanNumber(parsed[369]?.[i]) + cleanNumber(parsed[370]?.[i])),
-                        ytd: cleanNumber(parsed[367]?.[i]),
-                        byTech: cleanNumber(parsed[369]?.[i]), 
-                        byFilm: cleanNumber(parsed[370]?.[i]), 
-                        claims: cleanNumber(parsed[360]?.[i]), 
-                        filmArea: cleanNumber(parsed[361]?.[i]) 
+                        totalValue: mappedNumber(parsed, buildingSourceRows.tech, 'damageTotal', i, 388) || (mappedNumber(parsed, buildingSourceRows.tech, 'damageByTech', i, 389) + mappedNumber(parsed, buildingSourceRows.tech, 'damageByFilm', i, 390)),
+                        ytd: mappedNumber(parsed, buildingSourceRows.tech, 'damageYtd', i, 387),
+                        byTech: mappedNumber(parsed, buildingSourceRows.tech, 'damageByTech', i, 389),
+                        byFilm: mappedNumber(parsed, buildingSourceRows.tech, 'damageByFilm', i, 390),
+                        claims: mappedNumber(parsed, buildingSourceRows.tech, 'damageClaims', i, 393),
+                        filmArea: mappedNumber(parsed, buildingSourceRows.tech, 'damageFilmArea', i, 394)
                     }
                 },
                 carDetail: {
-                    sales: { target: cleanNumber(parsed[382]?.[i]), actual: cleanNumber(parsed[383]?.[i]) },
-                    installs: { total: cleanNumber(parsed[386]?.[i]), line: cleanNumber(parsed[387]?.[i]), fb: cleanNumber(parsed[388]?.[i]), tel: cleanNumber(parsed[389]?.[i]), walkin: cleanNumber(parsed[390]?.[i]), showroom: cleanNumber(parsed[391]?.[i]), other: cleanNumber(parsed[392]?.[i]) },
-                    contacts: { total: cleanNumber(parsed[397]?.[i]), tel: cleanNumber(parsed[398]?.[i]), line: cleanNumber(parsed[399]?.[i]), fb: cleanNumber(parsed[400]?.[i]) },
+                    sales: { target: mappedNumber(parsed, buildingSourceRows.car, 'salesTarget', i, 402), actual: mappedNumber(parsed, buildingSourceRows.car, 'salesActual', i, 403) },
+                    installs: { total: mappedNumber(parsed, buildingSourceRows.car, 'installsTotal', i, 406), line: mappedNumber(parsed, buildingSourceRows.car, 'installsLine', i, 407), fb: mappedNumber(parsed, buildingSourceRows.car, 'installsFb', i, 408), tel: mappedNumber(parsed, buildingSourceRows.car, 'installsTel', i, 409), walkin: mappedNumber(parsed, buildingSourceRows.car, 'installsWalkin', i, 410), showroom: mappedNumber(parsed, buildingSourceRows.car, 'installsShowroom', i, 411), other: mappedNumber(parsed, buildingSourceRows.car, 'installsOther', i, 412) },
+                    contacts: { total: mappedNumber(parsed, buildingSourceRows.car, 'contactsTotal', i, 417), tel: mappedNumber(parsed, buildingSourceRows.car, 'contactsTel', i, 418), line: mappedNumber(parsed, buildingSourceRows.car, 'contactsLine', i, 419), fb: mappedNumber(parsed, buildingSourceRows.car, 'contactsFb', i, 420) },
                     tech: { 
-                        claims: cleanNumber(parsed[403]?.[i]), 
-                        filmIssueCount: cleanNumber(parsed[405]?.[i]), 
-                        filmIssueValue: cleanNumber(parsed[406]?.[i]), 
-                        techIssueCount: cleanNumber(parsed[408]?.[i]), 
-                        techIssueValue: cleanNumber(parsed[409]?.[i]), 
-                        damagePercent: cleanNumber(parsed[397]?.[i]),
-                        teamSize: cleanNumber(parsed[412]?.[i]) 
+                        claims: mappedNumber(parsed, buildingSourceRows.car, 'claims', i, 423),
+                        filmIssueCount: mappedNumber(parsed, buildingSourceRows.car, 'filmIssueCount', i, 425),
+                        filmIssueValue: mappedNumber(parsed, buildingSourceRows.car, 'filmIssueValue', i, 426),
+                        techIssueCount: mappedNumber(parsed, buildingSourceRows.car, 'techIssueCount', i, 428),
+                        techIssueValue: mappedNumber(parsed, buildingSourceRows.car, 'techIssueValue', i, 429),
+                        damagePercent: mappedNumber(parsed, buildingSourceRows.car, 'damagePercent', i, 430),
+                        teamSize: mappedNumber(parsed, buildingSourceRows.car, 'teamSize', i, 432)
                     }
                 },
                 buildingSales: {
-                    totalRepSales: cleanNumber(parsed[168]?.[i]), // Row 169
-                    totalProjSales: cleanNumber(parsed[169]?.[i]), // Row 170
+                    // Totals intentionally reconcile only people that remain visible.
+                    totalRepSales: [bom, jay, saifha, kat, image, tung].reduce((sum, rep) => sum + rep.sales, 0),
+                    totalProjSales: [projYa, projTukta].reduce((sum, member) => sum + member.sales, 0),
                     totalAdminSales: cleanNumber(parsed[170]?.[i]), // Row 171
-                    bom: normalizeSalesRepData({ ytd: cleanNumber(parsed[172]?.[i]), meets: bomMeets, installs: bomInstalls, sales: cleanNumber(parsed[175]?.[i]), newMeets: cleanNumber(parsed[177]?.[i]), newInstalls: cleanNumber(parsed[178]?.[i]), newSales: cleanNumber(parsed[179]?.[i]), oldMeets: cleanNumber(parsed[181]?.[i]), oldInstalls: cleanNumber(parsed[182]?.[i]), oldSales: cleanNumber(parsed[183]?.[i]), noInstalls: cleanNumber(parsed[185]?.[i]), noInstallSales: cleanNumber(parsed[186]?.[i]) }),
-                    jay: normalizeSalesRepData({ ytd: cleanNumber(parsed[192]?.[i]), meets: jayMeets, installs: jayInstalls, sales: cleanNumber(parsed[195]?.[i]), newMeets: cleanNumber(parsed[197]?.[i]), newInstalls: cleanNumber(parsed[198]?.[i]), newSales: cleanNumber(parsed[199]?.[i]), oldMeets: cleanNumber(parsed[201]?.[i]), oldInstalls: cleanNumber(parsed[202]?.[i]), oldSales: cleanNumber(parsed[203]?.[i]), noInstalls: cleanNumber(parsed[205]?.[i]), noInstallSales: cleanNumber(parsed[206]?.[i]) }),
-                    saifha: normalizeSalesRepData({ ytd: cleanNumber(parsed[228]?.[i]), meets: saifhaMeets, installs: saifhaInstalls, sales: cleanNumber(parsed[231]?.[i]), newMeets: cleanNumber(parsed[233]?.[i]), newInstalls: cleanNumber(parsed[234]?.[i]), newSales: cleanNumber(parsed[235]?.[i]), oldMeets: cleanNumber(parsed[237]?.[i]), oldInstalls: cleanNumber(parsed[238]?.[i]), oldSales: cleanNumber(parsed[239]?.[i]), noInstalls: cleanNumber(parsed[241]?.[i]), noInstallSales: cleanNumber(parsed[242]?.[i]) }),
-                    kat: normalizeSalesRepData({ ytd: cleanNumber(parsed[248]?.[i]), meets: katMeets, installs: katInstalls, sales: cleanNumber(parsed[251]?.[i]), newMeets: cleanNumber(parsed[253]?.[i]), newInstalls: cleanNumber(parsed[254]?.[i]), newSales: cleanNumber(parsed[255]?.[i]), oldMeets: cleanNumber(parsed[257]?.[i]), oldInstalls: cleanNumber(parsed[258]?.[i]), oldSales: cleanNumber(parsed[259]?.[i]), noInstalls: cleanNumber(parsed[261]?.[i]), noInstallSales: cleanNumber(parsed[262]?.[i]) }),
-                    image: normalizeSalesRepData({ ytd: cleanNumber(parsed[268]?.[i]), meets: imageMeets, installs: imageInstalls, sales: cleanNumber(parsed[271]?.[i]), newMeets: cleanNumber(parsed[273]?.[i]), newInstalls: cleanNumber(parsed[274]?.[i]), newSales: cleanNumber(parsed[275]?.[i]), oldMeets: cleanNumber(parsed[277]?.[i]), oldInstalls: cleanNumber(parsed[278]?.[i]), oldSales: cleanNumber(parsed[279]?.[i]), noInstalls: cleanNumber(parsed[281]?.[i]), noInstallSales: cleanNumber(parsed[282]?.[i]) }),
-                    projYa: { ytd: cleanNumber(parsed[289]?.[i]), sales: cleanNumber(parsed[290]?.[i]), installs: cleanNumber(parsed[291]?.[i]), targetMeets: cleanNumber(parsed[294]?.[i]), meets: cleanNumber(parsed[295]?.[i]), newMeets: cleanNumber(parsed[296]?.[i]), oldMeets: cleanNumber(parsed[297]?.[i]) },
-                    projTung: { ytd: cleanNumber(parsed[302]?.[i]), sales: cleanNumber(parsed[303]?.[i]), installs: cleanNumber(parsed[304]?.[i]), targetMeets: cleanNumber(parsed[307]?.[i]), meets: cleanNumber(parsed[308]?.[i]), newMeets: cleanNumber(parsed[309]?.[i]), oldMeets: cleanNumber(parsed[310]?.[i]) },
-                    projTukta: { ytd: cleanNumber(parsed[315]?.[i]), sales: cleanNumber(parsed[316]?.[i]), installs: cleanNumber(parsed[317]?.[i]), targetMeets: cleanNumber(parsed[320]?.[i]), meets: cleanNumber(parsed[321]?.[i]), newMeets: cleanNumber(parsed[322]?.[i]), oldMeets: cleanNumber(parsed[323]?.[i]) },
-                    projMoos: { ytd: cleanNumber(parsed[328]?.[i]), sales: cleanNumber(parsed[329]?.[i]), installs: cleanNumber(parsed[330]?.[i]), targetMeets: cleanNumber(parsed[333]?.[i]), meets: cleanNumber(parsed[334]?.[i]), newMeets: cleanNumber(parsed[335]?.[i]), oldMeets: cleanNumber(parsed[336]?.[i]) }
+                    bom, jay, saifha, kat, image, tung,
+                    // Kept in the data model to preserve the source, but excluded from all display rosters.
+                    projYa, projTung, projTukta, projMoos
                 }
             });
         }
@@ -276,6 +431,7 @@ function parseRowBasedWeeklyData(parsed) {
                     saifha: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(saifhaSales), newMeets: 0, newInstalls: 0, newSales: repActual(saifhaSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     kat: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(katSales), newMeets: 0, newInstalls: 0, newSales: repActual(katSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     image: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: repActual(imageSales), newMeets: 0, newInstalls: 0, newSales: repActual(imageSales), oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
+                    tung: normalizeSalesRepData({ ytd: 0, meets: 0, installs: 0, sales: 0, newMeets: 0, newInstalls: 0, newSales: 0, oldMeets: 0, oldInstalls: 0, oldSales: 0, noInstalls: 0, noInstallSales: 0 }),
                     projYa: { ytd: 0, sales: repActual(yaSales), installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
                     projTung: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
                     projTukta: { ytd: 0, sales: 0, installs: 0, targetMeets: 0, meets: 0, newMeets: 0, oldMeets: 0 },
