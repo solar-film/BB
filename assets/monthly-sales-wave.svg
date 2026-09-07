@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="966" height="760" viewBox="0 0 966 760" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#70c1ff" stop-opacity=".48"/>
+      <stop offset=".63" stop-color="#9ed8ff" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#e5f4ff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop stop-color="#a0d6ff" stop-opacity=".45"/>
+      <stop offset=".45" stop-color="#83c1ff" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#76bfff" stop-opacity=".65"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 490C35 480 57 468 81 454S153 408 186 410 259 441 291 442 361 439 389 433 462 395 494 390 562 421 591 423 662 410 693 391 767 350 808 354 860 368 893 353 935 323 966 319V660H0Z" fill="url(#wave)"/>
+  <path d="M0 490C35 480 57 468 81 454S153 408 186 410 259 441 291 442 361 439 389 433 462 395 494 390 562 421 591 423 662 410 693 391 767 350 808 354 860 368 893 353 935 323 966 319" fill="none" stroke="url(#line)" stroke-width="3"/>
+  <g fill="#72b9ff" fill-opacity=".75">
+    <circle cx="81" cy="454" r="6.5"/><circle cx="186" cy="410" r="6.5"/><circle cx="291" cy="442" r="6.5"/><circle cx="389" cy="433" r="6.5"/><circle cx="494" cy="390" r="6.5"/><circle cx="591" cy="423" r="6.5"/><circle cx="808" cy="354" r="6.5"/>
+  </g>
+</svg>
