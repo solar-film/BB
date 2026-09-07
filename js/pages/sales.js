@@ -39,12 +39,12 @@ function renderBuildingSalesHTML(current, m, opt, container) {
         { id: 'Jay', title: 'Sales Representative', data: { ...b.jay, ytd: getYtd('jay') }, c: 'blue', icon: 'megaphone', nameColor: '#1748ad' },
         { id: 'Saifha', title: 'Sales Representative', data: { ...b.saifha, ytd: getYtd('saifha') }, c: 'blue', icon: 'crown', nameColor: '#5b21b6' },
         { id: 'Kat', title: 'Sales Representative', data: { ...b.kat, ytd: b.kat?.ytd || 0 }, c: 'blue', icon: 'rocket', nameColor: '#0f4c5c' },
-        { id: 'Image', title: 'Sales Representative', data: { ...b.image, ytd: getYtd('image') }, c: 'blue', icon: 'sparkles', nameColor: '#9d174d' }
+        { id: 'Image', title: 'Sales Representative', data: { ...b.image, ytd: getYtd('image') }, c: 'blue', icon: 'sparkles', nameColor: '#9d174d' },
+        { id: 'Tung', title: 'Sales Representative', data: { ...b.tung, ytd: getYtd('tung') }, c: 'blue', icon: 'badge-dollar-sign', nameColor: '#0e7490' }
     ].sort((a,b) => b.data.sales - a.data.sales); 
     
     const projects = [
         { id: 'YA', title: 'Sales Project', data: { ...b.projYa, ytd: getYtd('projYa') }, c: 'amber' },
-        { id: 'Tung', title: 'Sales Project', data: { ...b.projTung, ytd: getYtd('projTung') }, c: 'amber' },
         { id: 'Tukta', title: 'Sales Project', data: { ...b.projTukta, ytd: getYtd('projTukta') }, c: 'amber' }
     ].sort((a,b) => b.data.sales - a.data.sales);
 
@@ -517,7 +517,7 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 dashboardData.forEach(d => {
                     const monthGroup = extractMonthGroup(d.dateRange);
                     if (!monthlyRepDataMap[monthGroup]) {
-                        monthlyRepDataMap[monthGroup] = { label: monthGroup, bom: 0, jay: 0, saifha: 0, kat: 0, image: 0, projYa: 0, projTung: 0 };
+                        monthlyRepDataMap[monthGroup] = { label: monthGroup, bom: 0, jay: 0, saifha: 0, kat: 0, image: 0, tung: 0, projYa: 0, projTukta: 0 };
                         monthsOrderRep.push(monthGroup);
                     }
                     if (d.buildingSales) {
@@ -526,12 +526,13 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                         monthlyRepDataMap[monthGroup].saifha += d.buildingSales.saifha.sales || 0;
                         monthlyRepDataMap[monthGroup].kat += d.buildingSales.kat.sales || 0;
                         monthlyRepDataMap[monthGroup].image += d.buildingSales.image.sales || 0;
+                        monthlyRepDataMap[monthGroup].tung += d.buildingSales.tung.sales || 0;
                         monthlyRepDataMap[monthGroup].projYa += d.buildingSales.projYa.sales || 0;
-                        monthlyRepDataMap[monthGroup].projTung += d.buildingSales.projTung.sales || 0;
+                        monthlyRepDataMap[monthGroup].projTukta += d.buildingSales.projTukta.sales || 0;
                     }
                 });
 
-                repDataList = monthsOrderRep.map(m => monthlyRepDataMap[m]).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung) > 0);
+                repDataList = monthsOrderRep.map(m => monthlyRepDataMap[m]).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.tung + d.projYa + d.projTukta) > 0);
                 repLabels = repDataList.map(d => d.label);
             } else {
                 repDataList = dashboardData.map(d => {
@@ -542,10 +543,11 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                         saifha: d.buildingSales?.saifha?.sales || 0,
                         kat: d.buildingSales?.kat?.sales || 0,
                         image: d.buildingSales?.image?.sales || 0,
+                        tung: d.buildingSales?.tung?.sales || 0,
                         projYa: d.buildingSales?.projYa?.sales || 0,
-                        projTung: d.buildingSales?.projTung?.sales || 0
+                        projTukta: d.buildingSales?.projTukta?.sales || 0
                     };
-                }).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.projYa + d.projTung) > 0).slice(-12);
+                }).filter(d => (d.bom + d.jay + d.saifha + d.kat + d.image + d.tung + d.projYa + d.projTukta) > 0).slice(-12);
                 repLabels = repDataList.map(d => d.label);
             }
 
@@ -555,8 +557,9 @@ function renderBuildingSalesHTML(current, m, opt, container) {
                 { label: 'Saifha', key: 'saifha', color: '#f59e0b' },
                 { label: 'Kat', key: 'kat', color: '#8b5cf6' },
                 { label: 'Image', key: 'image', color: '#ec4899' },
+                { label: 'Tung', key: 'tung', color: '#0891b2' },
                 { label: 'Proj YA', key: 'projYa', color: '#f97316', dash: [5,5] },
-                { label: 'Proj Tung', key: 'projTung', color: '#eab308', dash: [5,5] }
+                { label: 'Proj Tukta', key: 'projTukta', color: '#eab308', dash: [5,5] }
             ];
 
             const repDatasets = dsConfigs.map(conf => ({

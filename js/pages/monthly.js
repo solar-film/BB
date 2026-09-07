@@ -11,6 +11,7 @@
     const shortDate = value => value ? new Intl.DateTimeFormat('th-TH', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(new Date(`${value}T00:00:00Z`)) : '—';
 
     function periodNotes(month) {
+        if (month.expenseOnly) return ' (ยังไม่มีข้อมูลยอดขาย)';
         return [month.coverage.isOpen ? 'สะสม' : '', month.coverage.isFuture ? 'อนาคต' : '', month.coverage.hasPlanDerived ? 'จากแผน' : '', month.coverage.unconfirmedWeeks.length ? 'รอยืนยัน' : ''].filter(Boolean).map(note => ` (${note})`).join('');
     }
 
@@ -35,17 +36,6 @@
         return achieved
             ? { kind: 'achieved', title: 'ถึงเป้าแล้ว!', detail: difference === 0 ? 'ยอดขายเท่ากับเป้ารายเดือน' : `เกินเป้า ${differenceLabel} บาท`, note }
             : { kind: 'below', title: 'ยังไม่ถึงเป้า', detail: `ยังขาด ${differenceLabel} บาท`, note };
-    }
-
-    function statusArtwork(kind) {
-        // Code-native artwork remains crisp and consistent across desktop/mobile.
-        if (kind === 'achieved') return `<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false" data-status-icon="trophy">
-            <circle cx="64" cy="64" r="57" fill="#fff1be"/><g stroke="#a96609" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M42 36H26V46Q26 66 46 66M86 36H102V46Q102 66 82 66" fill="#fcd34d"/><path d="M40 28H88L84 59Q82 78 64 80Q46 78 44 59Z" fill="#fbbf24"/><path d="M47 34H57L58 61Q58 69 63 73Q50 69 49 57Z" fill="#fde68a" stroke="none"/><path d="M64 81V98M52 99H76L81 109H47Z" fill="#f5b623"/><path d="M53 19L55 12M95 77L103 81M21 76L28 72" stroke="#e6b840" stroke-width="3"/></g><path d="M104 16L107 24L115 27L107 30L104 38L101 30L93 27L101 24Z" fill="#f2b82a"/><path d="M22 18L24 23L29 25L24 27L22 32L20 27L15 25L20 23Z" fill="#f2b82a"/>
-        </svg>`;
-        if (kind === 'below') return `<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false" data-status-icon="disappointed">
-            <circle cx="64" cy="64" r="57" fill="#ffe5e9"/><circle cx="64" cy="63" r="43" fill="#fb939c" stroke="#f38894" stroke-width="2"/><path d="M32 40Q42 30 50 31" fill="none" stroke="#ffc2c8" stroke-width="5" stroke-linecap="round"/><g fill="#173b6d"><circle cx="47" cy="58" r="4.5"/><circle cx="81" cy="58" r="4.5"/></g><path d="M47 83Q64 64 81 83" fill="none" stroke="#173b6d" stroke-width="4" stroke-linecap="round"/><ellipse cx="38" cy="71" rx="6" ry="4" fill="#ffc4ce"/><ellipse cx="90" cy="71" rx="6" ry="4" fill="#ffc4ce"/>
-        </svg>`;
-        return `<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false" data-status-icon="pending"><circle cx="64" cy="64" r="57" fill="#edf2f9"/><circle cx="64" cy="64" r="38" fill="#fff" stroke="#91a6c3" stroke-width="4"/><path d="M64 41V65L80 76" fill="none" stroke="#607b9e" stroke-width="5" stroke-linecap="round"/><circle cx="64" cy="64" r="4" fill="#607b9e"/></svg>`;
     }
 
     function selectMonth(key) {
@@ -74,30 +64,49 @@
         return `${signed(comparison.amount)} บาท (${change}) เทียบ ${safe(previous.label)}`;
     }
 
-    function metricCard({ title, value, target, progress, footer, disabled, status, monthLabel }) {
-        // The badge is target attainment, not month-over-month growth. Keep the
-        // exact ratio visible even above 100%; only the visual fill is capped.
-        const available = !disabled && Number.isFinite(progress);
-        const progressLabel = available ? percent(progress) : '—';
-        const fill = available ? Math.max(0, Math.min(progress, 100)) : 0;
-        const encouragement = status.kind === 'achieved' ? 'ยอดเยี่ยม! เติบโตไปด้วยกัน' : status.kind === 'below' ? 'สู้ต่อไป! ก้าวไปให้ถึงเป้า' : 'ตรวจข้อมูลก่อนสรุปผลงาน';
-        const quote = status.kind === 'achieved' ? 'ความสำเร็จวันนี้<br>คือแรงผลักดันให้ก้าวต่อไป' : status.kind === 'below' ? 'ทุกก้าวของวันนี้<br>คือโอกาสที่ดีกว่าในวันพรุ่งนี้' : 'ข้อมูลที่ชัดเจน<br>ช่วยให้ก้าวต่อไปอย่างมั่นใจ';
-        return `<article class="monthly-card monthly-metric monthly-tone-blue monthly-result-${status.kind}">
+    function targetArtwork(kind) {
+        if (kind === 'pending') return '<i data-lucide="clock-3" aria-hidden="true"></i>';
+        if (kind === 'achieved') return '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#fff0b4"/><g fill="#ffcc46" stroke="#bc780e" stroke-width="3.5" stroke-linejoin="round"><path d="M31 24H19v11q0 15 17 15m29-26h12v11q0 15-17 15"/><path d="M30 19h36l-3 28q-2 13-15 15-13-2-15-15z"/><path d="M48 63v13m-12 1h24l4 8H32z"/></g><path d="M48 28l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z" fill="#fff6ce"/></svg>';
+        return '<svg viewBox="0 0 96 96" aria-hidden="true"><defs><radialGradient id="monthly-face-glow" cx="32%" cy="25%" r="80%"><stop stop-color="#ffb5bc"/><stop offset="1" stop-color="#fb8598"/></radialGradient></defs><circle cx="48" cy="48" r="46" fill="#ffe2e9"/><circle cx="48" cy="48" r="36" fill="url(#monthly-face-glow)"/><path d="M25 29q7-8 15-8" fill="none" stroke="#ffdce1" stroke-width="4" stroke-linecap="round"/><g fill="#123970"><circle cx="35" cy="43" r="3.4"/><circle cx="61" cy="43" r="3.4"/></g><ellipse cx="27" cy="54" rx="5" ry="3" fill="#ffcad5"/><ellipse cx="69" cy="54" rx="5" ry="3" fill="#ffcad5"/><path d="M35 66q13-15 26 0" fill="none" stroke="#123970" stroke-width="3" stroke-linecap="round"/></svg>';
+    }
+
+    function metricCard(month, previous) {
+        const status = salesStatus(month);
+        const available = status.kind !== 'pending' && Number.isFinite(month.sales.progress);
+        const progressLabel = available ? percent(month.sales.progress) : '—';
+        const fill = available ? Math.max(0, Math.min(month.sales.progress, 100)) : 0;
+        const comparison = BBMonthlyData.compare(month, previous);
+        const comparable = comparison && !comparison.partial && !month.coverage.hasPlanDerived && !previous.coverage.hasPlanDerived;
+        const direction = comparable ? (comparison.amount < 0 ? 'down' : comparison.amount > 0 ? 'up' : 'flat') : 'pending';
+        const comparisonIcon = direction === 'down' ? 'trending-down' : direction === 'up' ? 'trending-up' : 'minus';
+        const comparisonText = comparable
+            ? `<strong>${signed(comparison.amount)} <small>บาท${comparison.percent === null ? '' : ` (${comparison.percent > 0 ? '+' : ''}${numeric(comparison.percent)}%)`}</small></strong><p>เทียบ ${safe(previous.label)}${comparison.percent === null ? ' · ฐานเดือนก่อนเป็นศูนย์หรือติดลบ' : ''}</p>`
+            : `<p class="monthly-reference-comparison-note">${comparisonCopy(month, previous)}</p>`;
+        const gapLabel = status.kind === 'below' ? 'ยังขาด' : status.kind === 'achieved' ? 'เกินเป้า' : 'รอสรุปผล';
+        const gapValue = status.kind === 'pending' ? 'ยังไม่สรุปผลเทียบเป้า' : status.detail.replace(/^(ยังขาด|เกินเป้า)\s/, '');
+        const encouragement = status.kind === 'achieved' ? 'ยอดเยี่ยม! เติบโตไปด้วยกัน' : status.kind === 'below' ? 'สู้ต่อไป ก้าวไปให้ถึงเป้า' : status.detail;
+        return `<article class="monthly-card monthly-metric monthly-tone-blue monthly-result-${status.kind}" data-status="${status.kind}">
+            <img class="monthly-reference-wave" src="assets/monthly-sales-wave.svg" alt="" aria-hidden="true">
             <div class="monthly-metric-main">
-                <div class="monthly-metric-watermark" aria-hidden="true"><i data-lucide="chart-no-axes-combined"></i></div>
-                <div class="monthly-metric-title-row"><span class="monthly-metric-title-icon"><i data-lucide="coins" aria-hidden="true"></i></span><h2 class="monthly-metric-heading">${title}</h2></div>
-                <div class="monthly-metric-value">${value}<span>บาท</span></div>
-                <div class="monthly-metric-attainment">
-                    <div class="monthly-sales-progress" aria-hidden="true"><span style="width:${fill}%"></span></div>
-                    <span class="monthly-metric-badge" aria-label="ทำได้ ${progressLabel} ของเป้ารายเดือน">${progressLabel}</span>
+                <div class="monthly-reference-scene">
+                    <div class="monthly-metric-title-row"><span class="monthly-metric-title-icon"><i data-lucide="coins" aria-hidden="true"></i></span><div><h2 class="monthly-metric-heading">${month.coverage.hasPlanDerived ? 'ยอดอ้างอิงจาก Weekly' : 'ยอดขายรวมเดือน'}</h2><p>ภาพรวมผลการดำเนินงานประจำเดือน ${safe(month.label)}</p></div></div>
+                    <div class="monthly-metric-value">${money(month.sales.actual)}<span>บาท</span></div>
+                    <div class="monthly-metric-attainment"><div class="monthly-sales-progress" aria-hidden="true"><span style="width:${fill}%"></span></div></div>
+                    <div class="monthly-metric-progress-scale"><span>0</span><span>${money(month.sales.target)}</span></div>
+                    <div class="monthly-reference-ring">
+                        <svg viewBox="0 0 240 240" aria-hidden="true"><defs><linearGradient id="monthly-ring-blue"><stop stop-color="#229cff"/><stop offset="1" stop-color="#2479ff"/></linearGradient></defs><circle class="monthly-reference-ring-track" cx="120" cy="120" r="104"/><circle class="monthly-reference-ring-fill" cx="120" cy="120" r="104" pathLength="100" stroke-dasharray="${fill} 100" transform="rotate(-90 120 120)"${fill === 0 ? ' visibility="hidden"' : ''}/></svg>
+                        <div><span class="monthly-metric-badge" aria-label="ทำได้ ${progressLabel} ของเป้ารายเดือน">${progressLabel}</span><small>ของเป้าหมาย</small></div>
+                    </div>
+                    <div class="monthly-reference-quote"><span aria-hidden="true">“</span><p><strong>ทุกก้าวของวันนี้</strong><br>คือโอกาสที่ดีกว่าในวันพรุ่งนี้</p></div>
                 </div>
-                <div class="monthly-metric-detail"><span class="monthly-metric-detail-item"><i data-lucide="target" aria-hidden="true"></i><span>เป้ารวมเดือน <strong>${target} บาท</strong></span></span><span class="monthly-metric-detail-item monthly-metric-gap"><i data-lucide="chart-no-axes-column" aria-hidden="true"></i><span class="monthly-metric-gap-copy"><span class="monthly-metric-gap-value">${status.kind === 'pending' ? 'ยังไม่สรุปผลเทียบเป้า' : status.detail}</span><span class="monthly-metric-comparison-inline"><strong>เปรียบเทียบเดือนก่อน</strong> ${footer}</span></span></span></div>
-            </div>
-        </article>
-        <article class="monthly-card monthly-target-status monthly-result-${status.kind}">
-            <div class="monthly-sales-status" role="status" aria-label="สถานะเป้าหมายเดือน ${safe(monthLabel)}" data-status="${status.kind}">
-                <div class="monthly-status-heading"><div class="monthly-status-visual">${statusArtwork(status.kind)}</div><div class="monthly-status-copy"><strong class="monthly-status-title">${status.title}</strong><p class="monthly-status-encouragement">${encouragement}</p></div></div>
-                <div class="monthly-status-quote">${quote}</div>
+                <div class="monthly-reference-kpis">
+                    <div class="monthly-reference-kpi monthly-reference-target"><span class="monthly-reference-kpi-icon"><i data-lucide="target" aria-hidden="true"></i></span><div><h3>เป้ารวมเดือน</h3><strong>${money(month.sales.target)} <small>บาท</small></strong></div></div>
+                    <div class="monthly-reference-kpi monthly-reference-gap" data-status="${status.kind}"><span class="monthly-reference-kpi-icon"><i data-lucide="chart-no-axes-column-increasing" aria-hidden="true"></i></span><div><h3>${gapLabel}</h3><strong>${gapValue}</strong></div></div>
+                    <div class="monthly-reference-kpi monthly-reference-comparison" data-direction="${direction}"><span class="monthly-reference-kpi-icon"><i data-lucide="${comparisonIcon}" aria-hidden="true"></i></span><div><h3>เปรียบเทียบเดือนก่อน</h3>${comparisonText}</div></div>
+                </div>
+                <div class="monthly-reference-result" data-status="${status.kind}" role="status" aria-label="สถานะเป้าหมายเดือน ${safe(month.label)}">
+                    <span class="monthly-reference-result-art" data-target-icon="${status.kind === 'achieved' ? 'trophy' : status.kind === 'below' ? 'frown' : 'clock-3'}">${targetArtwork(status.kind)}</span><div><strong>${status.title}</strong><p>${encouragement}</p></div>
+                </div>
             </div>
         </article>`;
     }
@@ -447,6 +456,7 @@
         ].filter(Boolean);
         const rate = value => planDerived ? '—' : percent(value);
         const yearMonths = model.months.filter(item => item.year === month.year);
+        const comparisonMonths = BBMonthlyExpenses.combine(yearMonths, month.year);
 
         document.getElementById('header-subtitle').innerText = `${month.label} · รวม ${coverage.weekCount} สัปดาห์ · ${shortDate(first)} – ${shortDate(last)} · ${status}`;
         const headerControl = document.getElementById('header-monthly-control');
@@ -455,7 +465,6 @@
             <select id="monthly-month-select" aria-label="เลือกเดือนและปี" onchange="BBMonthlyPage.selectMonth(this.value)">${options}</select></label>${renderFullscreenButton()}`;
 
         container.innerHTML = `<section class="monthly-dashboard" aria-label="สรุปผลงานรายเดือน">
-            <nav class="monthly-department-nav" aria-label="ไปยังสรุปแต่ละฝ่ายในหน้านี้">${DEPARTMENTS.map(department => `<button type="button" class="monthly-jump monthly-tone-${department.tone}" aria-label="${department.title}" onclick="BBMonthlyPage.jumpTo('${department.key}')"><span class="monthly-icon"><i data-lucide="${department.icon}" aria-hidden="true"></i></span><span class="monthly-jump-copy"><strong>${department.title}</strong><small>${department.description}</small></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>`).join('')}</nav>
             ${warnings.length ? `<div class="monthly-notice" role="status">${warnings.map(message => `<p>${safe(message)}</p>`).join('')}
                 ${model.skipped.length ? `<details><summary>ช่วงวันที่ที่ยังไม่ได้นำมารวม (${model.skipped.length})</summary><ul>${model.skipped.map(entry => `<li>${safe(entry.week || entry.id)}: ${safe(entry.dateRange || 'ไม่ระบุวันที่')}</li>`).join('')}</ul></details>` : ''}
             </div>` : ''}
@@ -463,37 +472,41 @@
                 <div class="monthly-performance-title"><span class="monthly-performance-icon"><i data-lucide="chart-no-axes-column-increasing" aria-hidden="true"></i></span><div><h2>สรุปผลการดำเนินงาน</h2><p>ภาพรวมยอดขายประจำเดือน</p></div></div>
                 <div class="monthly-performance-period"><span class="monthly-performance-calendar"><i data-lucide="calendar-days" aria-hidden="true"></i></span><div><strong>${safe(month.label)}</strong><p>ติดตามเป้าหมายอย่างชัดเจน เพื่อการเติบโตที่มั่นคง</p></div></div>
             </div>
-            <div class="monthly-metrics">
-                ${metricCard({ title: planDerived ? 'ยอดอ้างอิงจาก Weekly' : 'ยอดขายรวมเดือน', value: money(month.sales.actual), target: money(month.sales.target), progress: month.sales.progress, disabled: planDerived, footer: comparisonCopy(month, previous), status: salesStatus(month), monthLabel: month.label })}
+            <div class="monthly-metrics monthly-reference">
+                ${metricCard(month, previous)}
+                <div class="monthly-reference-side">
                 <article class="monthly-card monthly-business-summary">
                     <div class="monthly-card-heading monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="boxes" aria-hidden="true"></i></span><div><h3>ยอดขายแยกธุรกิจ</h3><p>${safe(month.label)} · หน่วยบาท</p></div></div>
                     <div class="monthly-company-list">${Object.entries(month.sales.companies).map(([key, company]) => {
                         const progress = company.target > 0 ? company.actual / company.target * 100 : null;
-                        return `<div class="monthly-company monthly-company-${key}"><span class="monthly-company-icon"><i data-lucide="${key === 'gfs' ? 'building-2' : key === 'mhl' ? 'layers' : 'car-front'}" aria-hidden="true"></i></span><div class="monthly-company-content"><div class="monthly-company-top"><div><h4>${key.toUpperCase()}</h4><p>${key === 'car' ? 'ฟิล์มรถยนต์' : 'ฟิล์มอาคาร'}</p></div><strong>${money(company.actual)} <small>บาท</small></strong></div>
-                            <div class="monthly-company-progress"><div class="monthly-progress" aria-hidden="true"><span style="width:${planDerived || progress === null ? 0 : Math.max(0, Math.min(progress, 100))}%"></span></div><span class="monthly-company-rate">${rate(progress)}</span></div>
-                            <div class="monthly-company-meta"><span>เป้า ${money(company.target)} บาท</span></div></div></div>`;
+                        return `<div class="monthly-company monthly-company-${key}"><span class="monthly-company-icon"><i data-lucide="${key === 'gfs' ? 'building-2' : key === 'mhl' ? 'layers' : 'car-front'}" aria-hidden="true"></i></span><div class="monthly-reference-company-name"><h4>${key.toUpperCase()}</h4><p>${key === 'car' ? 'ฟิล์มรถยนต์' : 'ฟิล์มอาคาร'}</p></div>
+                            <div class="monthly-reference-company-progress"><div class="monthly-progress" aria-hidden="true"><span style="width:${planDerived || progress === null ? 0 : Math.max(0, Math.min(progress, 100))}%"></span></div><p>เป้า ${money(company.target)} บาท</p></div>
+                            <div class="monthly-reference-company-amount"><strong>${money(company.actual)} <small>บาท</small></strong><span class="monthly-company-rate">${rate(progress)}</span></div></div>`;
                     }).join('')}</div>
-                    <div class="monthly-department-sales" aria-labelledby="monthly-department-sales-title">
-                        <div class="monthly-department-sales-head"><h4 id="monthly-department-sales-title">ยอดขายแยกฝ่าย</h4><span>มุมมองผู้รับผิดชอบ · ไม่บวกซ้ำกับยอดรวม</span></div>
+                    ${mismatched ? `<p class="monthly-data-note">ผลรวมรายธุรกิจต่างจาก Total Sales: ยอดขาย ${signed(salesDifference)} บาท / เป้า ${signed(targetDifference)} บาท · การ์ดยอดรวมยึดต้นทาง ไม่ปรับยอดให้เท่ากัน</p>` : ''}
+                </article>
+                    <article class="monthly-card monthly-department-sales" aria-labelledby="monthly-department-sales-title">
+                        <div class="monthly-department-sales-head"><div class="monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="boxes" aria-hidden="true"></i></span><h4 id="monthly-department-sales-title">ยอดขายแยกฝ่าย</h4></div><span class="monthly-reference-owner-note">มุมมองผู้รับผิดชอบ · ไม่บวกซ้ำกับยอดรวม</span></div>
                         <div class="monthly-department-sales-list" role="list">
                             <div class="monthly-department-sales-item monthly-department-sales-rep" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="users-round" aria-hidden="true"></i></span><div><p>ยอดขาย Sales Representative</p><strong>${money(month.building.repSales)} <small>บาท</small></strong></div></div>
                             <div class="monthly-department-sales-item monthly-department-sales-project" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="briefcase-business" aria-hidden="true"></i></span><div><p>ยอดขาย Project Sales Executive</p><strong>${money(month.building.projectSales)} <small>บาท</small></strong></div></div>
                             <div class="monthly-department-sales-item monthly-department-sales-admin" role="listitem"><span class="monthly-department-sales-icon"><i data-lucide="headset" aria-hidden="true"></i></span><div><p>ยอดขาย Admin</p><strong>${money(month.admin.sales)} <small>บาท</small></strong></div></div>
                         </div>
-                    </div>
-                    ${mismatched ? `<p class="monthly-data-note">ผลรวมรายธุรกิจต่างจาก Total Sales: ยอดขาย ${signed(salesDifference)} บาท / เป้า ${signed(targetDifference)} บาท · การ์ดยอดรวมยึดต้นทาง ไม่ปรับยอดให้เท่ากัน</p>` : ''}
-                </article>
+                    </article>
+                </div>
             </div>
             <div class="monthly-main-grid">
-                <article class="monthly-card monthly-chart-card monthly-chart-card-wide">
-                    <div class="monthly-card-heading monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="chart-column-increasing" aria-hidden="true"></i></span><div><h3>ยอดขายเทียบเป้ารายเดือน</h3><p>ปี ${month.year} · หน่วยบาท · เฉพาะเดือนที่มียอดขาย</p></div></div>
-                    <div class="monthly-chart-wrap" tabindex="0" role="region" aria-label="กราฟยอดขายรายเดือน เลื่อนแนวนอนเพื่อดูครบ"><div class="monthly-chart-plot"><canvas id="monthly-sales-chart" role="img" aria-label="กราฟแท่งยอดขายรายเดือนและเส้นเป้าหมาย ถ้วยรางวัลเมื่อถึงเป้า สีหน้าผิดหวังเมื่อยังไม่ถึงเป้า ข้อมูลตัวเลขอยู่ในตารางด้านล่าง"></canvas></div></div>
+                <article class="monthly-card monthly-chart-card monthly-chart-card-wide monthly-sales-expenses-card">
+                    <div class="monthly-card-heading monthly-panel-heading"><span class="monthly-panel-icon"><i data-lucide="chart-column-increasing" aria-hidden="true"></i></span><div><h3>ยอดขาย ค่าใช้จ่าย และเป้าหมายรายเดือน</h3><p>ปี ${month.year} · หน่วยบาท · เฉพาะเดือนที่มียอดขายหรือค่าใช้จ่าย</p></div></div>
+                    <div class="monthly-chart-wrap" tabindex="0" role="region" aria-label="กราฟยอดขายและค่าใช้จ่ายรายเดือน เลื่อนแนวนอนเพื่อดูครบ"><div class="monthly-chart-plot"><canvas id="monthly-sales-chart" role="img" aria-label="กราฟแท่งยอดขายสีฟ้าและค่าใช้จ่ายสีส้มซ้อนจากฐานศูนย์เดียวกัน ไม่บวกยอดเข้าด้วยกัน พร้อมเส้นเป้าหมาย ถ้วยรางวัลเมื่อยอดขายถึงเป้า ข้อมูลตัวเลขอยู่ในตารางด้านล่าง"></canvas></div></div>
                     <p id="monthly-chart-status" class="monthly-caption" role="status" hidden></p>
-                    <details class="monthly-details"><summary>ดูตัวเลขรายเดือน</summary><div class="monthly-table-wrap" tabindex="0" role="region" aria-label="ตารางยอดขายรายเดือน"><table class="monthly-table"><thead><tr><th scope="col">เดือน</th><th scope="col">ยอดตาม Weekly (บาท)</th><th scope="col">เป้าหมาย (บาท)</th><th scope="col">ผลต่างเทียบเป้า (%)</th></tr></thead><tbody>
-                        ${yearMonths.map(item => `<tr${item.key === month.key ? ' class="monthly-selected-row"' : ''}><th scope="row">${safe(item.label)}${periodNotes(item)}${reachedTarget(item) ? ' <span class="monthly-award-note">🏆 ถึงเป้า</span>' : ''}</th><td>${money(item.sales.actual)}</td><td>${money(item.sales.target)}</td><td>${salesStatus(item).kind === 'pending' ? '—' : signedChartPercent(targetVariance(item))}</td></tr>`).join('')}
-                    </tbody></table></div></details>
+                    <details id="monthly-sales-details" class="monthly-details"><summary>ดูตัวเลขรายเดือน</summary><div class="monthly-table-wrap" tabindex="0" role="region" aria-label="ตารางยอดขายและค่าใช้จ่ายรายเดือน"><table class="monthly-table"><thead><tr><th scope="col">เดือน</th><th scope="col">เป้าหมาย (บาท)</th><th scope="col" class="monthly-sales-value">ยอดตาม Weekly (บาท)</th><th scope="col" class="monthly-expense-value">ค่าใช้จ่ายรวม (บาท)</th><th scope="col">ส่วนต่าง (บาท)<small class="monthly-difference-formula">ยอดขาย − ค่าใช้จ่าย</small></th><th scope="col">ผลต่างเทียบเป้า (%)</th></tr></thead><tbody>
+                        ${comparisonMonths.map(item => `<tr${item.key === month.key ? ' class="monthly-selected-row"' : ''}><th scope="row">${safe(item.label)}${periodNotes(item)}${reachedTarget(item) ? ' <span class="monthly-award-note">🏆 ถึงเป้า</span>' : ''}</th><td>${item.expenseOnly ? '—' : money(item.sales.target)}</td><td class="monthly-sales-value">${item.expenseOnly ? '—' : money(item.sales.actual)}</td>${BBMonthlyExpenses.cell(item.key)}${BBMonthlyExpenses.differenceCell(item)}<td>${salesStatus(item).kind === 'pending' ? '—' : signedChartPercent(targetVariance(item))}</td></tr>`).join('')}
+                    </tbody>${BBMonthlyExpenses.renderTotals(comparisonMonths)}</table></div></details>
+                    ${BBMonthlyExpenses.renderNotes(month.year)}
                 </article>
             </div>
+            <nav class="monthly-department-nav" aria-label="ไปยังสรุปแต่ละฝ่ายในหน้านี้">${DEPARTMENTS.map(department => `<button type="button" class="monthly-jump monthly-tone-${department.tone}" aria-label="${department.title}" onclick="BBMonthlyPage.jumpTo('${department.key}')"><span class="monthly-icon"><i data-lucide="${department.icon}" aria-hidden="true"></i></span><span class="monthly-jump-copy"><strong>${department.title}</strong><small>${department.description}</small></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>`).join('')}</nav>
             <div class="monthly-section-divider"><h2>สรุปผลงานทุกฝ่าย</h2><span>เดือน ${safe(month.label)} · 5 ฝ่าย</span></div>
             ${renderMarketing(month, rate, planDerived)}
             ${renderAdmin(month, rate)}
@@ -507,12 +520,14 @@
         </section>`;
         bindBackToTop(container);
         renderDepartmentCharts(yearMonths, month.key);
-        renderChart(yearMonths, month.key);
+        renderChart(comparisonMonths, month.key);
     }
 
-    // Chart contract: monthly actual bars against a connected target benchmark line.
-    // Existing Chart.js runtime; zero baseline, baht, chronological order; table fallback.
-    // Blue actual bars vs a neutral dashed target line; labels and result artwork are drawn locally.
+    // Chart contract: compare monthly sales and TOTAL expenses, not their sum.
+    // Dashboard-native overlaid bars: wide blue sales + narrow orange expenses,
+    // shared zero-based baht axis, neutral dashed target, chronological month-key join.
+    // Missing source values stay null; exact amounts/provenance in the shared table.
+    // One full-width, horizontally scrollable card; verify labels and legend in browser.
     const CHART_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     const chartMonths = (months, key) => months.filter(month => Boolean(month.coverage?.chartData?.[key]));
     const compactChartValue = value => {
@@ -576,6 +591,7 @@
 
     function chartLabel(month, selectedKey) {
         const qualifiers = [
+            month.expenseOnly ? 'เฉพาะค่าใช้จ่าย' : '',
             month.coverage.isOpen ? 'สะสม' : '',
             month.coverage.isFuture ? 'อนาคต' : '',
             month.coverage.hasPlanDerived ? 'จากแผน' : '',
@@ -734,7 +750,9 @@
 
     function renderChart(months, selectedKey) {
         try {
-            months = chartMonths(months, 'sales');
+            months = months.filter(month => month.coverage?.chartData?.sales || BBMonthlyExpenses.value(month.key) !== null);
+            const expenseMonths = months.map(month => BBMonthlyExpenses.lookup(month.key));
+            const expenseValues = expenseMonths.map(month => month?.hasData ? month.total : null);
             const canvas = document.getElementById('monthly-sales-chart');
             if (!canvas || typeof Chart === 'undefined') throw new Error('Chart unavailable');
             charts.monthlySales = new Chart(canvas.getContext('2d'), {
@@ -747,17 +765,41 @@
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
                         ctx.font = "600 11px 'Sarabun', sans-serif";
+                        const labelPositions = [0, 1].map(datasetIndex => chart.getDatasetMeta(datasetIndex).data.map(bar => {
+                            if (!bar || !Number.isFinite(bar.y)) return null;
+                            const top = Number.isFinite(bar.base) ? Math.min(bar.y, bar.base) : bar.y;
+                            return Math.max(chartArea.top + 29, top - 7);
+                        }));
+                        if (chart.isDatasetVisible(0) && chart.isDatasetVisible(1)) months.forEach((month, index) => {
+                            const actualY = labelPositions[0][index], targetY = labelPositions[1][index];
+                            if (!Number.isFinite(actualY) || !Number.isFinite(targetY) || Math.abs(actualY - targetY) >= 14) return;
+                            const upper = actualY <= targetY ? 0 : 1;
+                            labelPositions[upper][index] = Math.max(chartArea.top + 15, labelPositions[1 - upper][index] - 14);
+                        });
                         [0, 1].forEach(datasetIndex => {
                             if (!chart.isDatasetVisible(datasetIndex)) return;
                             const meta = chart.getDatasetMeta(datasetIndex);
-                            const values = months.map(month => datasetIndex === 0 ? month.sales.actual : month.sales.target);
+                            const values = chart.data.datasets[datasetIndex].data;
                             meta.data.forEach((bar, index) => {
-                                if (!bar || !Number.isFinite(bar.x) || !Number.isFinite(bar.y) || !Number.isFinite(Number(values[index]))) return;
-                                const visualTop = Number.isFinite(bar.base) ? Math.min(bar.y, bar.base) : bar.y;
+                                if (!bar || !Number.isFinite(bar.x) || !Number.isFinite(bar.y) || !Number.isFinite(values[index])) return;
                                 ctx.fillStyle = datasetIndex === 0 ? '#1748ad' : '#526982';
-                                ctx.fillText(compactChartValue(values[index]), bar.x, Math.max(chartArea.top + 29, visualTop - 7));
+                                ctx.fillText(compactChartValue(values[index]), bar.x, labelPositions[datasetIndex][index]);
                             });
                         });
+                        // Put expense labels inside the foreground bars so close totals
+                        // do not collide with the sales/target labels above the bars.
+                        if (chart.isDatasetVisible(2)) {
+                            const expenseBars = chart.getDatasetMeta(2).data;
+                            months.forEach((month, index) => {
+                                const value = expenseValues[index];
+                                const bar = expenseBars[index];
+                                if (value === null || !bar || !Number.isFinite(bar.y)) return;
+                                const height = Math.abs(bar.base - bar.y);
+                                const y = height >= 26 ? Math.min(chartArea.bottom - 3, Math.min(bar.y, bar.base) + 20) : Math.max(chartArea.top + 15, bar.y - 7);
+                                ctx.fillStyle = '#71320b';
+                                ctx.fillText(`${compactChartValue(value)}${expenseMonths[index]?.warnings.length ? ' *' : ''}`, bar.x, y);
+                            });
+                        }
                         ctx.restore();
 
                         // Outcome artwork belongs to actual results: hiding that dataset
@@ -766,6 +808,7 @@
                         const actualBars = chart.getDatasetMeta(0).data;
                         const targetVisible = chart.isDatasetVisible(1);
                         const targetBars = targetVisible ? chart.getDatasetMeta(1).data : [];
+                        const expenseBars = chart.isDatasetVisible(2) ? chart.getDatasetMeta(2).data : [];
                         const size = chart.width < 700 ? 15 : 17;
                         months.forEach((month, index) => {
                             const status = salesStatus(month);
@@ -773,7 +816,8 @@
                             const actualBar = actualBars[index];
                             const targetBar = targetBars[index];
                             if (!actualBar || !Number.isFinite(actualBar.x) || !Number.isFinite(actualBar.y)) return;
-                            const visibleBars = [actualBar, targetBar].filter(bar => bar && Number.isFinite(bar.x) && Number.isFinite(bar.y));
+                            const expenseBar = expenseValues[index] !== null ? expenseBars[index] : null;
+                            const visibleBars = [actualBar, targetBar, expenseBar].filter(bar => bar && Number.isFinite(bar.x) && Number.isFinite(bar.y));
                             const groupX = visibleBars.reduce((sum, bar) => sum + bar.x, 0) / visibleBars.length;
                             const highestBar = Math.min(...visibleBars.map(bar => Number.isFinite(bar.base) ? Math.min(bar.y, bar.base) : bar.y));
                             const centerY = Math.max(chartArea.top + size / 2 + 2, highestBar - 38);
@@ -797,8 +841,9 @@
                 data: {
                     labels: months.map(month => chartLabel(month, selectedKey)),
                     datasets: [
-                        { label: 'ยอดตาม Weekly', data: months.map(month => month.sales.actual), backgroundColor: months.map(month => month.key === selectedKey ? '#2464de' : '#3c89f7'), borderColor: months.map(month => month.key === selectedKey ? '#174dac' : '#3478dd'), borderWidth: 1, borderRadius: { topLeft: 7, topRight: 7 }, borderSkipped: 'bottom', pointStyle: 'rectRounded', order: 1, barPercentage: .62, categoryPercentage: .72 },
-                        { type: 'line', label: 'เป้ารวมเดือน', data: months.map(month => month.sales.target), borderColor: '#7890ad', backgroundColor: 'transparent', borderWidth: 2.5, borderDash: [8, 5], pointStyle: 'line', pointRadius: months.map(month => month.key === selectedKey ? 5 : 3), pointHoverRadius: 6, pointBackgroundColor: '#fff', pointBorderColor: '#7890ad', pointBorderWidth: 2, tension: .2, fill: false, spanGaps: false, order: 0 }
+                        { label: 'ยอดตาม Weekly', data: months.map(month => month.coverage.hasPlanDerived ? null : month.sales.actual), backgroundColor: months.map(month => month.key === selectedKey ? '#2464de' : '#3c89f7'), borderColor: months.map(month => month.key === selectedKey ? '#174dac' : '#3478dd'), borderWidth: 1, borderRadius: { topLeft: 7, topRight: 7 }, borderSkipped: 'bottom', pointStyle: 'rectRounded', order: 2, grouped: false, barPercentage: .78, categoryPercentage: .72 },
+                        { type: 'line', label: 'เป้ารวมเดือน', data: months.map(month => month.sales.target), borderColor: '#7890ad', backgroundColor: 'transparent', borderWidth: 2.5, borderDash: [8, 5], pointStyle: 'line', pointRadius: months.map(month => month.key === selectedKey ? 5 : 3), pointHoverRadius: 6, pointBackgroundColor: '#fff', pointBorderColor: '#7890ad', pointBorderWidth: 2, tension: .2, fill: false, spanGaps: false, order: 0 },
+                        { type: 'bar', label: 'ค่าใช้จ่ายรวม', data: expenseValues, backgroundColor: months.map(month => month.key === selectedKey ? '#ed8b2f' : '#f7a552'), borderColor: '#c76a24', borderWidth: 1, borderRadius: { topLeft: 5, topRight: 5 }, borderSkipped: 'bottom', pointStyle: 'rectRounded', order: 1, grouped: false, barPercentage: .40, categoryPercentage: .72 }
                     ]
                 },
                 options: {
@@ -809,19 +854,21 @@
                         legend: { position: 'top', align: 'end', labels: { boxWidth: 18, boxHeight: 12, padding: 16, usePointStyle: true, font: { family: 'Sarabun', size: 12 } } },
                         tooltip: { callbacks: {
                             title: items => { const month = months[items[0].dataIndex]; return `${month.label}${periodNotes(month)}`; },
-                            label: item => `${item.dataset.label}: ${money(item.raw)} บาท`,
+                            label: item => `${item.dataset.label}: ${item.datasetIndex === 2 ? BBMonthlyExpenses.money(item.raw) : money(item.raw)} บาท`,
                             afterBody: items => {
                                 const month = months[items[0].dataIndex];
                                 const status = salesStatus(month);
-                                return status.kind === 'pending'
+                                const result = status.kind === 'pending'
                                     ? `สถานะ: ${status.title}`
                                     : `สถานะ: ${status.title} (${signedChartPercent(targetVariance(month))} เทียบเป้า)`;
+                                const expense = expenseMonths[items[0].dataIndex];
+                                return result + (expense?.warnings.length ? '\n⚠ ตรวจสอบค่าใช้จ่ายต้นทางตามหมายเหตุใต้กราฟ' : expense && !expense.hasData ? '\nค่าใช้จ่าย: ยังไม่มีข้อมูล' : '');
                             }
                         } }
                     },
                     scales: {
-                        y: { beginAtZero: true, grace: '18%', title: { display: true, text: 'บาท', color: '#526982', font: { family: 'Sarabun', weight: '600' } }, ticks: { padding: 8, callback: value => compactChartValue(value), color: '#64748b', font: { family: 'Sarabun' } }, grid: { color: '#dfe8f1', drawBorder: false } },
-                        x: { grid: { display: false, drawBorder: false }, ticks: { maxRotation: 0, minRotation: 0, color: context => context.index !== undefined && months[context.index]?.key === selectedKey ? '#1748ad' : '#64748b', font: context => ({ family: 'Sarabun', size: 11, weight: context.index !== undefined && months[context.index]?.key === selectedKey ? '700' : '500' }), padding: 9 } }
+                        y: { stacked: false, beginAtZero: true, grace: '18%', title: { display: true, text: 'บาท', color: '#526982', font: { family: 'Sarabun', weight: '600' } }, ticks: { padding: 8, callback: value => compactChartValue(value), color: '#64748b', font: { family: 'Sarabun' } }, grid: { color: '#dfe8f1', drawBorder: false } },
+                        x: { stacked: false, grid: { display: false, drawBorder: false }, ticks: { maxRotation: 0, minRotation: 0, color: context => context.index !== undefined && months[context.index]?.key === selectedKey ? '#1748ad' : '#64748b', font: context => ({ family: 'Sarabun', size: 11, weight: context.index !== undefined && months[context.index]?.key === selectedKey ? '700' : '500' }), padding: 9 } }
                     }
                 }
             });
