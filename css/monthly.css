@@ -498,6 +498,84 @@
 .monthly-tech-method-note > svg { flex: 0 0 auto; width: 1.15rem; height: 1.15rem; margin-top: .1rem; color: #8aa0bb; }
 .monthly-tech-method-note p { font-size: .7rem; line-height: 1.55; }
 
+/* Technician reference: four independent KPIs above two equal detail panels. */
+.monthly-tech-reference.monthly-department { background: #fffafb; border: 0; box-shadow: none; }
+.monthly-tech-reference > .monthly-department-head { border: 1px solid #fce1e9; border-radius: 1.25rem; min-height: 176px; margin-bottom: 1.15rem; padding: 1.55rem 19rem 1.55rem 1.55rem; }
+.monthly-tech-reference .monthly-department-title { align-items: center; }
+.monthly-tech-reference .monthly-department-title > .monthly-icon { width: 5.25rem; height: 5.25rem; border-radius: 1.35rem; color: #fff; background: linear-gradient(135deg, #ff648a, #e40046); box-shadow: 0 8px 18px #e52d6226; }
+.monthly-tech-reference .monthly-department-title > .monthly-icon svg { width: 2.65rem; height: 2.65rem; }
+.monthly-tech-reference .monthly-department-kicker { margin-bottom: .35rem; font-size: .72rem; letter-spacing: .13em; }
+.monthly-tech-reference .monthly-department-title h3 { font-size: clamp(2rem, 2.75vw, 3rem); line-height: 1.18; }
+.monthly-tech-reference .monthly-department-title > div > p:last-child { margin-top: .4rem; font-size: 1.05rem; }
+.monthly-tech-reference .monthly-heading-period { margin-left: 1.1rem; font-size: 1.05rem; padding: .55rem 1rem; border-radius: 1.1rem; vertical-align: middle; }
+.monthly-tech-reference .monthly-tech-head-message { position: absolute; z-index: 2; right: 1.4rem; top: 5.7rem; width: 8rem; color: #75839a; font-size: .72rem; line-height: 1.35; }
+.monthly-tech-reference > .monthly-department-head::before { top: 1.35rem; right: 1.4rem; font-size: .66rem; }
+.monthly-tech-reference > .monthly-department-head::after { right: 9rem; width: 27rem; height: 8.25rem; opacity: .46; }
+.monthly-tech-reference .monthly-tech-board { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.monthly-tech-reference .monthly-tech-summary, .monthly-tech-reference .monthly-tech-summary-cards { display: contents; }
+.monthly-tech-reference .monthly-tech-summary::before, .monthly-tech-reference .monthly-tech-summary::after, .monthly-tech-reference .monthly-tech-summary-head { display: none; }
+.monthly-tech-reference .monthly-tech-kpi-card { min-height: 154px; padding: 1.35rem 1.45rem; border-color: #fbe0e8; border-radius: 1.2rem; background: linear-gradient(130deg, #fff, #fffafb); gap: 1.25rem; box-shadow: 0 8px 20px rgba(134, 31, 60, .055); }
+.monthly-tech-reference .monthly-tech-kpi-icon { width: 4.4rem; height: 4.4rem; border-radius: 1.35rem; }
+.monthly-tech-reference .monthly-tech-kpi-icon svg { width: 2.35rem; height: 2.35rem; }
+.monthly-tech-reference .monthly-tech-kpi-card h4 { font-size: clamp(.95rem, 1.1vw, 1.2rem); }
+.monthly-tech-reference .monthly-tech-kpi-card strong { font-size: clamp(2rem, 2.8vw, 3.15rem); }
+.monthly-tech-reference .monthly-tech-kpi-card strong small { font-size: .95rem; }
+.monthly-tech-reference .monthly-tech-kpi-decoration { top: auto; bottom: 1rem; right: .75rem; }
+.monthly-tech-reference .monthly-tech-kpi-damage,
+.monthly-tech-reference .monthly-tech-kpi-rate { border-color: #f29bb4; background: linear-gradient(135deg, #fff0f5 0%, #ffdce8 100%); box-shadow: 0 9px 22px rgba(196, 20, 72, .13), inset 0 0 0 1px rgba(255, 255, 255, .6); }
+.monthly-tech-reference .monthly-tech-kpi-damage .monthly-tech-kpi-icon,
+.monthly-tech-reference .monthly-tech-kpi-rate .monthly-tech-kpi-icon { color: #cf0a45; background: #ffcfe0; }
+.monthly-tech-reference .monthly-tech-kpi-damage h4,
+.monthly-tech-reference .monthly-tech-kpi-rate h4 { color: #82183b; }
+.monthly-tech-reference .monthly-tech-kpi-damage strong,
+.monthly-tech-reference .monthly-tech-kpi-rate strong { color: #d40747; }
+.monthly-tech-reference .monthly-tech-kpi-damage .monthly-tech-kpi-decoration,
+.monthly-tech-reference .monthly-tech-kpi-rate .monthly-tech-kpi-decoration { opacity: .82; }
+.monthly-tech-reference .monthly-tech-panel { grid-column: span 2; min-height: 405px; padding: 1.45rem; border: 1px solid #fbdce5; border-radius: 1.25rem; }
+.monthly-tech-reference .monthly-tech-panel-head { min-height: 4.8rem; gap: 1.15rem; margin-bottom: 1.2rem; }
+.monthly-tech-reference .monthly-tech-panel-head h4 { font-size: clamp(1.35rem, 1.7vw, 1.85rem); }
+.monthly-tech-reference .monthly-tech-panel-head p { font-size: .95rem; }
+.monthly-tech-reference .monthly-tech-panel-icon { width: 4.1rem; height: 4.1rem; border-radius: 1.15rem; }
+.monthly-tech-reference .monthly-tech-panel-icon svg { width: 2.15rem; height: 2.15rem; }
+.monthly-tech-reference .monthly-tech-install-panel .monthly-tech-panel-label { display: none; }
+.monthly-tech-reference .monthly-tech-table { font-size: 1rem; }
+.monthly-tech-reference .monthly-tech-table thead th { font-size: .95rem; }
+.monthly-tech-reference .monthly-tech-table tbody th { font-size: 1.05rem; }
+.monthly-tech-reference .monthly-tech-table th, .monthly-tech-reference .monthly-tech-table td { padding: 1.15rem 1rem; border-right: 1px solid #fae9ee; }
+.monthly-tech-reference .monthly-tech-table th:last-child, .monthly-tech-reference .monthly-tech-table td:last-child { border-right: 0; }
+.monthly-tech-reference .monthly-tech-table-metric { gap: .9rem; }
+.monthly-tech-reference .monthly-tech-table-metric > span { background: #ffe0eb; height: 1rem; }
+.monthly-tech-reference .monthly-tech-table-metric > strong { min-width: 0; }
+.monthly-tech-reference .monthly-tech-quality-panel { border-color: #ee8fac; background: linear-gradient(125deg, #ffeaf1 0%, #ffd7e4 100%); box-shadow: 0 12px 30px rgba(181, 21, 66, .14), inset 0 0 0 1px rgba(255, 255, 255, .45); display: flex; flex-direction: column; }
+.monthly-tech-reference .monthly-tech-quality-panel::after { display: none; }
+.monthly-tech-reference .monthly-tech-quality-panel .monthly-tech-panel-icon-alert { background: linear-gradient(145deg, #fa315d, #c9003e); box-shadow: 0 8px 18px rgba(201, 0, 62, .24); }
+.monthly-tech-reference .monthly-tech-quality-panel .monthly-tech-panel-head h4 { color: #7f1538; }
+.monthly-tech-reference .monthly-tech-quality-panel .monthly-tech-panel-head p { color: #955069; }
+.monthly-tech-reference .monthly-tech-panel-label-alert { color: #c9154c; font-size: .78rem; letter-spacing: 0; font-weight: 800; }
+.monthly-tech-reference .monthly-tech-quality-cards { gap: 1rem; }
+.monthly-tech-reference .monthly-tech-quality-cards > div { padding: 1.35rem; grid-template-columns: 4.25rem minmax(0, 1fr); column-gap: 1.25rem; border: 1px solid #ec93ad; border-radius: 1.1rem; background: rgba(255, 249, 251, .94); min-height: 193px; box-shadow: 0 7px 18px rgba(172, 19, 63, .08); }
+.monthly-tech-reference .monthly-tech-quality-icon { width: 4.25rem; height: 4.25rem; border-radius: 50%; color: #d20746; background: #ffd3e0; }
+.monthly-tech-reference .monthly-tech-quality-icon svg { width: 2.35rem; height: 2.35rem; }
+.monthly-tech-reference .monthly-tech-quality-cards p { color: #771c3a; font-size: 1.05rem; }
+.monthly-tech-reference .monthly-tech-quality-cards strong { color: #cf0644; font-size: clamp(1.9rem, 2.65vw, 3.15rem); }
+.monthly-tech-reference .monthly-tech-quality-cards strong small { font-size: .95rem; }
+.monthly-tech-cause-caption { grid-column: 1 / -1; color: #8f5266; font-size: .95rem; margin-top: 1.1rem; line-height: 1.5; }
+.monthly-tech-quality-footer { display: flex; justify-content: space-between; gap: .8rem; margin-top: auto; padding: 1.2rem .25rem 0; border-top: 1px solid #f5cbd7; color: #8694aa; font-size: .85rem; }
+.monthly-tech-quality-footer > span:first-child { display: flex; align-items: center; gap: .5rem; }
+.monthly-tech-quality-footer svg { width: 1.3rem; height: 1.3rem; color: #f58aab; }
+@media (max-width: 1200px) {
+    .monthly-tech-reference .monthly-tech-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+    .monthly-tech-reference > .monthly-department-head { padding: 1rem; }
+    .monthly-tech-reference .monthly-tech-head-message { display: none; }
+    .monthly-tech-reference .monthly-tech-board { grid-template-columns: minmax(0, 1fr); }
+    .monthly-tech-reference .monthly-tech-panel { grid-column: 1; }
+    .monthly-tech-reference .monthly-tech-quality-cards { grid-template-columns: minmax(0, 1fr); }
+    .monthly-tech-reference .monthly-tech-panel-label-alert { display: none; }
+    .monthly-tech-quality-footer { flex-wrap: wrap; }
+}
+
 /* Weekly roll-up table at the end of Monthly. */
 .monthly-card.monthly-weeks-card { padding: 1rem; border-color: #d9e8fb; background: linear-gradient(150deg, #fbfdff, #f4f9ff); box-shadow: 0 7px 22px rgba(37, 99, 180, .07); }
 .monthly-weeks-head { position: relative; min-height: 72px; display: flex; align-items: center; gap: .85rem; padding: .2rem .2rem .85rem; overflow: hidden; }
@@ -624,25 +702,143 @@
 .monthly-car-source-card p { color: #6b39cc; font-size: .68rem; font-weight: 900; }
 .monthly-car-source-track { grid-column: 1 / -1; margin-top: 0; }
 .monthly-car-empty { grid-column: 1 / -1; border: 1px dashed #ddd5ef; border-radius: .8rem; padding: .9rem; color: #75839a; background: #faf9fd; font-size: .72rem; text-align: center; }
+/* Channel overview reference: paired panels, consistent channel colors. */
+.monthly-car-channel-showcase { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.monthly-car-channel-showcase .monthly-car-panel { display: flex; flex-direction: column; padding: 1.25rem; }
+.monthly-car-channel-showcase .monthly-car-panel-head { flex-wrap: wrap; margin-bottom: 1.3rem; }
+.monthly-car-channel-showcase .monthly-car-panel-head h4 { font-size: clamp(1rem, 1.2vw, 1.35rem); }
+.monthly-car-channel-total { margin-left: auto; display: flex; align-items: center; gap: .7rem; background: #f5efff; border-radius: .9rem; padding: .6rem .9rem; }
+.monthly-car-channel-total > svg { width: 1.7rem; height: 1.7rem; color: #6b22ed; }
+.monthly-car-channel-total span { font-size: .75rem; color: #576c92; }
+.monthly-car-channel-total strong { display: block; font-size: 1.55rem; line-height: 1.2; color: #101f53; }
+.monthly-car-channel-total small { font-size: .85rem; color: #576c92; font-weight: 500; }
+.monthly-car-channel-showcase .monthly-car-channel-list { gap: .9rem; flex: 1; justify-content: space-between; }
+.monthly-car-channel-showcase .monthly-car-channel-row { --channel: #ff8521; --tint: #fff6ef; grid-template-columns: auto minmax(0, 1fr) auto auto; padding: 1.05rem; gap: 1rem; background: var(--tint); }
+.monthly-car-channel-showcase .monthly-car-channel-row-line { --channel: #09b877; --tint: #f0faf6; }
+.monthly-car-channel-showcase .monthly-car-channel-row-fb { --channel: #2864ff; --tint: #f1f5ff; }
+.monthly-car-channel-showcase .monthly-car-channel-copy strong { font-size: 1rem; }
+.monthly-car-channel-showcase .monthly-car-channel-track { height: .65rem; margin-top: .55rem; background: #dde3ec; }
+.monthly-car-channel-showcase .monthly-car-channel-track i { background: var(--channel); }
+.monthly-car-contact-count { color: #112356; font-size: 1.35rem; white-space: nowrap; }
+.monthly-car-contact-count small { font-size: .8rem; color: #53668b; }
+.monthly-car-channel-showcase .monthly-car-channel-row > em { color: var(--channel); border-left: 1px solid #d4dcef; padding-left: 1rem; font-size: 1.2rem; }
+.monthly-car-channel-showcase .monthly-car-channel-icon, .monthly-car-channel-showcase .monthly-car-source-icon { width: 3.5rem; height: 3.5rem; flex-shrink: 0; color: #fff; }
+.monthly-car-channel-showcase .monthly-car-channel-icon { border-radius: 50%; }
+.monthly-car-channel-showcase .monthly-car-channel-line { background: #08bb73; }
+.monthly-car-channel-showcase .monthly-car-channel-fb { background: #2563ff; }
+.monthly-car-channel-showcase .monthly-car-channel-tel { background: #ff8521; }
+.monthly-car-channel-showcase .monthly-car-channel-walkin { background: #8545f5; }
+.monthly-car-channel-showcase .monthly-car-channel-other { background: #e3e7f0; color: #263872; }
+.monthly-car-channel-showcase .monthly-car-channel-icon svg, .monthly-car-channel-showcase .monthly-car-source-icon svg { width: 1.8rem; height: 1.8rem; }
+.monthly-car-channel-showcase b[aria-hidden] { font: 800 2.8rem Arial, sans-serif; }
+.monthly-car-channel-showcase b.monthly-line-logo { font: 800 .65rem Arial, sans-serif; background: #fff; color: #08a965; padding: .55rem .2rem; border-radius: 50%; }
+.monthly-car-contact-insight { display: grid; grid-template-columns: 1.2fr 1fr; gap: .9rem; margin-top: 1.1rem; border: 1px solid #e2d4ff; border-radius: .85rem; padding: .85rem; background: #f1eaff; }
+.monthly-car-contact-insight > div { display: flex; align-items: center; gap: .65rem; }
+.monthly-car-contact-insight > div + div { border-left: 1px solid #d8c7f7; padding-left: .85rem; }
+.monthly-car-contact-insight svg { width: 1.8rem; height: 1.8rem; color: #6821e9; flex-shrink: 0; }
+.monthly-car-contact-insight strong { display: block; color: #182e62; font-size: .75rem; }
+.monthly-car-contact-insight p > span { display: block; color: #6a7ca2; font-size: .72rem; margin-top: .2rem; }
+.monthly-car-channel-showcase .monthly-car-source-grid { gap: .85rem; flex: 1; }
+.monthly-car-channel-showcase .monthly-car-source-card { grid-template-columns: auto minmax(0, 1fr); align-items: center; padding: 1rem; gap: 1rem; }
+.monthly-car-channel-showcase .monthly-car-source-line { background: #f0faf6; border-color: #dbf1e8; }
+.monthly-car-channel-showcase .monthly-car-source-fb { background: #f1f5ff; border-color: #dce6ff; }
+.monthly-car-channel-showcase .monthly-car-source-tel { background: #fff6ef; border-color: #ffe5d3; }
+.monthly-car-channel-showcase .monthly-car-source-walkin { background: #f7f1ff; border-color: #e7d9ff; }
+.monthly-car-channel-showcase .monthly-car-source-other { background: #f5f7fc; }
+.monthly-car-channel-showcase .monthly-car-source-card strong { font-size: 1.5rem; }
+.monthly-car-channel-showcase .monthly-car-source-card strong small, .monthly-car-channel-showcase .monthly-car-source-card > div > span { font-size: .9rem; }
+.monthly-car-source-composition { display: flex; align-items: center; gap: .8rem; min-width: 0; }
+.monthly-car-source-composition:last-child:nth-child(odd) { grid-column: 1 / -1; justify-content: center; }
+.monthly-car-source-donut { position: relative; width: clamp(105px, 10vw, 175px); height: clamp(105px, 10vw, 175px); flex-shrink: 0; }
+.monthly-car-source-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; color: #122356; }
+.monthly-car-source-center strong { font-size: 1.4rem; }
+.monthly-car-source-center span { color: #627596; font-size: .85rem; }
+.monthly-car-source-composition ul { list-style: none; padding: 0; margin: 0; }
+.monthly-car-source-composition li { display: flex; align-items: center; gap: .45rem; color: #536a91; font-size: .78rem; line-height: 1.8; }
+.monthly-source-dot { width: .7rem; height: .7rem; border-radius: 50%; background: #a4aec8; flex-shrink: 0; }
+.monthly-source-dot-fb { background: #2563ff; }.monthly-source-dot-line { background: #08b975; }.monthly-source-dot-walkin { background: #8545f5; }.monthly-source-dot-tel { background: #ff922b; }.monthly-source-dot-showroom { background: #c58a08; }
+@media (max-width: 1200px) {
+    .monthly-car-channel-showcase { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 550px) {
+    .monthly-car-channel-showcase .monthly-car-channel-row { gap: .5rem; padding: .75rem; }
+    .monthly-car-channel-showcase .monthly-car-channel-icon, .monthly-car-channel-showcase .monthly-car-source-icon { width: 2.4rem; height: 2.4rem; }
+    .monthly-car-contact-count { font-size: 1rem; }
+    .monthly-car-channel-showcase .monthly-car-channel-row > em { font-size: .85rem; padding-left: .4rem; }
+    .monthly-car-channel-showcase .monthly-car-source-grid { grid-template-columns: minmax(0, 1fr); }
+    .monthly-car-contact-insight { grid-template-columns: minmax(0, 1fr); }
+    .monthly-car-contact-insight > div + div { border-left: 0; padding-left: 0; }
+}
 .monthly-car-data-note { display: flex; align-items: flex-start; gap: .4rem; margin-top: .7rem; border-radius: .7rem; padding: .55rem .65rem; color: #76540d; background: #fff9e9; font-size: .68rem; font-weight: 600; line-height: 1.55; }
 .monthly-car-data-note svg { width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: .05rem; }
-.monthly-car-damage-panel { margin-top: 1rem; border-color: #f1cedc; background: linear-gradient(140deg, #fff8fb, #fff); }
-.monthly-car-damage-panel .monthly-car-panel-head > span { color: #d92e67; background: #ffe4ee; }
+.monthly-car-damage-panel { margin-top: 1rem; border-color: #d8c4f5; background: linear-gradient(140deg, #f5efff, #ede2ff); }
+.monthly-car-damage-panel .monthly-car-panel-head > span { color: #7c3aed; background: #e9ddff; }
 .monthly-car-damage-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, .8fr); gap: .75rem; }
 .monthly-car-damage-grid > :only-child { grid-column: 1 / -1; }
-.monthly-car-damage-card { min-width: 0; display: flex; align-items: center; gap: .75rem; border: 1px solid #f2d0dd; border-radius: .9rem; padding: .8rem; background: #fff; }
-.monthly-car-damage-icon { display: inline-grid; place-items: center; width: 2.6rem; height: 2.6rem; flex: 0 0 auto; border-radius: .82rem; color: #d92e67; background: #ffe6ef; }
+.monthly-car-damage-card { min-width: 0; display: flex; align-items: center; gap: .75rem; border: 1px solid #d8c4f5; border-radius: .9rem; padding: .8rem; background: #fff; }
+.monthly-car-damage-icon { display: inline-grid; place-items: center; width: 2.6rem; height: 2.6rem; flex: 0 0 auto; border-radius: .82rem; color: #7c3aed; background: #ede4ff; }
 .monthly-car-damage-icon svg { width: 1.35rem; height: 1.35rem; }
 .monthly-car-damage-card > div { min-width: 0; }
 .monthly-car-damage-card p { color: #697b94; font-size: .72rem; font-weight: 700; }
-.monthly-car-damage-card strong { display: block; color: #cf235c; font-size: 1.35rem; font-weight: 900; line-height: 1.35; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.monthly-car-damage-card strong { display: block; color: #6d28d9; font-size: 1.35rem; font-weight: 900; line-height: 1.35; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .monthly-car-damage-card strong small { color: #75839a; font-size: .66rem; font-weight: 600; }
 .monthly-car-damage-card > div > span { display: block; color: #7a889d; font-size: .67rem; font-weight: 600; }
-.monthly-car-damage-total { min-width: 0; display: flex; flex-direction: column; justify-content: center; border-radius: .9rem; padding: .8rem .9rem; color: #fff; background: linear-gradient(135deg, #dc2d68, #a91c55); }
-.monthly-car-damage-total > span { color: #ffdbe8; font-size: .7rem; font-weight: 700; }
+.monthly-car-damage-total { min-width: 0; display: flex; flex-direction: column; justify-content: center; border-radius: .9rem; padding: .8rem .9rem; color: #fff; background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+.monthly-car-damage-total > span { color: #ede4ff; font-size: .7rem; font-weight: 700; }
 .monthly-car-damage-total strong { font-size: 1.35rem; font-weight: 900; line-height: 1.4; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .monthly-car-damage-total strong small { font-size: .65rem; font-weight: 600; }
-.monthly-car-damage-total p { color: #ffe1eb; font-size: .67rem; font-weight: 600; line-height: 1.5; }
+.monthly-car-damage-total p { color: #ede4ff; font-size: .67rem; font-weight: 600; line-height: 1.5; }
+
+/* CAR quality: three equal cards, with independent count and value rows. */
+.monthly-car-quality-showcase { padding: 1.25rem; border-radius: 1.5rem; background: linear-gradient(115deg, #faf7ff, #f5f0ff); box-shadow: 0 10px 28px #7654c210; }
+.monthly-car-quality-showcase .monthly-car-panel-head { position: relative; gap: 1rem; margin-bottom: 1.15rem; }
+.monthly-car-quality-showcase .monthly-car-panel-head > span { width: 3.6rem; height: 3.6rem; border-radius: 1rem; flex-shrink: 0; background: #e5d7ff; color: #6530ca; }
+.monthly-car-quality-showcase .monthly-car-panel-head > span svg { width: 2rem; height: 2rem; }
+.monthly-car-quality-showcase .monthly-car-panel-head h4 { font-size: clamp(1rem, 1.2vw, 1.4rem); color: #132853; line-height: 1.35; }
+.monthly-car-quality-showcase .monthly-car-panel-head p { font-size: clamp(.75rem, .85vw, .95rem); color: #70788c; }
+.monthly-car-quality-art { margin-left: auto; display: flex; align-items: center; gap: 1.2rem; color: #8e72cb; opacity: .2; flex-shrink: 0; }
+.monthly-car-quality-art > svg { width: 7rem; height: 4rem; stroke-width: 1; }
+.monthly-car-quality-art > span { font-size: .7rem; letter-spacing: .16em; font-weight: 800; line-height: 1.8; }
+.monthly-car-quality-showcase .monthly-car-damage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.monthly-car-quality-card { --quality-color: #6530cc; --quality-tint: #eee5ff; min-width: 0; border: 1px solid #e2d7ff; border-radius: 1.35rem; padding: 1.4rem; background: linear-gradient(125deg, #fff, #fcfaff); box-shadow: 0 3px 5px #6040a00b; }
+.monthly-car-quality-card.monthly-car-damage-film { --quality-color: #bd123d; --quality-tint: #fbe4e9; border-color: #f7dce6; background: linear-gradient(120deg, #fffafb, #fcf3f6); }
+.monthly-car-quality-card.monthly-car-damage-tech { --quality-color: #1251c2; --quality-tint: #deedff; border-color: #d6e7ff; background: linear-gradient(120deg, #f5faff, #edf6ff); }
+.monthly-car-quality-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1.2rem; }
+.monthly-car-quality-row + .monthly-car-quality-row { border-top: 1px solid #e4ddf3; margin-top: 1rem; padding-top: 1rem; }
+.monthly-car-quality-icon { display: grid; place-items: center; width: clamp(3rem, 5vw, 5.6rem); aspect-ratio: 1; border-radius: 50%; background: var(--quality-tint); color: var(--quality-color); }
+.monthly-car-quality-icon svg { width: 52%; height: 52%; stroke-width: 2; }
+.monthly-car-quality-row h5 { font-size: clamp(.8rem, .95vw, 1.05rem); font-weight: 800; color: #344059; line-height: 1.5; }
+.monthly-car-quality-row strong { display: block; font-size: clamp(1.65rem, 2.9vw, 3.2rem); line-height: 1.15; font-weight: 800; color: var(--quality-color); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.monthly-car-quality-row strong small { font-size: .42em; color: #70788c; font-weight: 600; white-space: nowrap; }
+.monthly-car-quality-value strong, .monthly-car-quality-claims strong { font-size: clamp(1.4rem, 2.15vw, 2.5rem); }
+.monthly-car-quality-total { --quality-color: #bd123d; --quality-tint: #fbe4e9; }
+.monthly-car-quality-claims .monthly-car-quality-icon { width: clamp(2.5rem, 3.7vw, 4rem); }
+.monthly-car-quality-claims .monthly-car-quality-row + .monthly-car-quality-row { margin-top: .65rem; padding-top: .65rem; }
+.monthly-car-quality-card.monthly-car-cause-card { display: grid; grid-template-rows: auto 1fr 1fr; gap: .9rem; }
+.monthly-car-cause-heading { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.2rem; align-items: center; }
+.monthly-car-cause-heading h5 { color: var(--quality-color); font-size: clamp(1.1rem, 1.3vw, 1.5rem); line-height: 1.45; font-weight: 800; }
+.monthly-car-cause-heading h5::after { content: ''; display: block; width: 3.5rem; height: .3rem; border-radius: 1rem; background: var(--quality-color); opacity: .35; margin-top: .6rem; }
+.monthly-car-cause-card .monthly-car-quality-icon { width: clamp(2.8rem, 4vw, 4.5rem); }
+.monthly-car-cause-card .monthly-car-quality-row > div { border-left: 1px solid var(--quality-tint); padding-left: .9rem; }
+.monthly-car-cause-card .monthly-car-quality-row + .monthly-car-quality-row { margin-top: 0; padding-top: .9rem; border-top-color: var(--quality-tint); }
+.monthly-car-cause-card .monthly-car-quality-row strong { font-size: clamp(1.4rem, 2.15vw, 2.5rem); margin-top: .3rem; }
+@media (max-width: 1100px) {
+    .monthly-car-cause-heading { gap: .65rem; }
+    .monthly-car-cause-card .monthly-car-quality-row > div { padding-left: .6rem; }
+}
+.monthly-car-quality-rework { --quality-color: #1251c2; --quality-tint: #e0efff; }
+.monthly-car-quality-rework p { font-size: .7rem; color: #70788c; }
+@media (max-width: 1100px) {
+    .monthly-car-quality-art { display: none; }
+    .monthly-car-quality-card { padding: 1rem; }
+    .monthly-car-quality-row { gap: .65rem; }
+}
+@media (max-width: 760px) {
+    .monthly-car-quality-showcase .monthly-car-damage-grid { grid-template-columns: minmax(0, 1fr); }
+    .monthly-car-quality-row strong { font-size: 2.1rem; }
+    .monthly-car-quality-value strong, .monthly-car-quality-claims strong { font-size: 1.7rem; }
+    .monthly-car-quality-row h5 { font-size: .85rem; }
+}
 
 /* Monthly-only readability pass: enlarge data-bearing text without changing Weekly. */
 .monthly-shell #header-title { font-size: 1.4rem; line-height: 1.35; }
@@ -1006,4 +1202,132 @@
     .monthly-metric-title-row p { font-size: .65rem; }
     .monthly-metric-progress-scale { font-size: .66rem; }
     .monthly-business-summary .monthly-panel-heading h3 { font-size: 1.25rem; }
+}
+
+/* Shared typography from the department divider down. The sales hero, its
+   comparison chart/table, navigation and all Weekly pages remain untouched.
+   Scale follows the overview's card headings, labels and supporting amounts;
+   the oversized hero sales figure is intentionally not repeated per department. */
+.monthly-review-scope#monthly-reviews {
+    --review-heading: clamp(1.35rem, 1.65vw, 1.75rem);
+    --review-card-heading: clamp(1.05rem, 1.25vw, 1.25rem);
+    --review-kpi: clamp(1.5rem, 1.8vw, 2rem);
+    --review-secondary-value: 1.125rem;
+    --review-body: .9375rem;
+    --review-caption: .8125rem;
+    --review-badge: .75rem;
+    display: flex; flex-direction: column; gap: 1.25rem; min-width: 0;
+    font-family: 'Sarabun', sans-serif; font-size: var(--review-body); line-height: 1.5;
+}
+.monthly-review-scope#monthly-reviews h2,
+.monthly-review-scope#monthly-reviews .monthly-department-head h3 {
+    font-size: var(--review-heading); font-weight: 800; line-height: 1.35;
+}
+.monthly-review-scope#monthly-reviews h4,
+.monthly-review-scope#monthly-reviews .monthly-weeks-head h3,
+.monthly-review-scope#monthly-reviews .monthly-car-cause-heading h5 {
+    font-size: var(--review-card-heading); font-weight: 800; line-height: 1.4;
+}
+.monthly-review-scope#monthly-reviews p,
+.monthly-review-scope#monthly-reviews dt,
+.monthly-review-scope#monthly-reviews h5,
+.monthly-review-scope#monthly-reviews .monthly-section-divider > span,
+.monthly-review-scope#monthly-reviews .monthly-heading-period,
+.monthly-review-scope#monthly-reviews .monthly-business-head,
+.monthly-review-scope#monthly-reviews .monthly-business-code,
+.monthly-review-scope#monthly-reviews .monthly-company-meta,
+.monthly-review-scope#monthly-reviews .monthly-building-kpi-label,
+.monthly-review-scope#monthly-reviews .monthly-building-team-copy > span,
+.monthly-review-scope#monthly-reviews .monthly-car-source-card > div > span,
+.monthly-review-scope#monthly-reviews .monthly-car-channel-copy > strong,
+.monthly-review-scope#monthly-reviews .monthly-tech-kpi-card h4 {
+    font-size: var(--review-body); line-height: 1.5;
+}
+.monthly-review-scope#monthly-reviews .monthly-business-value,
+.monthly-review-scope#monthly-reviews .monthly-stat-grid dd,
+.monthly-review-scope#monthly-reviews .monthly-building-sales-summary > strong,
+.monthly-review-scope#monthly-reviews .monthly-building-team-copy > strong,
+.monthly-review-scope#monthly-reviews .monthly-car-kpi strong,
+.monthly-review-scope#monthly-reviews .monthly-car-quality-row strong,
+.monthly-review-scope#monthly-reviews .monthly-tech-kpi-card strong,
+.monthly-review-scope#monthly-reviews .monthly-tech-quality-cards strong {
+    font-size: var(--review-kpi); font-weight: 800; line-height: 1.25;
+    letter-spacing: -.015em; font-variant-numeric: tabular-nums;
+}
+.monthly-review-scope#monthly-reviews .monthly-mini-list dd,
+.monthly-review-scope#monthly-reviews .monthly-cost-average dd,
+.monthly-review-scope#monthly-reviews .monthly-car-channel-total strong,
+.monthly-review-scope#monthly-reviews .monthly-car-contact-count,
+.monthly-review-scope#monthly-reviews .monthly-car-channel-row > em,
+.monthly-review-scope#monthly-reviews .monthly-car-source-card strong,
+.monthly-review-scope#monthly-reviews .monthly-car-source-center strong,
+.monthly-review-scope#monthly-reviews .monthly-building-donut > span {
+    font-size: var(--review-secondary-value); font-weight: 800; line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+.monthly-review-scope#monthly-reviews small,
+.monthly-review-scope#monthly-reviews strong small,
+.monthly-review-scope#monthly-reviews dd small,
+.monthly-review-scope#monthly-reviews .monthly-business-value small,
+.monthly-review-scope#monthly-reviews .monthly-car-contact-count small,
+.monthly-review-scope#monthly-reviews .monthly-department-head p:not(.monthly-department-kicker),
+.monthly-review-scope#monthly-reviews .monthly-section-divider > span,
+.monthly-review-scope#monthly-reviews .monthly-caption,
+.monthly-review-scope#monthly-reviews .monthly-data-note,
+.monthly-review-scope#monthly-reviews .monthly-car-data-note,
+.monthly-review-scope#monthly-reviews .monthly-car-empty,
+.monthly-review-scope#monthly-reviews .monthly-stat-grid p,
+.monthly-review-scope#monthly-reviews .monthly-admin-panel-head p,
+.monthly-review-scope#monthly-reviews .monthly-building-overview-head p,
+.monthly-review-scope#monthly-reviews .monthly-building-sales-summary p,
+.monthly-review-scope#monthly-reviews .monthly-building-team-copy p,
+.monthly-review-scope#monthly-reviews .monthly-building-detail-head > span,
+.monthly-review-scope#monthly-reviews .monthly-car-kpi > div > span,
+.monthly-review-scope#monthly-reviews .monthly-car-panel-head p,
+.monthly-review-scope#monthly-reviews .monthly-car-channel-total span,
+.monthly-review-scope#monthly-reviews .monthly-car-contact-insight strong,
+.monthly-review-scope#monthly-reviews .monthly-car-contact-insight p > span,
+.monthly-review-scope#monthly-reviews .monthly-car-source-composition li,
+.monthly-review-scope#monthly-reviews .monthly-car-source-center span,
+.monthly-review-scope#monthly-reviews .monthly-car-quality-rework p,
+.monthly-review-scope#monthly-reviews .monthly-tech-panel-head p,
+.monthly-review-scope#monthly-reviews .monthly-tech-cause-caption,
+.monthly-review-scope#monthly-reviews .monthly-weeks-head p,
+.monthly-review-scope#monthly-reviews .monthly-department-trend-head p,
+.monthly-review-scope#monthly-reviews .monthly-department-trend-status {
+    font-size: var(--review-caption); line-height: 1.5;
+}
+.monthly-review-scope#monthly-reviews .monthly-table,
+.monthly-review-scope#monthly-reviews .monthly-table th,
+.monthly-review-scope#monthly-reviews .monthly-table td,
+.monthly-review-scope#monthly-reviews .monthly-table strong,
+.monthly-review-scope#monthly-reviews .monthly-table .monthly-admin-rate strong,
+.monthly-review-scope#monthly-reviews .monthly-weeks-table .monthly-week-ad-rate span {
+    font-size: var(--review-body); line-height: 1.5; font-variant-numeric: tabular-nums;
+}
+.monthly-review-scope#monthly-reviews .monthly-table small,
+.monthly-review-scope#monthly-reviews .monthly-admin-business-row span:last-child {
+    font-size: var(--review-caption); line-height: 1.5;
+}
+.monthly-review-scope#monthly-reviews .monthly-department-kicker {
+    font-size: var(--review-badge) !important;
+}
+.monthly-review-scope#monthly-reviews .monthly-building-role-pill,
+.monthly-review-scope#monthly-reviews .monthly-tech-panel-label,
+.monthly-review-scope#monthly-reviews .monthly-week-number,
+.monthly-review-scope#monthly-reviews .monthly-building-person-icon {
+    font-size: var(--review-badge); line-height: 1.4;
+}
+.monthly-review-scope#monthly-reviews .monthly-department-trend-head,
+.monthly-review-scope#monthly-reviews .monthly-admin-panel-head,
+.monthly-review-scope#monthly-reviews .monthly-car-panel-head,
+.monthly-review-scope#monthly-reviews .monthly-tech-panel-head {
+    flex-wrap: wrap;
+}
+@media (max-width: 650px) {
+    .monthly-review-scope#monthly-reviews {
+        --review-heading: 1.35rem; --review-card-heading: 1.1rem;
+        --review-kpi: 1.65rem; --review-secondary-value: 1.05rem;
+        --review-body: .875rem; --review-caption: .8125rem;
+    }
 }
