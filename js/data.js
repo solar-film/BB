@@ -36,6 +36,21 @@ function sourceMetricHas(row, ...parts) {
     return parts.every(part => metric.includes(normalizedSourceText(part)));
 }
 
+function sourceMetricNumber(value) {
+    const match = String(value ?? '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+    if (!match) return null;
+    const number = Number(match[0]);
+    return Number.isFinite(number) ? number : null;
+}
+
+function findFollowingMonthlyColumn(header, weekColumn) {
+    const end = Math.min(header?.length || 0, weekColumn + 7);
+    for (let column = weekColumn + 1; column < end; column++) {
+        if (normalizedSourceText(header[column]) === 'monthly') return column;
+    }
+    return -1;
+}
+
 function findRowInSourceBlock(parsed, start, length, ...parts) {
     const end = Math.min(parsed.length, start + length);
     for (let index = start; index < end; index++) {
@@ -192,6 +207,14 @@ async function loadData() {
             const weekName = parsed[1][i]?.trim();
             if (!weekName || (!weekName.toLowerCase().includes('week') && !weekName.toLowerCase().match(/^w\d/))) continue;
 
+            // Row 79 is the source-defined CAR cost per qualified customer.
+            // Use the Monthly cell following each week's column so the monthly
+            // dashboard matches the source instead of reconstructing a ratio.
+            const monthlyColumn = findFollowingMonthlyColumn(parsed[1], i);
+            const carMonthlyCustomerCost = monthlyColumn >= 0
+                ? sourceMetricNumber(parsed[78]?.[monthlyColumn])
+                : null;
+
             const gfsMkGoogleVal = cleanNumber(parsed[44]?.[i]);
             const gfsMkFbVal = cleanNumber(parsed[50]?.[i]);
             const mhlMkGoogleVal = cleanNumber(parsed[63]?.[i]);
@@ -239,7 +262,13 @@ async function loadData() {
                 marketing: {
                     gfs: { target: cleanNumber(parsed[37]?.[i]), actual: cleanNumber(parsed[44]?.[i]) + cleanNumber(parsed[50]?.[i]), google: gfsMkGoogleVal, fb: gfsMkFbVal },
                     mhl: { target: cleanNumber(parsed[56]?.[i]), actual: cleanNumber(parsed[63]?.[i]) + cleanNumber(parsed[69]?.[i]), google: mhlMkGoogleVal, fb: mhlMkFbVal },
-                    car: { target: cleanNumber(parsed[75]?.[i]), actual: cleanNumber(parsed[82]?.[i]) + cleanNumber(parsed[83]?.[i]), google: carMkGoogleVal, fb: carMkFbVal }
+                    car: {
+                        target: cleanNumber(parsed[75]?.[i]),
+                        actual: cleanNumber(parsed[82]?.[i]) + cleanNumber(parsed[83]?.[i]),
+                        google: carMkGoogleVal,
+                        fb: carMkFbVal,
+                        ...(Number.isFinite(carMonthlyCustomerCost) ? { monthlyCustomerCost: carMonthlyCustomerCost } : {})
+                    }
                 },
                 admin: {
                     contacts: { total: cleanNumber(parsed[112]?.[i]), gfs: { line: cleanNumber(parsed[115]?.[i]), fb: cleanNumber(parsed[116]?.[i]), tel: cleanNumber(parsed[117]?.[i]) }, mhl: { line: cleanNumber(parsed[120]?.[i]), fb: cleanNumber(parsed[121]?.[i]), tel: cleanNumber(parsed[122]?.[i]) }, car: cleanNumber(parsed[384]?.[i]) },

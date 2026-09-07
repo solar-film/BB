@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>งานหลุด | Business Breakdown 2026</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/lost-jobs.css">
+  <link rel="stylesheet" href="css/lost-jobs-summary.css">
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="js/lost-jobs-shell.js" defer></script>
+  <script src="js/lost-jobs.js" defer></script>
+</head>
+<body>
+  <button id="menu-backdrop" class="backdrop" aria-label="ปิดเมนู" hidden></button>
+  <aside id="sidebar" class="sidebar" aria-label="เมนูหลัก">
+    <div class="brand"><div class="logo">BB</div><div><h2>Business<br>Breakdown 2026</h2><a href="https://docs.google.com/spreadsheets/d/1Ag7yh0SFSqGfm3LTNinHwlwV6h5Xa4M2yIuf03mq2uc/edit?gid=949197576#gid=949197576" target="_blank" rel="noopener noreferrer">แหล่งข้อมูล Google Sheets</a></div><button id="menu-close" aria-label="ปิดเมนู"><i data-lucide="x"></i></button></div>
+    <nav><div class="nav-group"><p>MAIN DASHBOARD</p><a href="index.html"><i data-lucide="pie-chart"></i><span>ภาพรวมธุรกิจ (Overview)</span></a><a href="index.html?page=monthly"><i data-lucide="calendar-range"></i><span>สรุปรายเดือน (Monthly)</span></a></div>
+<div class="nav-group"><p>OPERATIONS</p><a href="index.html?page=marketing"><i data-lucide="megaphone"></i><span>MARKETING ONLINE</span></a><a href="index.html?page=admin"><i data-lucide="file-text"></i><span>SALES ADMIN</span></a></div>
+<div class="nav-group"><p>REVENUE TEAMS</p><a href="index.html?page=sales"><i data-lucide="building-2"></i><span>ฝ่ายขาย ฟิล์มอาคาร</span></a><a href="index.html?page=car"><i data-lucide="car"></i><span>ฝ่ายขาย ฟิล์มรถยนต์</span></a></div>
+<div class="nav-group"><a href="index.html?page=tech"><i data-lucide="wrench"></i><span>ทีมช่างติดตั้ง (อาคาร)</span></a><a href="https://solar-film.github.io/feedback/admin/"><i data-lucide="message-square"></i><span>Feedback ลูกค้า(อาคาร)</span></a><a href="lost-jobs.html" aria-current="page"><i data-lucide="clipboard-x"></i><span>งานหลุด</span></a></div></nav>
+    <div class="profile"><div class="avatar">OIL</div><div><strong>ผู้ดูแลระบบ</strong><small>เข้าใช้งาน: วันนี้</small></div></div>
+  </aside>
+  <main id="main-content">
+    <header class="page-head"><div class="title-row"><button id="menu-toggle" aria-label="ซ่อนเมนู" aria-expanded="true" aria-controls="sidebar"><i data-lucide="panel-left-close"></i></button><h1>งานที่ไม่ได้รับการติดตั้ง (งานหลุด)</h1></div><div class="actions"><a class="button" href="https://docs.google.com/spreadsheets/d/1Ag7yh0SFSqGfm3LTNinHwlwV6h5Xa4M2yIuf03mq2uc/edit?gid=949197576#gid=949197576" target="_blank" rel="noopener noreferrer"><i data-lucide="sheet"></i> เปิดชีตต้นทาง</a><button id="fullscreen"><i data-lucide="maximize"></i><span>เต็มจอ</span></button></div></header>
+    
+    <section class="panel filters" aria-label="ตัวกรองงานหลุด">
+      <div class="period-field"><span class="period-label">ช่วงเวลา</span><div id="period-buttons" class="period-buttons" role="group" aria-label="เลือกช่วงเวลา"></div></div>
+      <div class="field"><label for="person">ฝ่ายขาย (Sale)</label><select id="person" disabled><option value="">ทุกคน</option></select></div>
+      <div class="field"><label for="month">เลือกเดือน / ปีเฉพาะ</label><select id="month" disabled><option value="">เลือกเดือน / ปี</option></select></div>
+      <button id="reset" disabled>ล้างตัวกรอง</button><button id="refresh" class="primary">โหลดข้อมูลใหม่</button>
+    </section>
+    <div id="status" class="status" role="status" aria-live="polite">กำลังโหลดข้อมูลจาก Google Sheets…</div>
+    <div class="summary-showcase">
+      <svg class="summary-waves" viewBox="0 0 1600 260" preserveAspectRatio="none" aria-hidden="true"><path d="M1100 260C1350 270 1330 110 1450 0H1600V260Z" fill="#e1eeff"/><path d="M1160 260C1330 160 1380 210 1510 0H1600V260Z" fill="#cce2fc"/><path d="M1250 260C1430 230 1400 80 1600 24V260Z" fill="#a9cef5"/><path d="M1150 260C1320 240 1400 150 1480 98L1390 260Z" fill="#b8d9fa"/></svg>
+      <section class="summary-ribbon" aria-label="สรุปตามตัวกรอง">
+        <div class="summary-primary"><div class="summary-icon"><i data-lucide="clipboard-x"></i></div><div class="summary-primary-content"><h2>งานหลุด</h2><p id="summary-scope">สรุปภาพรวมจากทุกฝ่ายขาย (รายการ)</p><div class="summary-total"><strong id="count">—</strong><div id="comparison" hidden><span id="comparison-value"></span><small id="comparison-label">จากช่วงก่อนหน้า</small></div></div></div></div>
+        <div class="summary-metric"><div class="summary-icon"><i data-lucide="user-round"></i></div><div><h3>ฝ่ายขาย</h3><strong id="people-count">—</strong><p id="people-caption">—</p></div></div>
+        <div class="summary-metric summary-reason"><div class="summary-icon"><i data-lucide="circle-alert"></i></div><div><h3>ยังไม่ระบุ</h3><strong id="reason-count">—</strong><p id="reason-caption">—</p></div></div>
+      </section>
+      <aside class="summary-decoration"><div class="summary-date"><i data-lucide="calendar-days"></i><div><small>อัปเดตล่าสุด</small><strong id="summary-date">—</strong></div></div><p>TURN DATA<br>INTO<br>BETTER WORK</p><span></span></aside>
+    </div>
+    <section class="sales-summary-panel" aria-labelledby="sales-summary-title"><div class="sales-panel-heading"><div class="sales-panel-title"><i data-lucide="chart-no-axes-column-increasing"></i><div><h2 id="sales-summary-title">งานหลุดแยกตามฝ่ายขาย</h2><p>เปรียบเทียบจำนวนงานหลุดในแต่ละฝ่ายขาย <span id="sales-summary-period"></span></p></div></div><div class="sales-period-control"><i data-lucide="calendar-days"></i><select id="summary-period" aria-label="ช่วงเวลาสรุปฝ่ายขาย" disabled></select></div></div><ul id="sales-summary" class="sales-summary"></ul><p id="sales-summary-empty" class="empty">กำลังโหลดข้อมูล…</p></section>
+    <section class="panel"><div class="table-title"><h2>รายละเอียดงานหลุด</h2><span id="updated" class="muted"></span></div><div class="table-scroll"><table><thead><tr><th>วันที่ / เดือน</th><th>ฝ่ายขาย</th><th>ลูกค้า / บริษัท</th><th>สถานที่หน้างาน</th><th>ประเภทงาน</th><th>เลขที่ใบเสนอราคา</th><th>สถานะ</th><th>สาเหตุ</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="empty">กำลังโหลดข้อมูล…</td></tr></tbody></table></div><div class="pagination"><span id="page-info" class="muted"></span><div class="actions"><button id="previous" disabled>ก่อนหน้า</button><button id="next" disabled>ถัดไป</button></div></div></section>
+    
+  </main>
+</body>
+</html>

@@ -205,6 +205,10 @@ window.addEventListener('resize', () => {
 });
 
 window.onload = () => {
+    const requestedPage = new URLSearchParams(window.location.search).get('page');
+    if (['overview', 'monthly', 'sales', 'car', 'marketing', 'tech', 'admin'].includes(requestedPage)) {
+        changePage(requestedPage);
+    }
     updateDesktopSidebarUI();
     loadData();
 };

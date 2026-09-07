@@ -135,6 +135,10 @@
                 month.marketing.target += spendTarget;
                 addFields(month.marketing.companies[company], row.marketing?.[company], ['actual', 'google', 'fb'], departmentActivity);
                 month.marketing.companies[company].target += spendTarget;
+                const monthlyCustomerCost = row.marketing?.[company]?.monthlyCustomerCost;
+                if (typeof monthlyCustomerCost === 'number' && Number.isFinite(monthlyCustomerCost)) {
+                    month.marketing.companies[company].monthlyCustomerCost = monthlyCustomerCost;
+                }
             }
             month.admin.contacts += number(row.admin?.contacts?.total);
             month.admin.leads += number(row.admin?.leads?.actual);
