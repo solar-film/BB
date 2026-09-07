@@ -158,8 +158,11 @@
     function departmentHead(key, title, description, month) {
         const index = DEPARTMENTS.findIndex(item => item.key === key);
         const department = DEPARTMENTS[index];
+        const techMessage = key === 'tech'
+            ? '<span class="monthly-tech-head-message" aria-hidden="true">ร่วมสร้างอาคารที่ดีกว่า<br>เพื่อวันพรุ่งนี้</span>'
+            : '';
         return `<div class="monthly-department-head"><div class="monthly-department-title"><span class="monthly-icon"><i data-lucide="${department.icon}" aria-hidden="true"></i></span>
-            <div><p class="monthly-department-kicker">0${index + 1} / DEPARTMENT REVIEW</p><h3 id="monthly-heading-${key}" tabindex="-1">${title}<span class="monthly-heading-period">เดือน ${safe(month.label)}</span></h3><p>${description}</p></div></div></div>`;
+            <div><p class="monthly-department-kicker">0${index + 1} / DEPARTMENT REVIEW</p><h3 id="monthly-heading-${key}" tabindex="-1">${title}<span class="monthly-heading-period">เดือน ${safe(month.label)}</span></h3><p>${description}</p></div></div>${techMessage}</div>`;
     }
 
     function stats(items) {
@@ -214,6 +217,9 @@
             customers: month.admin.leads + month.admin.details.carLeads
         }], ...Object.entries(marketing.companies).map(([key, company]) => [key, { ...company, contacts: companyContacts[key], customers: companyCustomers[key] }])];
         const averageBaht = (spend, count) => !planDerived && count > 0 ? money(spend / count) : '—';
+        const customerAverageBaht = company => !planDerived && Number.isFinite(company.monthlyCustomerCost)
+            ? money(company.monthlyCustomerCost)
+            : averageBaht(company.actual, company.customers);
         return `<section id="monthly-marketing" class="monthly-department monthly-tone-orange" aria-labelledby="monthly-heading-marketing">
             ${departmentHead('marketing', 'Marketing Online', 'ค่าโฆษณา งบประมาณ และผลตอบแทนแยกธุรกิจ', month)}
             <div class="monthly-company-cards">${cards.map(([key, company]) => `<article class="monthly-business-card monthly-business-${key}">
@@ -221,7 +227,7 @@
                 <p class="monthly-mini-label">ค่าโฆษณาเดือนนี้</p><div class="monthly-business-value">${money(company.actual)} <small>บาท</small></div>
                 ${progressBar(company.budgetProgress, planDerived)}<div class="monthly-company-meta"><span>งบ ${money(company.target)} บาท</span><strong>ใช้ ${rate(company.budgetProgress)}</strong></div>
                 <dl class="monthly-mini-list"><div><dt>Google</dt><dd>${money(company.google)} <small>บาท</small></dd></div><div><dt>Facebook</dt><dd>${money(company.fb)} <small>บาท</small></dd></div><div><dt>ROAS</dt><dd>${planDerived || company.roas === null ? '—' : `${numeric(company.roas)} <small>เท่า</small>`}</dd></div></dl>
-                <div class="monthly-cost-average"><span>ค่าเฉลี่ย</span><dl><div><dt>ต่อการติดต่อ</dt><dd>${averageBaht(company.actual, company.contacts)} <small>บาท / ติดต่อ</small></dd></div><div><dt>ต่อลูกค้า</dt><dd>${averageBaht(company.actual, company.customers)} <small>บาท / ลูกค้า</small></dd></div></dl></div>
+                <div class="monthly-cost-average"><span>ค่าเฉลี่ย</span><dl><div><dt>ต่อการติดต่อ</dt><dd>${averageBaht(company.actual, company.contacts)} <small>บาท / ติดต่อ</small></dd></div><div><dt>ต่อลูกค้า</dt><dd>${customerAverageBaht(company)} <small>บาท / ลูกค้า</small></dd></div></dl></div>
                 ${differs(company.google + company.fb, company.actual) ? '<p class="monthly-data-note">ยอดแยกช่องทางต่างจากยอดค่าโฆษณา ยังคงยอดรวมตาม Weekly</p>' : ''}
             </article>`).join('')}</div>
             ${departmentTrendCard('marketing', 'แนวโน้มค่าโฆษณารายเดือน', month)}
@@ -244,7 +250,6 @@
                 ['ติดตั้งจาก Admin', money(admin.installs), 'งาน', `ติดตั้ง / Leads ${rate(admin.closeRate)}`],
                 ['ยอดขาย Admin', money(admin.sales), 'บาท', 'ตามยอดรวมใน Weekly']
             ])}
-            ${departmentTrendCard('admin', 'แนวโน้มการติดต่อ ส่งต่อ ติดตั้ง และยอดขาย', month)}
             <div class="monthly-detail-grid monthly-admin-grid"><article class="monthly-detail-panel monthly-admin-panel monthly-admin-contact-panel"><div class="monthly-admin-panel-head"><span class="monthly-admin-panel-icon monthly-admin-panel-icon-blue"><i data-lucide="phone-call" aria-hidden="true"></i></span><div><h4>ช่องทางติดต่อและส่งต่อ</h4><p>GFS + MHL · ไม่รวมงานติดตั้ง CAR เป็น Leads ซ้ำ</p></div></div>
                 ${channelTable('ช่องทางติดต่อและ Leads ของ Sales Admin', detail.contacts, detail.leads, rate, planDerived)}
                 ${differs(detailContacts, admin.contacts) || differs(detailLeads, admin.leads) ? '<p class="monthly-data-note">ผลรวมแยกช่องทางต่างจากยอดรวม Admin ด้านบน แสดงตามต้นทางทั้งสองชุดโดยไม่ปรับยอด</p>' : ''}
@@ -256,6 +261,7 @@
                 </table></div>
                 ${differs(detailSales, admin.sales) || differs(detailInstalls, admin.installs) ? '<p class="monthly-data-note">ยอดลูกค้าใหม่ + เก่าต่างจากยอดรวม Admin จึงแสดงแยก ไม่ใช้แทนยอดรวม</p>' : ''}
             </article></div>
+            ${departmentTrendCard('admin', 'แนวโน้มการติดต่อ ส่งต่อ ติดตั้ง และยอดขาย', month)}
         </section>`;
     }
 
@@ -320,11 +326,17 @@
         const hasValue = value => Number.isFinite(Number(value)) && Number(value) !== 0;
         const visibleContactChannels = contactChannels.filter(([key]) => hasValue(car.contactChannels[key]));
         const visibleCustomerSources = customerSources.filter(([key]) => hasValue(car.installChannels[key]));
+        const sourceTotal = sum(car.installChannels);
+        const sourceChartReady = !planDerived && sourceTotal > 0 && !customerMismatch && visibleCustomerSources.every(([key]) => car.installChannels[key] > 0);
+        const leadingContacts = visibleContactChannels.filter(([key]) => car.contactChannels[key] === Math.max(...visibleContactChannels.map(([channel]) => car.contactChannels[channel])));
+        const channelIcon = (key, icon) => key === 'fb' ? '<b aria-hidden="true">f</b>' : key === 'line' ? '<b class="monthly-line-logo" aria-hidden="true">LINE</b>' : `<i data-lucide="${icon}" aria-hidden="true"></i>`;
         const damageCauses = [
             ['monthly-car-damage-film', 'panels-top-left', 'ความเสียหายจากฟิล์ม', car.filmIssueValue, car.filmIssueCount],
             ['monthly-car-damage-tech', 'wrench', 'ความเสียหายจากช่าง', car.techIssueValue, car.techIssueCount]
         ].filter(([, , , value, count]) => hasValue(value) || hasValue(count));
         const hasDamageSummary = hasValue(car.damage) || hasValue(car.claims) || hasValue(car.damageRate);
+        // Business definition: issue counts (not baht amounts) minus claimed cars.
+        const reworkCount = car.filmIssueCount + car.techIssueCount - car.claims;
         return `<section id="monthly-car" class="monthly-department monthly-tone-purple monthly-car-section" aria-labelledby="monthly-heading-car">
             ${departmentHead('car', 'ฝ่ายขายฟิล์มรถยนต์', 'ยอดขาย ลูกค้าใหม่ ช่องทางติดต่อ แหล่งที่มา และคุณภาพงาน CAR', month)}
             <div class="monthly-car-kpi-grid">
@@ -334,26 +346,31 @@
             </div>
             ${departmentTrendCard('car', 'แนวโน้มยอดขายฝ่ายขายรถยนต์', month)}
             ${carMismatch ? `<p class="monthly-data-note monthly-car-overview-note">ยอดหรือเป้าฝ่าย CAR ต่างจากช่อง CAR ในภาพรวม (${money(overview.actual)} / เป้า ${money(overview.target)} บาท) ส่วนนี้ยึดข้อมูลหน้าฝ่ายรถยนต์ ไม่ปรับให้เท่ากัน</p>` : ''}
-            <div class="monthly-car-channel-grid">
-                <article class="monthly-car-panel monthly-car-contact-panel"><div class="monthly-car-panel-head"><span><i data-lucide="headset" aria-hidden="true"></i></span><div><h4>การติดต่อลูกค้าแต่ละช่องทาง</h4><p>จำนวนครั้งที่ติดต่อเข้ามาในเดือนนี้</p></div></div>
+            <div class="monthly-car-channel-grid monthly-car-channel-showcase">
+                <article class="monthly-car-panel monthly-car-contact-panel"><div class="monthly-car-panel-head"><span><i data-lucide="headset" aria-hidden="true"></i></span><div><h4>การติดต่อลูกค้าแต่ละช่องทาง</h4><p>จำนวนครั้งที่ติดต่อเข้ามาในเดือนนี้</p></div><div class="monthly-car-channel-total"><i data-lucide="calendar-days" aria-hidden="true"></i><div><span>รวมทั้งหมด</span><strong>${money(car.contacts)} <small>ครั้ง</small></strong></div></div></div>
                     <div class="monthly-car-channel-list">${visibleContactChannels.map(([key, label, icon]) => {
                         const value = car.contactChannels[key];
-                        return `<div class="monthly-car-channel-row monthly-car-channel-row-${key}"><span class="monthly-car-channel-icon monthly-car-channel-${key}"><i data-lucide="${icon}" aria-hidden="true"></i></span><div class="monthly-car-channel-copy"><div><strong>${label}</strong><b>${money(value)} <small>ครั้ง</small></b></div><span class="monthly-car-channel-track" aria-hidden="true"><i style="width:${channelWidth(value, car.contacts)}%"></i></span></div><em>${rate(channelRate(value, car.contacts))}</em></div>`;
+                        return `<div class="monthly-car-channel-row monthly-car-channel-row-${key}"><span class="monthly-car-channel-icon monthly-car-channel-${key}">${channelIcon(key, icon)}</span><div class="monthly-car-channel-copy"><strong>${label}</strong><span class="monthly-car-channel-track" aria-hidden="true"><i style="width:${channelWidth(value, car.contacts)}%"></i></span></div><b class="monthly-car-contact-count">${money(value)} <small>ครั้ง</small></b><em>${rate(channelRate(value, car.contacts))}</em></div>`;
                     }).join('') || '<p class="monthly-car-empty">ไม่มีช่องทางติดต่อที่มีข้อมูลในเดือนนี้</p>'}</div>
                     ${contactMismatch ? '<p class="monthly-car-data-note"><i data-lucide="info" aria-hidden="true"></i>ผลรวมช่องทางติดต่อต่างจากยอดรวม จึงยึดยอดรวมที่ระบุในต้นทาง</p>' : ''}
+                    <div class="monthly-car-contact-insight"><div><i data-lucide="chart-column" aria-hidden="true"></i><p>${!planDerived && car.contacts > 0 && leadingContacts.length ? `<strong>${leadingContacts.map(([, label]) => label).join(' และ ')} เป็นช่องทางที่มีการติดต่อเข้ามามากที่สุด${leadingContacts.length > 1 ? 'เท่ากัน' : ''}</strong><span>คิดเป็น ${rate(channelRate(car.contactChannels[leadingContacts[0][0]], car.contacts))} ของการติดต่อทั้งหมด${leadingContacts.length > 1 ? ' ต่อช่องทาง' : ''}</span>` : '<strong>ยังไม่มีข้อมูลเพียงพอสำหรับสรุปช่องทาง</strong>'}</p></div><div><i data-lucide="goal" aria-hidden="true"></i><p><strong>เพิ่มโอกาสในการปิดการขาย</strong><span>ด้วยการตอบกลับที่รวดเร็วในทุกช่องทาง</span></p></div></div>
                 </article>
-                <article class="monthly-car-panel monthly-car-source-panel"><div class="monthly-car-panel-head"><span><i data-lucide="map-pinned" aria-hidden="true"></i></span><div><h4>แหล่งที่มาของลูกค้าใหม่</h4><p>อ้างอิงจากช่องทางของรถติดตั้งใหม่</p></div></div>
+                <article class="monthly-car-panel monthly-car-source-panel"><div class="monthly-car-panel-head"><span><i data-lucide="users-round" aria-hidden="true"></i></span><div><h4>แหล่งที่มาของลูกค้าใหม่</h4><p>อ้างอิงจากช่องทางของการติดต่อครั้งแรก</p></div><div class="monthly-car-channel-total"><i data-lucide="user-round-plus" aria-hidden="true"></i><div><span>รวมทั้งหมด</span><strong>${money(car.installs)} <small>ราย</small></strong></div></div></div>
                     <div class="monthly-car-source-grid">${visibleCustomerSources.map(([key, label, icon]) => {
                         const value = car.installChannels[key];
-                        return `<div class="monthly-car-source-card monthly-car-source-${key}"><span class="monthly-car-source-icon monthly-car-channel-${key}"><i data-lucide="${icon}" aria-hidden="true"></i></span><div><span>${label}</span><strong>${money(value)} <small>ราย</small></strong><p>${rate(channelRate(value, car.installs))}</p></div><span class="monthly-car-source-track" aria-hidden="true"><i style="width:${channelWidth(value, car.installs)}%"></i></span></div>`;
-                    }).join('') || '<p class="monthly-car-empty">ไม่มีแหล่งที่มาที่มีข้อมูลในเดือนนี้</p>'}</div>
+                        return `<div class="monthly-car-source-card monthly-car-source-${key}"><span class="monthly-car-source-icon monthly-car-channel-${key}">${channelIcon(key, icon)}</span><div><span>${label}</span><strong>${money(value)} <small>ราย</small></strong></div></div>`;
+                    }).join('') || '<p class="monthly-car-empty">ไม่มีแหล่งที่มาที่มีข้อมูลในเดือนนี้</p>'}${sourceChartReady ? `<div class="monthly-car-source-composition"><div class="monthly-car-source-donut"><canvas id="monthly-car-source-chart" role="img" aria-label="สัดส่วนแหล่งที่มาของลูกค้าใหม่ ${month.label} หน่วยราย ตัวเลขแยกช่องทางแสดงในการ์ด"></canvas><div class="monthly-car-source-center"><strong>${money(car.installs)}</strong><span>ราย</span></div></div><ul>${['fb', 'line', 'walkin', 'tel', 'showroom', 'other'].filter(key => car.installChannels[key] > 0).map(key => `<li><i class="monthly-source-dot monthly-source-dot-${key}"></i>${customerSources.find(([source]) => source === key)[1]} ${rate(channelRate(car.installChannels[key], car.installs))}</li>`).join('')}</ul></div>` : ''}</div>
                     ${customerMismatch ? '<p class="monthly-car-data-note"><i data-lucide="info" aria-hidden="true"></i>ผลรวมแหล่งที่มาต่างจากจำนวนลูกค้าใหม่ จึงยึดยอดรวมที่ระบุในต้นทาง</p>' : ''}
                 </article>
             </div>
-            ${damageCauses.length || hasDamageSummary ? `<article class="monthly-car-damage-panel"><div class="monthly-car-panel-head"><span><i data-lucide="shield-alert" aria-hidden="true"></i></span><div><h4>ความเสียหายจากฟิล์มและช่าง</h4><p>แยกมูลค่าและจำนวนรายการตามสาเหตุ</p></div></div>
+            ${damageCauses.length || hasDamageSummary ? `<article class="monthly-car-damage-panel monthly-car-quality-showcase"><div class="monthly-car-panel-head"><span><i data-lucide="shield-plus" aria-hidden="true"></i></span><div><h4>ความเสียหายจากฟิล์มและช่างรถยนต์</h4><p>สรุปจำนวนรถเคลมและงานแก้ไข แยกตามสาเหตุ</p></div><div class="monthly-car-quality-art" aria-hidden="true"><i data-lucide="car-front"></i><span>QUALITY CARE<br>BETTER DRIVE</span></div></div>
                 <div class="monthly-car-damage-grid">
-                    ${damageCauses.map(([cardClass, icon, label, value, count]) => `<div class="monthly-car-damage-card ${cardClass}"><span class="monthly-car-damage-icon"><i data-lucide="${icon}" aria-hidden="true"></i></span><div><p>${label}</p><strong>${money(value)} <small>บาท</small></strong>${hasValue(count) ? `<span>${money(count)} รายการ</span>` : ''}</div></div>`).join('')}
-                    ${hasDamageSummary ? `<div class="monthly-car-damage-total"><span>มูลค่าความเสียหายรวม</span><strong>${money(car.damage)} <small>บาท</small></strong><p>${rate(car.damageRate)} ของยอดขาย${hasValue(car.claims) ? ` · เคลม ${money(car.claims)} รายการ` : ''}</p></div>` : ''}
+                    <div class="monthly-car-quality-card monthly-car-quality-claims"><div class="monthly-car-quality-row"><span class="monthly-car-quality-icon"><i data-lucide="car-front" aria-hidden="true"></i></span><div><h5>จำนวนรถเคลม</h5><strong>${money(car.claims)} <small>คัน</small></strong></div></div><div class="monthly-car-quality-row monthly-car-quality-rework"><span class="monthly-car-quality-icon"><i data-lucide="wrench" aria-hidden="true"></i></span><div><h5>จำนวนงานแก้</h5><strong>${money(reworkCount)} <small>คัน</small></strong>${reworkCount < 0 ? '<p>จำนวนรถเคลมมากกว่าจำนวนความเสียหาย กรุณาตรวจสอบข้อมูลต้นทาง</p>' : ''}</div></div><div class="monthly-car-quality-row monthly-car-quality-total"><span class="monthly-car-quality-icon"><i data-lucide="coins" aria-hidden="true"></i></span><div><h5>มูลค่าความเสียหายรวม</h5><strong>${money(car.damage)} <small>บาท</small></strong></div></div></div>
+                    ${damageCauses.map(([cardClass, icon, label, value, count]) => {
+                        const cause = cardClass === 'monthly-car-damage-film' ? 'ฟิล์ม' : 'ช่าง';
+                        const headingIcon = cause === 'ฟิล์ม' ? 'film' : 'hard-hat';
+                        return `<div class="monthly-car-quality-card monthly-car-cause-card ${cardClass}"><div class="monthly-car-cause-heading"><span class="monthly-car-quality-icon"><i data-lucide="${headingIcon}" aria-hidden="true"></i></span><h5>${label}</h5></div><div class="monthly-car-quality-row monthly-car-cause-count"><span class="monthly-car-quality-icon"><i data-lucide="${cause === 'ฟิล์ม' ? icon : 'rectangle-vertical'}" aria-hidden="true"></i></span><div><h5>จำนวนรายการ</h5><strong>${money(count)} <small>คัน</small></strong></div></div><div class="monthly-car-quality-row monthly-car-quality-value"><span class="monthly-car-quality-icon"><i data-lucide="coins" aria-hidden="true"></i></span><div><h5>มูลค่าความเสียหาย</h5><strong>${money(value)} <small>บาท</small></strong></div></div></div>`;
+                    }).join('')}
                 </div>
             </article>` : ''}
         </section>`;
@@ -366,7 +383,7 @@
         const installMax = Math.max(0, ...Object.values(installs));
         const areaMax = Math.max(0, ...Object.values(areas));
         const scale = (value, maximum) => maximum > 0 ? Math.max(0, Math.min(value / maximum * 100, 100)) : 0;
-        return `<section id="monthly-tech" class="monthly-department monthly-tone-rose monthly-tech-section" aria-labelledby="monthly-heading-tech">
+        return `<section id="monthly-tech" class="monthly-department monthly-tone-rose monthly-tech-section monthly-tech-reference" aria-labelledby="monthly-heading-tech">
             ${departmentHead('tech', 'ทีมช่างอาคาร', 'ผลงานติดตั้ง พื้นที่ และมูลค่าความเสียหาย', month)}
             <div class="monthly-tech-board">
                 <article class="monthly-tech-summary monthly-tech-install-summary">
@@ -379,10 +396,10 @@
                     </div>
                 </article>
                 <article class="monthly-tech-summary monthly-tech-damage-summary">
-                    <div class="monthly-tech-summary-head monthly-tech-summary-head-alert"><span class="monthly-tech-summary-icon"><i data-lucide="triangle-alert" aria-hidden="true"></i></span><div><h4>ข้อมูลความเสียหาย</h4><p>มูลค่าความเสียหายและสัดส่วนต่อยอดขาย</p></div><span class="monthly-tech-alert-art" aria-hidden="true"><i data-lucide="triangle-alert"></i></span></div>
+                    <div class="monthly-tech-summary-head monthly-tech-summary-head-alert"><span class="monthly-tech-summary-icon"><i data-lucide="triangle-alert" aria-hidden="true"></i></span><div><h4>ข้อมูลความเสียหายทั้งหมด</h4><p>มูลค่าความเสียหายและสัดส่วนต่อยอดขาย</p></div><span class="monthly-tech-alert-art" aria-hidden="true"><i data-lucide="triangle-alert"></i></span></div>
                     <div class="monthly-tech-summary-cards">
                         ${[
-                            ['coins', 'มูลค่าความเสียหาย', money(tech.damage), 'บาท', 'monthly-tech-kpi-damage'],
+                            ['coins', 'มูลค่าความเสียหายรวม', money(tech.damage), 'บาท', 'monthly-tech-kpi-damage'],
                             ['chart-pie', 'ความเสียหาย / ยอดขายอาคาร', rate(tech.damageRate), '', 'monthly-tech-kpi-rate']
                         ].map(([icon, label, value, unit, cardClass]) => `<article class="monthly-tech-kpi-card ${cardClass}"><span class="monthly-tech-kpi-icon"><i data-lucide="${icon}" aria-hidden="true"></i></span><div><h4>${label}</h4><strong>${value}${unit ? ` <small>${unit}</small>` : ''}</strong></div><span class="monthly-tech-kpi-decoration" aria-hidden="true"><i></i><i></i><i></i></span></article>`).join('')}
                     </div>
@@ -393,8 +410,8 @@
                 </tbody></table></div>
                 ${differs(sum(installs), tech.installs) || differs(sum(areas), tech.area) ? '<p class="monthly-data-note">ยอดแยก GFS / MHL ต่างจากยอดรวมทีมช่าง จึงคงแยกตามต้นทาง</p>' : ''}
                 </article>
-                <article class="monthly-tech-panel monthly-tech-quality-panel"><div class="monthly-tech-panel-head"><span class="monthly-tech-panel-icon monthly-tech-panel-icon-alert"><i data-lucide="shield-check" aria-hidden="true"></i></span><div><h4>คุณภาพงานติดตั้งอาคาร</h4><p>สรุปมูลค่าความเสียหายแยกตามสาเหตุ</p></div><span class="monthly-tech-panel-label monthly-tech-panel-label-alert" aria-hidden="true">DAMAGE<br>BREAKDOWN</span></div>
-                <div class="monthly-tech-quality-cards"><div><span class="monthly-tech-quality-icon"><i data-lucide="wrench" aria-hidden="true"></i></span><p>ความเสียหายจากช่าง</p><strong>${money(tech.details.byTech)} <small>บาท</small></strong></div><div><span class="monthly-tech-quality-icon"><i data-lucide="panels-top-left" aria-hidden="true"></i></span><p>ความเสียหายจากฟิล์ม</p><strong>${money(tech.details.byFilm)} <small>บาท</small></strong></div></div>
+                <article class="monthly-tech-panel monthly-tech-quality-panel"><div class="monthly-tech-panel-head"><span class="monthly-tech-panel-icon monthly-tech-panel-icon-alert"><i data-lucide="triangle-alert" aria-hidden="true"></i></span><div><h4>ความเสียหายงานอาคาร</h4><p>แยกการ์ดตามสาเหตุอย่างชัดเจน</p></div><span class="monthly-tech-panel-label monthly-tech-panel-label-alert" aria-hidden="true">ดูแลทุกพื้นที่<br>ลดความเสียหาย<br>เพิ่มความมั่นใจ</span></div>
+                <div class="monthly-tech-quality-cards"><div><span class="monthly-tech-quality-icon"><i data-lucide="wrench" aria-hidden="true"></i></span><p>ความเสียหายจากช่าง</p><strong>${money(tech.details.byTech)} <small>บาท</small></strong><small class="monthly-tech-cause-caption">ความเสียหายที่เกิดจากการติดตั้งโดยช่าง</small></div><div><span class="monthly-tech-quality-icon"><i data-lucide="cylinder" aria-hidden="true"></i></span><p>ความเสียหายจากฟิล์ม</p><strong>${money(tech.details.byFilm)} <small>บาท</small></strong><small class="monthly-tech-cause-caption">ความเสียหายที่เกิดจากตัวฟิล์ม</small></div></div>
                 ${differs(tech.details.byTech + tech.details.byFilm, tech.damage) ? '<p class="monthly-data-note">ผลรวมสาเหตุความเสียหายต่างจากยอดรวม แสดงตามข้อมูลต้นทางโดยไม่บวกทับ</p>' : ''}
                 </article>
             </div>
@@ -507,6 +524,7 @@
                 </article>
             </div>
             <nav class="monthly-department-nav" aria-label="ไปยังสรุปแต่ละฝ่ายในหน้านี้">${DEPARTMENTS.map(department => `<button type="button" class="monthly-jump monthly-tone-${department.tone}" aria-label="${department.title}" onclick="BBMonthlyPage.jumpTo('${department.key}')"><span class="monthly-icon"><i data-lucide="${department.icon}" aria-hidden="true"></i></span><span class="monthly-jump-copy"><strong>${department.title}</strong><small>${department.description}</small></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>`).join('')}</nav>
+            <div id="monthly-reviews" class="monthly-review-scope">
             <div class="monthly-section-divider"><h2>สรุปผลงานทุกฝ่าย</h2><span>เดือน ${safe(month.label)} · 5 ฝ่าย</span></div>
             ${renderMarketing(month, rate, planDerived)}
             ${renderAdmin(month, rate)}
@@ -514,13 +532,36 @@
             ${renderCar(month, rate)}
             ${renderTech(month, rate)}
             ${renderWeeksIncluded(month, coverage)}
+            </div>
             <button id="monthly-back-top" class="monthly-back-top" type="button" aria-label="กลับด้านบน" title="กลับด้านบน" onclick="BBMonthlyPage.backToTop()" hidden>
                 <span class="monthly-back-top-icon"><i data-lucide="arrow-up" aria-hidden="true"></i></span><span class="monthly-back-top-label">กลับด้านบน</span>
             </button>
         </section>`;
         bindBackToTop(container);
         renderDepartmentCharts(yearMonths, month.key);
+        renderCarSourceChart(month);
         renderChart(comparisonMonths, month.key);
+    }
+
+    // Composition of the selected month's CAR install-channel counts. Only draw
+    // when parts reconcile to the displayed total; cards retain exact values.
+    // Dashboard-native Chart.js doughnut; fixed reference colors and text legend.
+    function renderCarSourceChart(month) {
+        const canvas = document.getElementById('monthly-car-source-chart');
+        if (!canvas) return;
+        const palette = { fb: '#2563ff', line: '#08b975', walkin: '#8545f5', tel: '#ff922b', showroom: '#c58a08', other: '#a4aec8' };
+        const labels = { fb: 'Facebook', line: 'LINE', walkin: 'Walk-in', tel: 'โทรศัพท์', showroom: 'Showroom', other: 'อื่น ๆ' };
+        const keys = Object.keys(palette).filter(key => month.car.installChannels[key] > 0);
+        try {
+            charts.monthlyCarSources = new Chart(canvas.getContext('2d'), {
+                type: 'doughnut', data: { labels: keys.map(key => labels[key]), datasets: [{ data: keys.map(key => month.car.installChannels[key]), backgroundColor: keys.map(key => palette[key]), borderColor: '#fff', borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.label}: ${money(item.raw)} ราย (${numeric(item.raw / month.car.installs * 100)}%)` } } } }
+            });
+        } catch (error) {
+            canvas.hidden = true;
+            if (canvas.parentElement) canvas.parentElement.hidden = true;
+            console.warn('CAR source chart unavailable; source counts remain visible.', error);
+        }
     }
 
     // Chart contract: compare monthly sales and TOTAL expenses, not their sum.
