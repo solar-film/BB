@@ -104,7 +104,6 @@
         const personCounts = new Map();
         for (const row of monthRecords) personCounts.set(row.person, (personCounts.get(row.person) || 0) + 1);
         $('sales-summary-period').textContent = PERIODS.find(([value]) => value === selectedPeriod)?.[1] || monthLabel(selectedPeriod);
-        $('summary-period').value = selectedPeriod;
         $('sales-summary').replaceChildren();
         for (const [person, count] of [...personCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'th'))) {
             const item = document.createElement('li');
@@ -151,7 +150,24 @@
         }
         const pages = Math.max(1, Math.ceil(filtered.length / pageSize)); page = Math.min(page, pages);
         $('rows').replaceChildren();
-        for (const row of filtered.slice((page - 1) * pageSize, page * pageSize)) {
+        const groupCounts = new Map();
+        for (const row of filtered) groupCounts.set(row.person, (groupCounts.get(row.person) || 0) + 1);
+        // Rank by the full filtered count before pagination; preserve newest-first within each group.
+        const groupedRows = [...filtered].sort((a, b) => groupCounts.get(b.person) - groupCounts.get(a.person) || a.person.localeCompare(b.person, 'th'));
+        const offset = (page - 1) * pageSize;
+        let lastPerson = null;
+        for (const row of groupedRows.slice(offset, page * pageSize)) {
+            if (row.person !== lastPerson) {
+                const headingRow = document.createElement('tr');
+                headingRow.className = 'sales-group-heading';
+                const heading = document.createElement('th');
+                heading.colSpan = 8;
+                const continued = lastPerson === null && offset > 0 && groupedRows[offset - 1].person === row.person;
+                heading.textContent = `${row.person} · ${groupCounts.get(row.person).toLocaleString('th-TH')} งาน${continued ? ' (ต่อจากหน้าก่อน)' : ''}`;
+                headingRow.append(heading);
+                $('rows').append(headingRow);
+                lastPerson = row.person;
+            }
             const tr = document.createElement('tr');
             for (const [i, value] of [row.date + '\n' + monthLabel(row.month), row.person, [row.customer, row.company].filter(Boolean).join('\n'), row.site, row.type, row.quote, 'ไม่ติดตั้ง', row.reason].entries()) {
                 const td = document.createElement('td');
@@ -166,7 +182,6 @@
         $('previous').disabled = page <= 1; $('next').disabled = page >= pages;
     }
     async function load() {
-        $('summary-period').disabled = true;
         for (const button of $('period-buttons').children) button.disabled = true;
         for (const id of ['refresh', 'person', 'month', 'reset', 'previous', 'next']) $(id).disabled = true;
         $('status').hidden = false;
@@ -183,7 +198,6 @@
             $('month').replaceChildren(new Option('เลือกเดือน / ปี', ''), individualMonths);
             if (!PERIODS.some(([value]) => value === selectedPeriod) && !months.includes(selectedPeriod)) selectedPeriod = 'this-month';
             $('month').value = months.includes(selectedPeriod) ? selectedPeriod : '';
-            $('summary-period').replaceChildren(...PERIODS.map(([value, label]) => new Option(label, value)), individualMonths.cloneNode(true));
             page = 1; render();
             $('status').textContent = '';
             $('status').hidden = true;
@@ -201,17 +215,11 @@
             $('status').textContent = 'โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตและสิทธิ์อ่านชีต แล้วกดโหลดข้อมูลใหม่ · ' + (error.name === 'AbortError' ? 'การเชื่อมต่อหมดเวลา' : error.message);
         } finally {
             clearTimeout(timeout);
-            $('summary-period').disabled = false;
             for (const button of $('period-buttons').children) button.disabled = false;
             for (const id of ['refresh', 'person', 'month', 'reset']) $(id).disabled = false;
         }
     }
     $('person').addEventListener('change', () => { page = 1; render(); });
-    $('summary-period').addEventListener('change', () => {
-        selectedPeriod = $('summary-period').value;
-        $('month').value = PERIODS.some(([value]) => value === selectedPeriod) ? '' : selectedPeriod;
-        page = 1; render();
-    });
     $('month').addEventListener('change', () => { selectedPeriod = $('month').value; page = 1; render(); });
     $('reset').addEventListener('click', () => { $('person').value = ''; $('month').value = ''; selectedPeriod = ''; page = 1; render(); });
     $('refresh').addEventListener('click', load);

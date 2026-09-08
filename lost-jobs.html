@@ -23,7 +23,7 @@
     <div class="profile"><div class="avatar">OIL</div><div><strong>ผู้ดูแลระบบ</strong><small>เข้าใช้งาน: วันนี้</small></div></div>
   </aside>
   <main id="main-content">
-    <header class="page-head"><div class="title-row"><button id="menu-toggle" aria-label="ซ่อนเมนู" aria-expanded="true" aria-controls="sidebar"><i data-lucide="panel-left-close"></i></button><h1>งานที่ไม่ได้รับการติดตั้ง (งานหลุด)</h1></div><div class="actions"><a class="button" href="https://docs.google.com/spreadsheets/d/1Ag7yh0SFSqGfm3LTNinHwlwV6h5Xa4M2yIuf03mq2uc/edit?gid=949197576#gid=949197576" target="_blank" rel="noopener noreferrer"><i data-lucide="sheet"></i> เปิดชีตต้นทาง</a><button id="fullscreen"><i data-lucide="maximize"></i><span>เต็มจอ</span></button></div></header>
+    <header class="page-head"><div class="title-row"><button id="menu-toggle" aria-label="ซ่อนเมนู" aria-expanded="true" aria-controls="sidebar"><i data-lucide="panel-left-close"></i></button><h1>งานที่ไม่ได้รับการติดตั้ง (งานหลุด)</h1></div><div class="actions"><button id="fullscreen"><i data-lucide="maximize"></i><span>เต็มจอ</span></button></div></header>
     
     <section class="panel filters" aria-label="ตัวกรองงานหลุด">
       <div class="period-field"><span class="period-label">ช่วงเวลา</span><div id="period-buttons" class="period-buttons" role="group" aria-label="เลือกช่วงเวลา"></div></div>
@@ -41,7 +41,7 @@
       </section>
       <aside class="summary-decoration"><div class="summary-date"><i data-lucide="calendar-days"></i><div><small>อัปเดตล่าสุด</small><strong id="summary-date">—</strong></div></div><p>TURN DATA<br>INTO<br>BETTER WORK</p><span></span></aside>
     </div>
-    <section class="sales-summary-panel" aria-labelledby="sales-summary-title"><div class="sales-panel-heading"><div class="sales-panel-title"><i data-lucide="chart-no-axes-column-increasing"></i><div><h2 id="sales-summary-title">งานหลุดแยกตามฝ่ายขาย</h2><p>เปรียบเทียบจำนวนงานหลุดในแต่ละฝ่ายขาย <span id="sales-summary-period"></span></p></div></div><div class="sales-period-control"><i data-lucide="calendar-days"></i><select id="summary-period" aria-label="ช่วงเวลาสรุปฝ่ายขาย" disabled></select></div></div><ul id="sales-summary" class="sales-summary"></ul><p id="sales-summary-empty" class="empty">กำลังโหลดข้อมูล…</p></section>
+    <section class="sales-summary-panel" aria-labelledby="sales-summary-title"><div class="sales-panel-heading"><div class="sales-panel-title"><i data-lucide="chart-no-axes-column-increasing"></i><div><h2 id="sales-summary-title">งานหลุดแยกตามฝ่ายขาย</h2><p>เปรียบเทียบจำนวนงานหลุดในแต่ละฝ่ายขาย <span id="sales-summary-period"></span></p></div></div></div><ul id="sales-summary" class="sales-summary"></ul><p id="sales-summary-empty" class="empty">กำลังโหลดข้อมูล…</p></section>
     <section class="panel"><div class="table-title"><h2>รายละเอียดงานหลุด</h2><span id="updated" class="muted"></span></div><div class="table-scroll"><table><thead><tr><th>วันที่ / เดือน</th><th>ฝ่ายขาย</th><th>ลูกค้า / บริษัท</th><th>สถานที่หน้างาน</th><th>ประเภทงาน</th><th>เลขที่ใบเสนอราคา</th><th>สถานะ</th><th>สาเหตุ</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="empty">กำลังโหลดข้อมูล…</td></tr></tbody></table></div><div class="pagination"><span id="page-info" class="muted"></span><div class="actions"><button id="previous" disabled>ก่อนหน้า</button><button id="next" disabled>ถัดไป</button></div></div></section>
     
   </main>
