@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f9fd">
+  <title>Feedback ลูกค้า(อาคาร) | BB</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/feedback-building.css">
+  <link rel="stylesheet" href="css/feedback-building-shell.css">
+  <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/lost-jobs-shell.js" defer></script>
+  <script src="js/feedback-building-data.js" defer></script>
+  <script src="js/feedback-building.js" defer></script>
+</head>
+<body>
+  <button id="menu-backdrop" class="backdrop" aria-label="ปิดเมนู" hidden></button>
+  <aside id="sidebar" class="sidebar" aria-label="เมนูหลัก">
+    <div class="brand"><div class="logo">BB</div><div><h2>Business<br>Breakdown 2026</h2><a href="index.html">Business Dashboard</a></div><button id="menu-close" aria-label="ปิดเมนู"><i data-lucide="x"></i></button></div>
+    <nav><div class="nav-group"><p>MAIN DASHBOARD</p><a href="index.html"><i data-lucide="pie-chart"></i><span>ภาพรวมธุรกิจ (Overview)</span></a><a href="index.html?page=monthly"><i data-lucide="calendar-range"></i><span>สรุปรายเดือน (Monthly)</span></a></div>
+<div class="nav-group"><p>OPERATIONS</p><a href="index.html?page=marketing"><i data-lucide="megaphone"></i><span>MARKETING ONLINE</span></a><a href="index.html?page=admin"><i data-lucide="file-text"></i><span>SALES ADMIN</span></a></div>
+<div class="nav-group"><p>REVENUE TEAMS</p><a href="index.html?page=sales"><i data-lucide="building-2"></i><span>ฝ่ายขาย ฟิล์มอาคาร</span></a><a href="index.html?page=car"><i data-lucide="car"></i><span>ฝ่ายขาย ฟิล์มรถยนต์</span></a></div>
+<div class="nav-group"><a href="index.html?page=tech"><i data-lucide="wrench"></i><span>ทีมช่างติดตั้ง (อาคาร)</span></a><a href="feedback-building.html" aria-current="page"><i data-lucide="message-square"></i><span>Feedback ลูกค้า(อาคาร)</span></a><a href="lost-jobs.html"><i data-lucide="clipboard-x"></i><span>งานหลุด</span></a></div></nav>
+    <div class="profile"><div class="profile-avatar">OIL</div><div><strong>ผู้ดูแลระบบ</strong><small>เข้าใช้งาน: วันนี้</small></div></div>
+  </aside>
+  <div id="main-content">
+  <header class="topbar">
+    <button id="menu-toggle" aria-label="ซ่อนเมนู" aria-expanded="true" aria-controls="sidebar"><i data-lucide="panel-left-close"></i></button>
+    <h1>โหมดนำเสนอข้อมูลฟีดแบคจากลูกค้า <span>(Customer Feedback)</span></h1>
+    <div class="filters" aria-label="ตัวกรองวันที่ประเมิน">
+      <select id="month" aria-label="เดือนที่ประเมิน" disabled><option value="">ทุกเดือน</option></select>
+      <select id="company" aria-label="บริษัท" disabled><option value="">ทุกบริษัท</option></select>
+      <input id="start" type="date" aria-label="วันที่ประเมินเริ่มต้น" disabled><span>ถึง</span>
+      <input id="end" type="date" aria-label="วันที่ประเมินสิ้นสุด" disabled>
+      <button id="reset" title="ล้างตัวกรอง" disabled>ล้าง</button>
+    </div>
+    <button id="refresh">↻ อัปเดตข้อมูล</button>
+    <button id="fullscreen"><i data-lucide="maximize"></i><span>เต็มจอ</span></button>
+  </header>
+  <main>
+    <div id="status" role="status" aria-live="polite">กำลังเตรียมหน้านำเสนอ…</div>
+    <section id="empty" class="empty" hidden><span class="empty-icon">▤</span><h2 id="empty-title"></h2><p id="empty-description"></p></section>
+    <section id="presentation" aria-label="ข้อมูล Feedback ลูกค้า" hidden>
+      <div class="hero-row">
+        <article class="hero card">
+          <div class="customer"><div class="avatar" aria-hidden="true"><svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><circle cx="32" cy="21" r="11"/><path d="M12 55v-5a20 20 0 0 1 40 0v5"/></svg></div><div><h2 id="customer-name"></h2><div class="badges"><span id="customer-company"></span><span id="customer-id"></span></div></div></div>
+          <div class="location"><div><span class="meta-icon">⌖</span><div><h3>สถานที่: <span id="site-type"></span></h3><p id="address"></p></div></div><div><span class="meta-icon">▦</span><div><h3>วันที่ติดตั้ง:</h3><p id="install-date"></p></div></div></div>
+          <div class="overall"><span class="crown" aria-hidden="true">👑</span><div class="score-ring"><small>คะแนนรวม</small><strong id="average"></strong><span>/5</span></div><span id="mood" class="mood"></span></div>
+        </article>
+        <aside class="navigation card"><div class="position" id="counter" aria-live="polite"></div><div class="navigation-buttons"><button id="previous">‹ ก่อนหน้า</button><button id="next" class="primary">ถัดไป ›</button></div><div class="assessment">วันที่ประเมิน <strong id="assessment-date"></strong></div></aside>
+      </div>
+      <div class="team-grid" id="teams"></div>
+      <section class="details card" id="additional" hidden></section>
+    </section>
+  </main>
+  </div>
+</body>
+</html>
