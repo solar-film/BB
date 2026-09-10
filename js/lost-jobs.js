@@ -25,10 +25,23 @@
     function year(value) { const y = Number(value); return y > 2400 ? y - 543 : y < 100 ? 2000 + y : y; }
     function dateParts(value) {
         const s = clean(value);
+        // Google Sheets may export a date as a serial number, with fractional time.
+        if (/^\d{5}(?:\.\d+)?$/.test(s)) {
+            const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(Number(s)) * 86400000);
+            return [d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()];
+        }
         let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s|$|T)/);
         if (m) return [year(m[1]), Number(m[2]), Number(m[3])];
         m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})(?:\s|$)/);
         return m ? [year(m[3]), Number(m[2]), Number(m[1])] : null;
+    }
+    function formatDate(value) {
+        const parts = dateParts(value);
+        if (!parts) return '—';
+        const [y, m, d] = parts;
+        const check = new Date(Date.UTC(y, m - 1, d));
+        if (check.getUTCFullYear() !== y || check.getUTCMonth() !== m - 1 || check.getUTCDate() !== d) return '—';
+        return d + '/' + m + '/' + y;
     }
     function monthKey(month, date) {
         const s = clean(month), d = dateParts(date);
@@ -54,8 +67,8 @@
         const header = rows.findIndex(r => clean(r[23]) === 'สถานะ' && clean(r[4]) === 'Sale');
         if (header < 0 || clean(rows[header][42]) !== 'สาเหตุ') throw new Error('โครงสร้างคอลัมน์ CUSTOMER_ALL ไม่ตรงกับที่กำหนด');
         return rows.slice(header + 1).filter(r => clean(r[23]) === 'ไม่ติดตั้ง').map(r => ({
-            date: clean(r[1]), month: monthKey(r[0], r[1]), person: clean(r[4]) || 'ไม่ระบุฝ่ายขาย',
-            customer: clean(r[7]), company: clean(r[8]), site: clean(r[6]), type: clean(r[13]), quote: clean(r[17]), reason: clean(r[42])
+            date: clean(r[25]), month: monthKey(r[24], r[25]), person: clean(r[4]) || 'ไม่ระบุฝ่ายขาย',
+            customer: clean(r[7]), company: clean(r[8]), site: clean(r[6]), type: clean(r[13]), area: clean(r[18]), quote: clean(r[17]), reason: clean(r[42])
         })).sort((a, b) => b.month.localeCompare(a.month) || (dateParts(b.date)?.[2] || 0) - (dateParts(a.date)?.[2] || 0));
     }
     function filterRecords(records, person, month) { return records.filter(r => (!person || r.person === person) && (!month || r.month === month)); }
@@ -70,7 +83,7 @@
         const last = period === 'last-month' ? end - 1 : end;
         return records.filter(r => /^\d{4}-(0[1-9]|1[0-2])$/.test(r.month) && ordinal(r.month) >= start && ordinal(r.month) <= last);
     }
-    if (typeof module !== 'undefined' && module.exports) { module.exports = { parseCSV, monthKey, recordsFromCSV, filterRecords, filterPeriod }; return; }
+    if (typeof module !== 'undefined' && module.exports) { module.exports = { formatDate, parseCSV, monthKey, recordsFromCSV, filterRecords, filterPeriod }; return; }
     const $ = id => document.getElementById(id);
     const todayParts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit'
@@ -161,7 +174,7 @@
                 const headingRow = document.createElement('tr');
                 headingRow.className = 'sales-group-heading';
                 const heading = document.createElement('th');
-                heading.colSpan = 8;
+                heading.colSpan = 9;
                 const continued = lastPerson === null && offset > 0 && groupedRows[offset - 1].person === row.person;
                 heading.textContent = `${row.person} · ${groupCounts.get(row.person).toLocaleString('th-TH')} งาน${continued ? ' (ต่อจากหน้าก่อน)' : ''}`;
                 headingRow.append(heading);
@@ -169,15 +182,34 @@
                 lastPerson = row.person;
             }
             const tr = document.createElement('tr');
-            for (const [i, value] of [row.date + '\n' + monthLabel(row.month), row.person, [row.customer, row.company].filter(Boolean).join('\n'), row.site, row.type, row.quote, 'ไม่ติดตั้ง', row.reason].entries()) {
+            for (const [i, value] of [formatDate(row.date), row.person, row.customer, row.site, row.type, row.area, row.quote, 'ไม่ติดตั้ง', row.reason].entries()) {
                 const td = document.createElement('td');
-                if (i === 6) { const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = value; td.append(badge); }
+                if (i === 0) {
+                    const date = document.createElement('div');
+                    date.textContent = value;
+                    td.append(date);
+                    if (row.company) {
+                        const company = document.createElement('span');
+                        const brand = clean(row.company).toUpperCase();
+                        company.className = 'company-tag' + (brand === 'GFS' ? ' company-tag-gfs' : brand === 'MHL' ? ' company-tag-mhl' : '');
+                        company.textContent = row.company;
+                        td.append(company);
+                    }
+                }
+                else if (i === 6) {
+                    const quote = document.createElement('span');
+                    quote.className = 'quote-number';
+                    quote.textContent = value || '—';
+                    quote.title = value || '';
+                    td.append(quote);
+                }
+                else if (i === 7) { const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = value; td.append(badge); }
                 else td.textContent = value || '—';
                 tr.append(td);
             }
             $('rows').append(tr);
         }
-        if (!filtered.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 8; td.className = 'empty'; td.textContent = 'ไม่พบงานหลุดตามตัวกรองที่เลือก'; tr.append(td); $('rows').append(tr); }
+        if (!filtered.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 9; td.className = 'empty'; td.textContent = 'ไม่พบงานหลุดตามตัวกรองที่เลือก'; tr.append(td); $('rows').append(tr); }
         $('page-info').textContent = `หน้า ${page} / ${pages} · ${filtered.length.toLocaleString('th-TH')} รายการ · หน้าละ ${pageSize} รายการ`;
         $('previous').disabled = page <= 1; $('next').disabled = page >= pages;
     }
