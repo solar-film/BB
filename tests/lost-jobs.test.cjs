@@ -18,7 +18,7 @@ test('months remain distinct across years and support Thai source dates', () => 
 test('selects only exact status X and uses Sale E, not installation Sale AA', () => {
     const header = Array(43).fill(''); header[4] = 'Sale'; header[23] = 'สถานะ'; header[42] = 'สาเหตุ';
     const row = (status, person, month) => {
-        const r = Array(43).fill(''); r[0] = month; r[4] = person; r[23] = status; r[26] = 'Different salesperson'; return r;
+        const r = Array(43).fill(''); r[24] = month; r[4] = person; r[23] = status; r[26] = 'Different salesperson'; return r;
     };
     const csv = [['note'], ['group heading'], header, row(' ไม่ติดตั้ง ', 'Kat', 'มิ.ย. 26'), row('ติดตั้งแล้ว', 'Kat', 'มิ.ย. 26'), row('รอไม่ติดตั้ง', 'Kat', 'มิ.ย. 26'), row('ไม่ติดตั้ง', 'Jay', 'มิ.ย. 26'), row('ไม่ติดตั้ง', 'Kat', 'มิ.ย. 25')].map(r => r.join(',')).join('\r\n');
     const records = recordsFromCSV(csv);
@@ -41,4 +41,23 @@ test('period presets handle year boundaries, exact months and undated records', 
     assert.equal(months('').length, rows.length);
     assert.deepEqual(months('2025-12'), ['2025-12']);
     assert.deepEqual(filterPeriod(rows,'this-year','2026-02').map(r=>r.month), ['2026-01','2026-02']);
+});
+
+
+test('September filter uses month Y and date Z even when original month A differs', () => {
+    const header = Array(43).fill(''); header[4] = 'Sale'; header[23] = 'สถานะ'; header[42] = 'สาเหตุ';
+    const make = (monthY, dateZ) => {
+        const row = Array(43).fill('');
+        row[0] = 'ส.ค. 26'; row[1] = '19/8/26'; row[4] = 'Bom';
+        row[23] = 'ไม่ติดตั้ง'; row[24] = monthY; row[25] = dateZ;
+        return row;
+    };
+    const rows = [header, make('ก.ย. 26', '2/9/2026'), make('', '3/9/2026'), make('ก.ย. 26', ''), make('', '')];
+    const records = recordsFromCSV(rows.map(row => row.join(',')).join('\n'));
+    const september = filterPeriod(records, 'this-month', '2026-09');
+    assert.equal(september.length, 3);
+    assert.equal(filterRecords(records, '', '2026-09').length, 3);
+    assert.ok(september.some(row => row.date === '2/9/2026'));
+    assert.equal(filterRecords(records, '', '2026-08').length, 0);
+    assert.equal(records.filter(row => row.month === 'unknown').length, 1);
 });
