@@ -7464,6 +7464,29 @@
             background: #092f72 !important;
         }
 
+        /* Compact navigation spacing on desktop and mobile. */
+        #desktop-sidebar .custom-scrollbar,
+        #mobile-sidebar .custom-scrollbar {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        #desktop-sidebar .custom-scrollbar > div + div,
+        #mobile-sidebar .custom-scrollbar > div + div {
+            margin-top: 24px;
+        }
+
+        #desktop-sidebar .custom-scrollbar > div > p,
+        #mobile-sidebar .custom-scrollbar > div > p {
+            margin-bottom: 8px;
+        }
+
+        #desktop-sidebar .custom-scrollbar a,
+        #mobile-sidebar .custom-scrollbar a {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
         /* Color-only menu icons for a polished blue sidebar. */
         #desktop-sidebar [data-lucide="pie-chart"],
         #mobile-sidebar [data-lucide="pie-chart"] { color: #7dd3fc !important; }

@@ -14,10 +14,10 @@ svg{width:20px;height:20px;flex-shrink:0}button svg,.button svg{pointer-events:n
 .logo{background:#2563eb;border-radius:8px;padding:10px 5px;color:#fff;font-size:20px;font-weight:800;box-shadow:0 8px 20px #02103233}
 .brand h2{font-size:20px;letter-spacing:1px;line-height:1.25;color:white;margin:0;font-weight:800}
 .brand a{font-size:14px;color:#d6e6ff;font-weight:700}
-.sidebar nav{flex:1;overflow:auto;padding:24px 12px;scrollbar-width:thin;scrollbar-color:#718ab0 transparent}
-.nav-group{margin-bottom:32px}.nav-group:last-child{margin-bottom:0}
-.nav-group>p{font-size:14px;color:#b7d2fa;letter-spacing:1.4px;font-weight:800;margin:0 8px 12px}
-.nav-group a{display:flex;align-items:center;gap:12px;padding:14px 12px;margin:3px 0;border:1px solid transparent;border-radius:12px;font-size:16px;font-weight:700;line-height:1.4}
+.sidebar nav{flex:1;overflow:auto;padding:20px 12px;scrollbar-width:thin;scrollbar-color:#718ab0 transparent}
+.nav-group{margin-bottom:24px}.nav-group:last-child{margin-bottom:0}
+.nav-group>p{font-size:14px;color:#b7d2fa;letter-spacing:1.4px;font-weight:800;margin:0 8px 8px}
+.nav-group a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin:2px 0;border:1px solid transparent;border-radius:12px;font-size:16px;font-weight:700;line-height:1.4}
 .nav-group a:hover{background:#ffffff1a;color:white}
 .nav-group a[aria-current]{background:#ffffff2b;border-color:#ffffff6b;color:white;box-shadow:0 8px 18px #02103229}
 [data-lucide="pie-chart"]{color:#7dd3fc}[data-lucide="megaphone"]{color:#c4b5fd}[data-lucide="file-text"]{color:#fde68a}[data-lucide="building-2"]{color:#5eead4}[data-lucide="car"]{color:#fdba74}[data-lucide="wrench"]{color:#f0abfc}[data-lucide="message-square"]{color:#f9a8d4}[data-lucide="clipboard-pen-line"]{color:#fde047}.sidebar [data-lucide="clipboard-x"]{color:#fb923c}
@@ -56,3 +56,29 @@ button.primary{background:#092f72;color:white;border-color:#092f72}button.primar
 .pagination{padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}footer{margin-top:18px;color:#435373;font-size:13px}
 @media(max-width:1023px){.sidebar{display:none;width:min(320px,86vw)}main{margin-left:0;padding:20px 16px}body.menu-open .sidebar{display:flex}body.menu-open{overflow:hidden}#menu-close{display:flex;min-height:32px;width:32px;padding:4px;background:transparent;border:0;color:white;margin-left:auto}.brand{gap:10px;padding:16px 12px}.brand h2{font-size:18px}.brand a{font-size:12px}.page-head{flex-wrap:wrap}.card-label{font-size:14px}.card-label svg{width:20px;height:20px}}
 @media(max-width:600px){.cards{grid-template-columns:1fr;gap:8px}.card{min-height:64px;padding:10px 14px}.card strong{margin:0;font-size:30px}.field{min-width:100%}.filters{padding:16px}.page-head>.actions{margin-left:60px}.page-head>.actions .button,.page-head>.actions button{font-size:13px;padding:8px;min-height:38px}table{font-size:15px}}
+/* Keep the quotation column compact; long numbers use a single-line ellipsis. */
+.table-scroll table th:nth-child(7),
+.table-scroll table td:nth-child(7){width:110px;max-width:110px;padding-left:8px;padding-right:8px;white-space:normal;overflow-wrap:anywhere}
+.company-tag{display:inline-block;margin-top:4px;padding:2px 8px;border:1px solid #cbd5e1;border-radius:999px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:700;line-height:1.4;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.company-tag-gfs{background:#e0f2fe;border-color:#7dd3fc;color:#075985}
+.company-tag-mhl{background:#fbe9e1;border-color:#e9ad93;color:#9c4227}
+
+.quote-number{display:block;width:94px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Slightly narrow the worksite column while keeping the full address readable. */
+.table-scroll table th:nth-child(4),
+.table-scroll table td:nth-child(4){width:180px;max-width:180px;padding-left:12px;padding-right:12px;white-space:normal;overflow-wrap:anywhere}
+/* Compact customer column with full names wrapping onto additional lines. */
+.table-scroll table th:nth-child(3),
+.table-scroll table td:nth-child(3){width:160px;max-width:160px;padding-left:12px;padding-right:12px;white-space:normal;overflow-wrap:anywhere}
+/* Narrow salesperson names and give reasons more room in the detail table. */
+.table-scroll table th:nth-child(2),
+.table-scroll table td:nth-child(2){width:80px;max-width:80px;padding-left:8px;padding-right:8px;white-space:normal;overflow-wrap:anywhere}
+.table-scroll table th:nth-child(9),
+.table-scroll table td:nth-child(9){min-width:260px;max-width:none}
+/* Let dates and company tags determine the first column's readable width. */
+.table-scroll table thead th:first-child,
+.table-scroll table tbody td:first-child{width:auto;min-width:140px;max-width:none;white-space:nowrap;overflow-wrap:normal}
+.table-scroll table tbody td:first-child .company-tag{max-width:none;white-space:nowrap;overflow-wrap:normal}
+/* Fit the area column to its content without wrapping values. */
+.table-scroll table th:nth-child(6),
+.table-scroll table td:nth-child(6){width:1%;max-width:none;padding-left:10px;padding-right:10px;white-space:nowrap;overflow-wrap:normal}
