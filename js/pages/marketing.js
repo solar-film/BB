@@ -510,7 +510,7 @@ function renderMarketingDeepDiveHTML(current, m, opt, container) {
         const weeklyKeys = weeklyTrendFilter === 'total' ? ['gfs', 'mhl', 'car'] : [weeklyTrendFilter];
         const weeklyRows = dashboardData.filter(row => weeklyKeys.some(key => {
             const marketing = row.marketing[key];
-            return marketing && (marketing.actual + marketing.target > 0);
+            return marketing && Number.isFinite(marketing.actual) && marketing.actual !== 0;
         }));
         const weeklyActualData = weeklyRows.map(row => weeklyKeys.reduce((sum, key) => sum + row.marketing[key].actual, 0));
         const weeklyTargetData = weeklyRows.map(row => weeklyKeys.reduce((sum, key) => sum + row.marketing[key].target, 0));

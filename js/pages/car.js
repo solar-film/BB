@@ -583,7 +583,7 @@ function renderCarDeepDiveHTML(current, m, opt, container) {
                     actual: d.carDetail.sales.actual || 0,
                     target: d.carDetail.sales.target || 0
                 }))
-                .filter(d => d.actual + d.target > 0);
+                .filter(d => Number.isFinite(d.actual) && d.actual !== 0);
 
             charts['carYearWeekly'] = new Chart(yearWeeklyCtx, {
                 type: 'bar',
