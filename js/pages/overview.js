@@ -45,7 +45,6 @@ function renderOverviewHTML(current, m, opt, container) {
         const isGood = value >= goodAt;
         return `
             <span class="overview-status-pill ${isGood ? 'is-good' : 'is-bad'}">
-                <i data-lucide="${isGood ? 'arrow-up' : 'arrow-down'}" class="w-4 h-4"></i>
                 ผลงาน ${value.toFixed(1)}%
             </span>
         `;
