@@ -1,33 +1,12 @@
 (() => {
     'use strict';
+    if (!window.BBFeedback?.hosted) return;
 
-    const SPREADSHEET_ID = '1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM';
-    const SHEET_NAME = 'Feedback-BB-Week';
-    const DATA_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-    const CACHE_KEY = 'bb-feedback-presentation-cache-v1';
     const AUTO_PLAY_MS = 12000;
     const state = { records: [], weeks: [], selectedWeek: '', slides: [], activeSlide: 0, timer: null };
     const el = (id) => document.getElementById(id);
     const clean = (value) => String(value ?? '').trim();
     const escapeHTML = (value) => clean(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
-
-    function parseCSV(text) {
-        const rows = [];
-        let row = [], field = '', quoted = false;
-        for (let index = 0; index < text.length; index++) {
-            const char = text[index];
-            if (quoted) {
-                if (char === '"' && text[index + 1] === '"') { field += '"'; index++; }
-                else if (char === '"') quoted = false;
-                else field += char;
-            } else if (char === '"') quoted = true;
-            else if (char === ',') { row.push(field); field = ''; }
-            else if (char === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-            else if (char !== '\r') field += char;
-        }
-        if (field || row.length) { row.push(field); rows.push(row); }
-        return rows;
-    }
 
     function mapRecord(row) {
         return {
@@ -43,22 +22,17 @@
         el('presentation-error').classList.add('hidden');
         el('presentation-loading').classList.remove('done');
         try {
-            const response = await fetch(`${DATA_URL}&_=${Date.now()}`, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`Google Sheets ตอบกลับด้วยรหัส ${response.status}`);
-            const records = parseCSV(await response.text()).slice(1).map(mapRecord).filter((record) => record.recordId && record.week);
+            const result = await BBFeedback.call('read', 'records');
+            const records = result.rows.map(mapRecord).filter((record) => record.recordId && record.week);
             if (!records.length) throw new Error('ยังไม่มีข้อมูล Week ใน Feedback-BB-Week');
             state.records = records;
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), records }));
             el('data-status').textContent = `${records.length.toLocaleString('th-TH')} รายการ · ล่าสุด`;
         } catch (error) {
-            const cached = readCache();
-            if (!cached?.records?.length) {
-                el('error-message').textContent = error.message;
-                el('presentation-error').classList.remove('hidden');
-                return;
-            }
-            state.records = cached.records;
-            el('data-status').textContent = `${state.records.length.toLocaleString('th-TH')} รายการ · ข้อมูลสำรอง`;
+            state.records = [];
+            el('slide-stage').replaceChildren(); el('slide-dots').replaceChildren(); el('slide-counter').textContent = '0 / 0'; el('data-status').textContent = 'โหลดไม่สำเร็จ';
+            el('error-message').textContent = error.message;
+            el('presentation-error').classList.remove('hidden');
+            return;
         } finally {
             if (state.records.length) initializeWeeks();
             el('presentation-loading').classList.add('done');
@@ -381,10 +355,6 @@
         const chunks = [];
         for (let index = 0; index < items.length; index += size) chunks.push(items.slice(index, index + size));
         return chunks;
-    }
-
-    function readCache() {
-        try { return JSON.parse(localStorage.getItem(CACHE_KEY)); } catch (_) { return null; }
     }
 
     el('week-select').addEventListener('change', () => { state.selectedWeek = el('week-select').value; stopAutoPlay(); buildSlides(); });

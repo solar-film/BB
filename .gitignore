@@ -3,3 +3,9 @@ appsheet-source.xlsx
 .gitconfig-codex
 AGENTS.md
 .codex-upload-git/
+
+.feedback-build/
+.clasp.json
+.clasprc.json
+tmp/
+node_modules/
