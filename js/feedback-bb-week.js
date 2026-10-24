@@ -1,39 +1,14 @@
 (() => {
     'use strict';
-
-    const SPREADSHEET_ID = '1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM';
-    const SOURCE_SHEET = 'Our-DATA';
-    const SOURCE_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SOURCE_SHEET)}`;
-    const FEEDBACK_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Feedback-BB-Week')}`;
-    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsArGYvGXKS7Q2oj8i1ynI5p86tsOMdsSV8HG15GsH3almHCh0RcCivbkVU_Fw_v7sLw/exec';
-    const SOURCE_CACHE_KEY = 'bb-feedback-source-cache-v1';
-    const RECENT_CACHE_KEY = 'bb-feedback-recent-v1';
+    if (!window.BBFeedback?.hosted) return;
     const PAGE_STEP = 40;
 
-    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], contactedSourceIds: new Set(), recentWeekInitialized: false, activeTab: 'jobs', editingRecordId: '' };
+    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], contactedSourceIds: new Set(), recentWeekInitialized: false, activeTab: 'jobs', editingRecordId: '', editingVersion: '', editingSavedAt: '', saving: false };
     const el = (id) => document.getElementById(id);
     const clean = (value) => String(value ?? '').trim();
     const escapeHTML = (value) => clean(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
     const numberValue = (value) => Number(clean(value).replace(/,/g, '').replace(/[^\d.-]/g, '')) || 0;
     const numberFormat = new Intl.NumberFormat('th-TH', { maximumFractionDigits: 2 });
-
-    function parseCSV(text) {
-        const rows = [];
-        let row = [], field = '', quoted = false;
-        for (let index = 0; index < text.length; index++) {
-            const char = text[index];
-            if (quoted) {
-                if (char === '"' && text[index + 1] === '"') { field += '"'; index++; }
-                else if (char === '"') quoted = false;
-                else field += char;
-            } else if (char === '"') quoted = true;
-            else if (char === ',') { row.push(field); field = ''; }
-            else if (char === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-            else if (char !== '\r') field += char;
-        }
-        if (field || row.length) { row.push(field); rows.push(row); }
-        return rows;
-    }
 
     function parseDate(value) {
         const match = clean(value).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
@@ -68,16 +43,12 @@
     async function loadSource() {
         el('refresh-source').classList.add('loading');
         try {
-            const response = await fetch(`${SOURCE_URL}&_=${Date.now()}`, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const rows = parseCSV(await response.text());
-            state.jobs = rows.slice(1).map(mapJob).filter((job) => job.id && job.customerName).sort((a, b) => b.sortDate - a.sortDate || b.sourceRow - a.sourceRow);
-            localStorage.setItem(SOURCE_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), jobs: state.jobs }));
+            const result = await BBFeedback.call('read', 'source');
+            state.jobs = result.rows.map(mapJob).filter((job) => job.id && job.customerName).sort((a, b) => b.sortDate - a.sortDate || b.sourceRow - a.sourceRow);
             setSourceStatus(`Our-DATA · ${state.jobs.length.toLocaleString('th-TH')} งาน`, true);
         } catch (error) {
-            const cached = readJSON(SOURCE_CACHE_KEY);
-            state.jobs = cached?.jobs?.map((job) => ({ ...job, sortDate: new Date(job.sortDate) })) || [];
-            setSourceStatus(state.jobs.length ? 'แสดงข้อมูลสำรองล่าสุด' : 'เชื่อมต่อไม่สำเร็จ', false);
+            state.jobs = [];
+            setSourceStatus(error.message || 'เชื่อมต่อไม่สำเร็จ', false);
         } finally {
             populateSourceFilters();
             filterJobs();
@@ -164,6 +135,7 @@
     }
 
     function selectJob(sourceRow) {
+        if (state.saving) return;
         state.selected = state.jobs.find((job) => job.sourceRow === sourceRow);
         if (!state.selected) return;
         state.editingRecordId = '';
@@ -181,11 +153,27 @@
         el('selected-company').textContent = job.company;
         el('selected-source-id').textContent = job.id;
         const items = [
-            ['ชื่อลูกค้า', job.customerName], ['บริษัท', job.company], ['เบอร์โทรติดต่อ', phoneLink(job.phone)], ['ช่องทาง', job.channel || '—'],
+            ['ชื่อลูกค้า', job.customerName], ['บริษัท', job.company], ['เบอร์โทรติดต่อ', job.phone], ['ช่องทาง', job.channel || '—'],
             ['Line @', job.lineAt || '—'], ['ที่อยู่', job.address || '—', true], ['เดือนติดตั้ง', job.installMonth || '—'], ['วันที่ติดตั้ง', job.installDate || '—'],
             ['พื้นที่กระจก', job.glassArea ? numberFormat.format(job.glassArea) : '—'], ['หน่วย', job.unit], ['ฝ่ายขาย', job.sales || '—']
         ];
-        el('source-grid').innerHTML = items.map(([label, value, wide]) => `<div class="source-item ${wide ? 'wide' : ''}"><small>${label}</small><strong>${value}</strong></div>`).join('');
+        const grid = el('source-grid');
+        grid.replaceChildren();
+        items.forEach(([label, value, wide]) => {
+            const item = document.createElement('div');
+            item.className = `source-item ${wide ? 'wide' : ''}`;
+            const caption = document.createElement('small');
+            caption.textContent = label;
+            const content = document.createElement('strong');
+            if (label === 'เบอร์โทรติดต่อ' && job.phone) {
+                const link = document.createElement('a');
+                link.href = `tel:${clean(job.phone).replace(/[^\d+]/g, '')}`;
+                link.textContent = job.phone;
+                content.appendChild(link);
+            } else content.textContent = label === 'เบอร์โทรติดต่อ' ? '—' : value;
+            item.append(caption, content);
+            grid.appendChild(item);
+        });
         el('empty-selection').classList.add('hidden');
         el('feedback-form').classList.remove('hidden');
         el('job-panel').classList.add('has-selection');
@@ -245,8 +233,11 @@
     function collectPayload() {
         const job = state.selected;
         const editing = Boolean(state.editingRecordId);
+        const request = editing ? null : pendingRequest(job.id);
+
         return {
-            action: editing ? 'update' : 'create', recordId: editing ? state.editingRecordId : createRecordId(), savedAt: new Date().toISOString(),
+            action: editing ? 'update' : 'create', recordId: editing ? state.editingRecordId : request.recordId,
+            savedAt: editing ? state.editingSavedAt : request.savedAt, expectedVersion: state.editingVersion,
             sourceId: job.id, sourceRow: job.sourceRow, customerName: job.customerName, company: job.company,
             phone: job.phone, channel: job.channel, lineAt: job.lineAt, address: job.address,
             installMonth: job.installMonth, installDate: job.installDate, glassArea: job.glassArea,
@@ -282,58 +273,61 @@
 
     async function submitFeedback(event) {
         event.preventDefault();
-        const scriptUrl = getScriptUrl();
+        if (!state.selected) { showFormStatus('กรุณาเลือกงานจาก Our-DATA', true); return; }
+        if (el('submit-button').disabled) return;
         const payload = collectPayload();
         const validation = validatePayload(payload);
         if (validation) { showValidationError(validation); return; }
         const button = el('submit-button');
         const isEditing = payload.action === 'update';
         button.disabled = true;
+        state.saving = true;
+        const controls = [...document.querySelectorAll('#feedback-form input, #feedback-form select, #feedback-form textarea, #clear-feedback, #change-customer, .job-card, .recent-card')];
+        const previousDisabled = controls.map((control) => control.disabled);
+        controls.forEach((control) => { control.disabled = true; });
         button.querySelector('span').textContent = isEditing ? 'กำลังอัปเดต...' : 'กำลังบันทึก...';
         showFormStatus(isEditing ? 'กำลังอัปเดตแถวเดิมใน Feedback-BB-Week...' : 'กำลังส่งข้อมูลไปยังชีต Feedback-BB-Week...', false);
         try {
-            await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-            const verified = await verifySavedFeedback(payload);
-            if (!verified) throw new Error('VERIFY_FAILED');
-            addRecent(payload);
+            const result = await BBFeedback.call('save', payload);
+            addRecent(result.record);
+            if (isEditing) {
+                state.editingVersion = result.record.version;
+                state.editingSavedAt = result.record.savedAt;
+            }
+            if (!isEditing) finishRequest(payload.sourceId);
             showFormStatus(isEditing ? 'อัปเดตข้อมูลเดิมเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว', false, true);
             showToast(`${isEditing ? 'อัปเดต' : 'บันทึก'} ${payload.customerName} · ${payload.bbWeek}`);
             if (!isEditing) clearFeedbackFields(false);
         } catch (error) {
-            showFormStatus(isEditing && error.message === 'VERIFY_FAILED'
-                ? 'ยังอัปเดตไม่สำเร็จ กรุณา Deploy Apps Script เวอร์ชันใหม่ที่รองรับการแก้ไข'
-                : 'ส่งข้อมูลไม่สำเร็จ กรุณาตรวจสอบ Apps Script แล้วลองอีกครั้ง', true);
+            showFormStatus(error.code ? error.message : 'ยังยืนยันผลบันทึกไม่ได้ กดส่งซ้ำเพื่อใช้รหัสรายการเดิม', true);
         } finally {
+            controls.forEach((control, index) => { control.disabled = previousDisabled[index]; });
             button.disabled = false;
+            state.saving = false;
             updateFormMode();
         }
     }
 
-    async function verifySavedFeedback(payload) {
-        for (let attempt = 0; attempt < 6; attempt++) {
-            await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 900 : 1300));
-            try {
-                const response = await fetch(`${FEEDBACK_SHEET_URL}&_=${Date.now()}`, { cache: 'no-store' });
-                if (!response.ok) continue;
-                const rows = parseCSV(await response.text()).slice(1);
-                const row = rows.find((item) => clean(item[0]) === payload.recordId);
-                if (!row) continue;
-                const matches = clean(row[15]) === clean(payload.bbWeek)
-                    && normalizeDate(row[16]) === normalizeDate(payload.inquiryDate)
-                    && clean(row[17]) === clean(payload.salesComment)
-                    && clean(row[18]) === clean(payload.salesFeedback)
-                    && clean(row[19]) === clean(payload.techComment)
-                    && clean(row[20]) === clean(payload.techFeedback)
-                    && clean(row[21]) === clean(payload.suggestions)
-                    && clean(row[22]) === clean(payload.technicianNames)
-                    && clean(row[23]) === clean(payload.note);
-                if (matches) return true;
-            } catch (_) { /* Retry while Google Sheets refreshes. */ }
+    const pendingRequests = new Map();
+    function pendingRequest(sourceId) {
+        const key = `bb-feedback-request-v2:${sourceId}`;
+        if (!pendingRequests.has(key)) {
+            let saved;
+            try { saved = JSON.parse(sessionStorage.getItem(key)); } catch (_) {}
+            if (!saved?.recordId || !saved?.savedAt) saved = { recordId: createRecordId(), savedAt: new Date().toISOString() };
+            pendingRequests.set(key, saved);
+            try { sessionStorage.setItem(key, JSON.stringify(saved)); } catch (_) {}
         }
-        return false;
+        return pendingRequests.get(key);
+    }
+    function finishRequest(sourceId) {
+        const key = `bb-feedback-request-v2:${sourceId}`;
+        pendingRequests.delete(key);
+        try { sessionStorage.removeItem(key); } catch (_) {}
     }
 
     function createRecordId() {
+        if (globalThis.crypto?.randomUUID) return `FB-${crypto.randomUUID().toUpperCase()}`;
         const now = new Date();
         const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
         return `FB-${stamp}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -341,7 +335,6 @@
 
     function addRecent(payload) {
         state.recent = [payload, ...state.recent.filter((item) => item.recordId !== payload.recordId)].slice(0, 500);
-        localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
         refreshContactedSourceIds();
         populateRecentWeekFilter(payload.bbWeek);
         renderRecent();
@@ -359,25 +352,25 @@
         el('recent-count').textContent = state.recent.length;
         el('recent-empty').classList.toggle('hidden', records.length > 0);
         el('recent-list').innerHTML = records.map((item) => `
-            <button type="button" class="recent-card" data-record-id="${escapeHTML(item.recordId)}"><strong>${escapeHTML(item.customerName)}</strong><p>${escapeHTML(item.company)} · ${escapeHTML(item.sourceId)}</p><footer><span>${escapeHTML(item.bbWeek)} · ${formatThaiDate(item.inquiryDate)}</span><b>แก้ไข ›</b></footer></button>`).join('');
+            <button type="button" class="recent-card" data-record-id="${escapeHTML(item.recordId)}"><strong>${escapeHTML(item.customerName)}</strong><p>${escapeHTML(item.company)} · ${escapeHTML(item.sourceId)}</p><footer><span>${escapeHTML(item.bbWeek)} · ${escapeHTML(formatThaiDate(item.inquiryDate))}</span><b>แก้ไข ›</b></footer></button>`).join('');
         document.querySelectorAll('.recent-card[data-record-id]').forEach((button) => button.addEventListener('click', () => editSavedFeedback(button.dataset.recordId)));
     }
 
     async function syncRecent() {
-        const scriptUrl = getScriptUrl();
-        if (!scriptUrl) return;
         try {
-            const response = await fetch(`${scriptUrl}?action=list&limit=1000&_=${Date.now()}`, { cache: 'no-store' });
-            const result = await response.json();
+            const result = await BBFeedback.call('read', 'records');
             if (result.ok && Array.isArray(result.records)) {
                 state.recent = result.records;
-                localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
                 refreshContactedSourceIds();
                 populateRecentWeekFilter();
                 renderRecent();
                 renderJobs();
             }
-        } catch (_) { /* Keep local recent records when Apps Script response is blocked. */ }
+        } catch (error) {
+            state.recent = [];
+            renderRecent();
+            showFormStatus(error.message || 'โหลดรายการไม่สำเร็จ', true);
+        }
     }
 
     function populateRecentWeekFilter(preferredWeek = '') {
@@ -399,9 +392,14 @@
     }
 
     function editSavedFeedback(recordId) {
+        if (state.saving) return;
         const record = state.recent.find((item) => item.recordId === recordId);
         if (!record) return;
         state.editingRecordId = record.recordId;
+        state.editingVersion = record.version;
+        state.editingSavedAt = record.savedAt;
+        const pending = pendingRequests.get('bb-feedback-request-v2:' + record.sourceId);
+        if (pending?.recordId === record.recordId) finishRequest(record.sourceId);
         el('record-id').value = record.recordId;
         state.selected = state.jobs.find((job) => clean(job.id) === clean(record.sourceId)) || {
             id: record.sourceId, sourceRow: Number(record.sourceRow) || 0, customerName: record.customerName,
@@ -440,6 +438,7 @@
     }
 
     function handleClearFeedback() {
+        if (state.saving) return;
         if (state.editingRecordId) {
             state.editingRecordId = '';
             el('record-id').value = '';
@@ -450,6 +449,7 @@
     }
 
     function changeCustomer() {
+        if (state.saving) return;
         state.selected = null;
         state.editingRecordId = '';
         el('record-id').value = '';
@@ -468,8 +468,6 @@
         el('recent-view').classList.toggle('hidden', tab !== 'recent');
         if (tab === 'recent') syncRecent();
     }
-
-    function getScriptUrl() { return DEFAULT_SCRIPT_URL; }
 
     function setSourceStatus(text, online) { el('source-status').textContent = text; el('source-dot').classList.toggle('online', online); }
     function showFormStatus(message, error = false, success = false) { el('form-status').textContent = message; el('form-status').className = `form-status${error ? ' error' : success ? ' success' : ''}`; }
@@ -498,7 +496,6 @@
         if (year > 2400) year -= 543;
         return `${year}-${String(match[2]).padStart(2, '0')}-${String(match[1]).padStart(2, '0')}`;
     }
-    function readJSON(key) { try { return JSON.parse(localStorage.getItem(key)); } catch (_) { return null; } }
 
     function bindEvents() {
         let debounce;
@@ -522,7 +519,6 @@
         el('inquiry-date').addEventListener('change', () => { clearFieldValidation('inquiry-date'); const date = new Date(`${el('inquiry-date').value}T00:00:00`); if (!Number.isNaN(date.getTime())) el('bb-week').value = `Week ${weekOfYear(date)}`; });
     }
 
-    state.recent = readJSON(RECENT_CACHE_KEY) || [];
     refreshContactedSourceIds();
     setupWeeks();
     populateRecentWeekFilter();

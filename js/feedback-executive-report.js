@@ -1,32 +1,11 @@
 (() => {
     'use strict';
+    if (!window.BBFeedback?.hosted) return;
 
-    const SPREADSHEET_ID = '1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM';
-    const SHEET_NAME = 'Feedback-BB-Week';
-    const DATA_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-    const CACHE_KEY = 'bb-feedback-executive-report-cache-v1';
     const state = { records: [], weeks: [], selectedWeeks: [], sentiment: 'all' };
     const el = (id) => document.getElementById(id);
     const clean = (value) => String(value ?? '').trim();
     const escapeHTML = (value) => clean(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
-
-    function parseCSV(text) {
-        const rows = [];
-        let row = [], field = '', quoted = false;
-        for (let index = 0; index < text.length; index++) {
-            const char = text[index];
-            if (quoted) {
-                if (char === '"' && text[index + 1] === '"') { field += '"'; index++; }
-                else if (char === '"') quoted = false;
-                else field += char;
-            } else if (char === '"') quoted = true;
-            else if (char === ',') { row.push(field); field = ''; }
-            else if (char === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-            else if (char !== '\r') field += char;
-        }
-        if (field || row.length) { row.push(field); rows.push(row); }
-        return rows;
-    }
 
     function mapRecord(row) {
         return {
@@ -41,29 +20,20 @@
         el('report-error').classList.add('hidden');
         el('report-loading').classList.remove('done');
         try {
-            const response = await fetch(`${DATA_URL}&_=${Date.now()}`, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`Google Sheets ตอบกลับด้วยรหัส ${response.status}`);
-            const records = parseCSV(await response.text()).slice(1).map(mapRecord).filter((record) => record.recordId && record.week);
+            const result = await BBFeedback.call('read', 'records');
+            const records = result.rows.map(mapRecord).filter((record) => record.recordId && record.week);
             if (!records.length) throw new Error('ยังไม่มีข้อมูล Week ในชีต Feedback-BB-Week');
             state.records = records;
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), records }));
         } catch (error) {
-            const cached = readCache();
-            if (!cached?.records?.length) {
-                el('error-message').textContent = error.message;
-                el('report-error').classList.remove('hidden');
-                return;
-            }
-            state.records = cached.records;
-            el('source-note').textContent = 'Source: Feedback-BB-Week · ใช้ข้อมูลสำรองล่าสุด';
+            state.records = [];
+            el('detail-rows').replaceChildren(); el('executive-summary').replaceChildren(); el('praised-people').replaceChildren(); el('complaint-people').replaceChildren(); el('sentiment-chart').replaceChildren(); ['kpi-total', 'kpi-gfs', 'kpi-mhl', 'kpi-praise', 'kpi-complaint'].forEach((id) => { el(id).textContent = '—'; }); el('source-note').textContent = 'โหลดไม่สำเร็จ';
+            el('error-message').textContent = error.message;
+            el('report-error').classList.remove('hidden');
+            return;
         } finally {
             if (state.records.length) initializeWeeks();
             el('report-loading').classList.add('done');
         }
-    }
-
-    function readCache() {
-        try { return JSON.parse(localStorage.getItem(CACHE_KEY)); } catch (_) { return null; }
     }
 
     function initializeWeeks() {

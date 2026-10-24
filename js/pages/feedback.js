@@ -3,6 +3,13 @@ function renderFeedbackHTML(container) {
     const sourceUrl = 'https://docs.google.com/spreadsheets/d/1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM/edit?gid=1571209798#gid=1571209798';
     const html = escapeHTML;
     const attr = escapeAttr;
+    if (feedbackErrorMessage) {
+        container.innerHTML = `<section class="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-5 text-sm font-bold text-amber-800">
+            <p>${html(feedbackErrorMessage)}</p>
+            <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex mt-4 rounded-xl bg-slate-950 px-4 py-2 text-white">เปิดตารางต้นทางด้วยบัญชี Google</a>
+        </section>`;
+        return;
+    }
     const weeks = [...new Set(feedbackData.map(d => d.week).filter(Boolean))];
     const getWeekNum = s => parseInt((s.match(/\d+/) || [0])[0]);
     const sortedWeeks = weeks.sort((a, b) => getWeekNum(b) - getWeekNum(a));

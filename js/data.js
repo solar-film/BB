@@ -351,41 +351,9 @@ async function loadData() {
 }
 
 async function loadFeedbackData() {
-    try {
-        // Fetch Feedback Data
-        const fbUrl = `https://docs.google.com/spreadsheets/d/1HaOmTLOl1YaaEIf_9WatknaAwIJGI8AZI1H-QO7CvHM/gviz/tq?tqx=out:csv&sheet=Feedback`;
-        const fbRes = await fetch(fbUrl);
-        if (!fbRes.ok) throw new Error('Cannot fetch feedback data');
-        const fbCsv = await fbRes.text();
-        const parsedFb = parseCSV(fbCsv);
-        feedbackData = parsedFb.slice(1).map(row => ({
-            customerName: row[2] || '',    // Col C
-            company: row[3] || '',         // Col D
-            phone: row[4] || '',           // Col E
-            address: row[7] || '',         // Col H
-            installDate: row[9] || '',     // Col J
-            salesName: row[12] || '',      // Col M (ฝ่ายขาย)
-            week: row[34] || '',           // Col AI
-            surveyDate: row[35] || '',     // Col AJ
-            salesComments: row[36] || '',  // Col AK (คำติชม ฝ่ายขาย)
-            salesFeedback: row[37] || '',  // Col AL (Feedback ฝ่ายขาย)
-            techComments: row[38] || '',   // Col AM (คำติชม ทีมช่าง)
-            techFeedback: row[39] || '',   // Col AN (Feedback ทีมช่าง)
-            suggestions: row[40] || '',    // Col AO (ข้อแนะนำอื่นๆ)
-            technicians: row[41] || ''     // Col AP (รายชื่อช่าง)
-        })).filter(item =>
-            // กรองแสดงเฉพาะรายการที่มีข้อมูลในคอลัมน์ AK ถึง AO เท่านั้น
-            (item.salesComments && item.salesComments.trim() !== '') ||
-            (item.salesFeedback && item.salesFeedback.trim() !== '') ||
-            (item.techComments && item.techComments.trim() !== '') ||
-            (item.techFeedback && item.techFeedback.trim() !== '') ||
-            (item.suggestions && item.suggestions.trim() !== '')
-        );
-        feedbackErrorMessage = null;
-    } catch (fbErr) {
-        feedbackData = [];
-        feedbackErrorMessage = fbErr.message;
-    }
+    // This legacy tab is private; the current Feedback menu uses its separate app.
+    feedbackData = [];
+    feedbackErrorMessage = 'ข้อมูล Feedback เดิมจำกัดสิทธิ์แล้ว กรุณาลงชื่อเข้าใช้ Google เพื่อเปิดตารางต้นทาง';
 }
 
 function parseRowBasedWeeklyData(parsed) {
