@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Performance Dashboard</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="assets/app-icon.png">
+    <link rel="apple-touch-icon" href="assets/app-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="apple-mobile-web-app-title" content="GFS MHL Sales">
     <meta name="theme-color" content="#2563eb">
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://unpkg.com">
@@ -20,7 +23,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- ตั้งค่าฟอนต์ -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20260907-1">
+    <link rel="stylesheet" href="css/monthly.css?v=20260907-27">
+    <link rel="stylesheet" href="css/monthly-showcase.css?v=20260907-1">
+    <link rel="stylesheet" href="css/fullscreen.css?v=20260905-1">
 </head>
 <body class="h-screen overflow-hidden flex text-slate-800 font-medium text-sm">
 
@@ -40,7 +46,7 @@
             <div class="flex items-center min-w-0">
                 <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3 font-bold text-white shadow-lg shadow-blue-500/20 text-lg">BB</div>
                 <div class="min-w-0">
-                    <h1 class="text-white font-bold tracking-wider leading-tight text-lg truncate">BB Weekly 2026</h1>
+                    <h1 class="text-white font-bold tracking-wider leading-tight text-lg truncate">Business Breakdown 2026</h1>
                     <p class="text-xs text-slate-400 truncate"><a href="https://docs.google.com/spreadsheets/d/12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo/edit?gid=702501167#gid=702501167" target="_blank" rel="noopener noreferrer">แหล่งข้อมูล Google Sheets</a></p>
                 </div>
             </div>
@@ -54,14 +60,17 @@
                 <p class="px-2 text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Main Dashboard</p>
                 <ul class="space-y-1">
                     <li><a href="#" id="mobile-menu-overview" onclick="changePage('overview')" class="flex items-center gap-3 px-3 py-3 bg-blue-600/20 text-blue-400 border border-blue-500/20 shadow-md rounded-xl transition-all font-bold"><i data-lucide="pie-chart" class="w-5 h-5"></i> ภาพรวมธุรกิจ (Overview)</a></li>
+                    <li><a href="#" id="mobile-menu-monthly" onclick="changePage('monthly'); return false;" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="calendar-range" class="w-5 h-5"></i> สรุปรายเดือน (Monthly)</a></li>
                 </ul>
             </div>
 
             <div>
                 <p class="px-2 text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Operations</p>
                 <ul class="space-y-1">
-                    <li><a href="#" id="mobile-menu-marketing" onclick="changePage('marketing')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="megaphone" class="w-5 h-5"></i> MARKETING Online</a></li>
+                    <li><a href="#" id="mobile-menu-marketing" onclick="changePage('marketing')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="megaphone" class="w-5 h-5"></i> MARKETING ONLINE</a></li>
                     <li><a href="#" id="mobile-menu-admin" onclick="changePage('admin')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="file-text" class="w-5 h-5"></i> SALES ADMIN</a></li>
+                    <li><a href="lost-jobs.html" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-x" class="w-5 h-5 text-orange-400"></i> งานหลุด</a></li>
+
                 </ul>
             </div>
 
@@ -76,8 +85,7 @@
             <div>
                 <ul class="space-y-1">
                     <li><a href="#" id="mobile-menu-tech" onclick="changePage('tech')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="wrench" class="w-5 h-5"></i> ทีมช่างติดตั้ง (อาคาร)</a></li>
-                    <li><a href="feedback-presentation.html" id="mobile-menu-feedback" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
-                    <li><a href="no-install-reason.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-pen-line" class="w-5 h-5 text-amber-400"></i> เหตุผลงานไม่ติดตั้ง</a></li>
+                    <li><a href="https://solar-film.github.io/feedback/admin/?presentation=public" target="_blank" rel="noopener noreferrer" id="mobile-menu-feedback" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
                 </ul>
             </div>
         </div>
@@ -98,7 +106,7 @@
         <div class="h-24 flex items-center px-6 border-b border-slate-800">
             <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-4 font-bold text-white shadow-lg shadow-blue-500/20 text-lg">BB</div>
             <div>
-                <h1 class="text-white font-bold tracking-wider leading-tight text-xl">BB Weekly 2026</h1>
+                <h1 class="text-white font-bold tracking-wider leading-tight text-xl">Business Breakdown 2026</h1>
                 <p class="text-sm text-slate-400"><a href="https://docs.google.com/spreadsheets/d/12BRnIWVT227cltrdeukIAOIEJ_qrL3OH0Aw6a7gIDIo/edit?gid=702501167#gid=702501167" target="_blank" rel="noopener noreferrer">แหล่งข้อมูล Google Sheets</a></p>
             </div>
         </div>
@@ -108,14 +116,17 @@
                 <p class="px-2 text-sm font-bold text-slate-500 mb-3 uppercase tracking-widest">Main Dashboard</p>
                 <ul class="space-y-1">
                     <li><a href="#" id="menu-overview" onclick="changePage('overview')" class="flex items-center gap-3 px-3 py-3 bg-blue-600/20 text-blue-400 border border-blue-500/20 shadow-md rounded-xl transition-all font-bold"><i data-lucide="pie-chart" class="w-5 h-5"></i> ภาพรวมธุรกิจ (Overview)</a></li>
+                    <li><a href="#" id="menu-monthly" onclick="changePage('monthly'); return false;" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="calendar-range" class="w-5 h-5"></i> สรุปรายเดือน (Monthly)</a></li>
                 </ul>
             </div>
 
             <div>
                 <p class="px-2 text-sm font-bold text-slate-500 mb-3 uppercase tracking-widest">Operations</p>
                 <ul class="space-y-1">
-                    <li><a href="#" id="menu-marketing" onclick="changePage('marketing')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="megaphone" class="w-5 h-5"></i> MARKETING Online</a></li>
+                    <li><a href="#" id="menu-marketing" onclick="changePage('marketing')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="megaphone" class="w-5 h-5"></i> MARKETING ONLINE</a></li>
                     <li><a href="#" id="menu-admin" onclick="changePage('admin')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="file-text" class="w-5 h-5"></i> SALES ADMIN</a></li>
+                    <li><a href="lost-jobs.html" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-x" class="w-5 h-5 text-orange-400"></i> งานหลุด</a></li>
+
                 </ul>
             </div>
 
@@ -130,8 +141,7 @@
             <div>
                 <ul class="space-y-1">
                     <li><a href="#" id="menu-tech" onclick="changePage('tech')" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="wrench" class="w-5 h-5"></i> ทีมช่างติดตั้ง (อาคาร)</a></li>
-                    <li><a href="feedback-presentation.html" id="menu-feedback" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
-                    <li><a href="no-install-reason.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="clipboard-pen-line" class="w-5 h-5 text-amber-400"></i> เหตุผลงานไม่ติดตั้ง</a></li>
+                    <li><a href="https://solar-film.github.io/feedback/admin/?presentation=public" target="_blank" rel="noopener noreferrer" id="menu-feedback" class="flex items-center gap-3 px-3 py-3 hover:bg-slate-800/50 hover:text-slate-200 rounded-xl transition-colors font-bold text-slate-400"><i data-lucide="message-square" class="w-5 h-5 text-pink-400"></i> Feedback ลูกค้า(อาคาร)</a></li>
                 </ul>
             </div>
         </div>
@@ -162,8 +172,10 @@
                     <p class="text-xs sm:text-sm text-slate-500 font-bold mt-0.5 truncate" id="header-subtitle">สรุปข้อมูลสถิติรายสัปดาห์</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4 shrink-0">
-                <button onclick="loadData()" class="px-4 sm:px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 text-sm sm:text-base">
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+                <div id="header-week-control" class="hidden"></div>
+                <div id="header-monthly-control" class="hidden"></div>
+                <button onclick="loadData()" aria-label="รีเฟรชข้อมูล" class="px-4 sm:px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 text-sm sm:text-base">
                     <i data-lucide="refresh-cw" class="w-5 h-5"></i> <span class="hidden sm:inline">รีเฟรชข้อมูล</span>
                 </button>
             </div>
@@ -173,16 +185,21 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar space-y-8 flex flex-col" id="dashboard-content"></div>
     </main>
     <script src="js/helpers.js"></script>
+    <script src="js/fullscreen.js"></script>
     <script src="js/charts.js"></script>
-    <script src="js/data.js"></script>
+    <script src="js/expense-data.js?v=20260907-1"></script>
+    <script src="js/data.js?v=20260914-1"></script>
     <script src="js/pages/overview.js"></script>
     <script src="js/pages/feedback.js"></script>
-    <script src="js/pages/sales.js"></script>
-    <script src="js/pages/car.js"></script>
-    <script src="js/pages/marketing.js"></script>
+    <script src="js/pages/sales.js?v=20260907-1"></script>
+    <script src="js/pages/car.js?v=20260914-1"></script>
+    <script src="js/pages/marketing.js?v=20260914-1"></script>
     <script src="js/pages/tech.js"></script>
     <script src="js/pages/admin.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/monthly-data.js?v=20260907-5"></script>
+    <script src="js/pages/monthly-expenses.js?v=20260907-5"></script>
+    <script src="js/pages/monthly.js?v=20260907-24"></script>
+    <script src="js/app.js?v=20260905-3"></script>
 
     <!-- No-Install Reason Popup -->
     <div id="no-install-popup" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,23,42,0.6);backdrop-filter:blur(4px)">

@@ -10,18 +10,22 @@ const NO_INSTALL_HEADERS = [
 ];
 
 function doGet() {
-  return jsonOutput_({
-    ok: true,
-    spreadsheetId: NO_INSTALL_SPREADSHEET_ID,
-    sheetName: NO_INSTALL_SHEET_NAME
-  });
+  try {
+    const sheet = getTargetSheet_();
+    return jsonOutput_({
+      ok: true,
+      spreadsheetId: NO_INSTALL_SPREADSHEET_ID,
+      sheetName: sheet.getName()
+    });
+  } catch (error) {
+    return jsonOutput_({ ok: false, error: error.message });
+  }
 }
 
 function doPost(e) {
   try {
     const payload = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    const sheet = SpreadsheetApp.openById(NO_INSTALL_SPREADSHEET_ID).getSheetByName(NO_INSTALL_SHEET_NAME);
-    if (!sheet) throw new Error(`Sheet not found: ${NO_INSTALL_SHEET_NAME}`);
+    const sheet = getTargetSheet_();
     ensureHeaders_(sheet);
 
     if (payload.action === 'update') return updateRow_(sheet, payload);
@@ -29,6 +33,19 @@ function doPost(e) {
   } catch (error) {
     return jsonOutput_({ ok: false, error: error.message });
   }
+}
+
+function authorizeNoInstallApp() {
+  const sheet = getTargetSheet_();
+  return `Authorized: ${sheet.getParent().getName()} / ${sheet.getName()}`;
+}
+
+function getTargetSheet_() {
+  const sheet = SpreadsheetApp
+    .openById(NO_INSTALL_SPREADSHEET_ID)
+    .getSheetByName(NO_INSTALL_SHEET_NAME);
+  if (!sheet) throw new Error(`Sheet not found: ${NO_INSTALL_SHEET_NAME}`);
+  return sheet;
 }
 
 function createRow_(sheet, payload) {

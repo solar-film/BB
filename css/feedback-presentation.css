@@ -116,12 +116,13 @@ button, select { cursor: pointer; }
 .big-stat.accent span { color: #d5ccfb; }
 .big-stat.company-breakdown { display: grid; grid-template-columns: 1.35fr 1fr 1fr; align-items: stretch; gap: 10px; padding: 14px 16px 14px 22px; }
 .total-feedback-stat, .company-feedback-stat { display: flex; flex-direction: column; justify-content: center; }
-.company-feedback-stat { padding: 11px 18px; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
-.company-feedback-stat.gfs-feedback-stat { background: linear-gradient(135deg, #168e83, #27b397); }
-.company-feedback-stat.mhl-feedback-stat { background: linear-gradient(135deg, #d88418, #efa934); }
-.company-feedback-stat small { color: white; font: 800 clamp(13px, 1.1vw, 18px)/1 Manrope, sans-serif; letter-spacing: .08em; }
+.company-feedback-stat { padding: 11px 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,.38); box-shadow: 0 8px 22px rgba(41,28,91,.12); }
+.company-feedback-stat.gfs-feedback-stat,
+.company-feedback-stat.mhl-feedback-stat { background: rgba(255,255,255,.95); border-color: rgba(255,255,255,.72); }
+.company-feedback-stat small { font: 800 clamp(13px, 1.1vw, 18px)/1 Manrope, sans-serif; letter-spacing: .08em; }
 .company-feedback-stat strong { margin: 6px 0 2px; font-size: clamp(28px, 2.7vw, 44px); }
-.company-feedback-stat span { color: rgba(255,255,255,.8) !important; }
+.gfs-feedback-stat small, .gfs-feedback-stat strong, .gfs-feedback-stat span,
+.mhl-feedback-stat small, .mhl-feedback-stat strong, .mhl-feedback-stat span { color: #46318f !important; }
 .people-stat { min-height: 128px; padding: 15px 17px; }
 .people-stat.praise-people { background: #effaf5; border-color: #c5e8da; }
 .people-stat.complaint-people { background: #fff4f5; border-color: #f2cbd1; }

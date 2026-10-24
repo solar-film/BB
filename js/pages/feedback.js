@@ -169,10 +169,13 @@ function renderFeedbackHTML(container) {
                 </div>
                 <div class="flex flex-col justify-end gap-3 lg:w-80">
                     <label class="text-sm font-black text-white/80">เลือกสัปดาห์ Feedback</label>
-                    <select onchange="handleFeedbackWeekChange(event)" class="w-full rounded-2xl border border-white/30 bg-white px-4 py-3 text-base font-black text-slate-800 shadow-sm outline-none focus:ring-4 focus:ring-white/30">
-                        <option value="All" ${selectedFeedbackWeek === 'All' ? 'selected' : ''}>สัปดาห์ทั้งหมด (All)</option>
-                        ${sortedWeeks.map(w => `<option value="${attr(w)}" ${w === selectedFeedbackWeek ? 'selected' : ''}>${html(w)}</option>`).join('')}
-                    </select>
+                    <div class="flex items-center gap-2">
+                        <select onchange="handleFeedbackWeekChange(event)" class="min-w-0 flex-1 rounded-2xl border border-white/30 bg-white px-4 py-3 text-base font-black text-slate-800 shadow-sm outline-none focus:ring-4 focus:ring-white/30">
+                            <option value="All" ${selectedFeedbackWeek === 'All' ? 'selected' : ''}>สัปดาห์ทั้งหมด (All)</option>
+                            ${sortedWeeks.map(w => `<option value="${attr(w)}" ${w === selectedFeedbackWeek ? 'selected' : ''}>${html(w)}</option>`).join('')}
+                        </select>
+                        ${renderFullscreenButton()}
+                    </div>
                     <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-950/20 transition-colors hover:bg-slate-800">
                         <i data-lucide="external-link" class="h-5 w-5"></i>
                         แหล่งข้อมูล Feedback

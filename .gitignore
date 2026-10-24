@@ -1,0 +1,5 @@
+# Local and sensitive files that must not be published.
+appsheet-source.xlsx
+.gitconfig-codex
+AGENTS.md
+.codex-upload-git/

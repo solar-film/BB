@@ -1,0 +1,13 @@
+/* Fullscreen presentation hides navigation without changing the saved sidebar state. */
+:root:fullscreen #desktop-sidebar,
+:root:fullscreen #mobile-sidebar,
+:root:fullscreen #mobile-menu-backdrop,
+:root:fullscreen #app-view button[onclick="openMobileMenu()"],
+:root:fullscreen #app-view button[onclick="toggleDesktopSidebar()"] {
+    display: none !important;
+}
+
+:root:fullscreen #app-view {
+    width: 100%;
+    min-width: 0;
+}

@@ -25,6 +25,7 @@
             <span class="source-status"><i id="source-dot"></i><span><small>ข้อมูลต้นทาง</small><strong id="source-status">กำลังเชื่อมต่อ...</strong></span></span>
             <a class="presentation-link report-link" href="feedback-executive-report.html">▦ รายงานผู้บริหาร</a>
             <a class="presentation-link" href="feedback-presentation.html">▶ เปิดสไลด์นำเสนอ</a>
+            <button class="dashboard-fullscreen-button" data-fullscreen-toggle onclick="toggleDashboardFullscreen(event)" type="button" aria-label="ขยายเต็มจอ" title="ขยายเต็มจอ"><span class="fullscreen-button-icon" aria-hidden="true">⛶</span><span class="fullscreen-button-label">เต็มจอ</span></button>
         </div>
     </header>
 
@@ -98,10 +99,11 @@
                         <label class="field"><span>วันที่สอบถาม <b>*</b></span><input id="inquiry-date" type="date" required></label>
                     </div>
 
+                    <div class="feedback-groups-grid">
                     <div class="feedback-group sales-group">
                         <div class="group-label"><span>ฝ่ายขาย</span><small>ความคิดเห็นเกี่ยวกับการให้บริการของฝ่ายขาย</small></div>
                         <div class="two-columns">
-                            <label class="field"><span>คำติชม — ฝ่ายขาย</span><select id="sales-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
+                            <label class="field"><span>คำติชม — ฝ่ายขาย <small>จำเป็นเมื่อกรอก Feedback</small></span><select id="sales-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
                             <label class="field"><span>Feedback — ฝ่ายขาย</span><textarea id="sales-feedback" rows="4" placeholder="รายละเอียด Feedback เพิ่มเติม..."></textarea></label>
                         </div>
                     </div>
@@ -109,10 +111,11 @@
                     <div class="feedback-group tech-group">
                         <div class="group-label"><span>ทีมช่าง</span><small>ความคิดเห็นเกี่ยวกับงานติดตั้งและทีมช่าง</small></div>
                         <div class="two-columns">
-                            <label class="field"><span>คำติชม — ทีมช่าง</span><select id="tech-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
+                            <label class="field"><span>คำติชม — ทีมช่าง <small>จำเป็นเมื่อกรอก Feedback</small></span><select id="tech-comment"><option value="">เลือกประเภทคำติชม</option><option value="คำชม">คำชม</option><option value="คอมเพลน">คอมเพลน</option><option value="คำชม/คอมเพลน">คำชม/คอมเพลน</option><option value="แนะนำ">แนะนำ</option></select></label>
                             <label class="field"><span>Feedback — ทีมช่าง</span><textarea id="tech-feedback" rows="4" placeholder="รายละเอียด Feedback เพิ่มเติม..."></textarea></label>
                         </div>
                         <label class="field technician-field"><span>รายชื่อช่าง</span><textarea id="technician-names" rows="3" placeholder="ชื่อช่างผู้ปฏิบัติงาน..."></textarea></label>
+                    </div>
                     </div>
 
                     <div class="feedback-group suggestion-group">
@@ -134,6 +137,7 @@
     <div class="toast hidden" id="toast"><span>✓</span><div><strong>บันทึกเรียบร้อย</strong><small id="toast-message"></small></div></div>
     <div class="loading-overlay" id="loading-overlay"><div class="loader-mark">BB</div><strong>กำลังโหลดงานจาก Our-DATA</strong><i></i></div>
 
+    <script src="js/fullscreen.js"></script>
     <script src="js/feedback-bb-week.js"></script>
 </body>
 </html>

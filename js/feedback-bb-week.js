@@ -10,7 +10,7 @@
     const RECENT_CACHE_KEY = 'bb-feedback-recent-v1';
     const PAGE_STEP = 40;
 
-    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], activeTab: 'jobs', editingRecordId: '' };
+    const state = { jobs: [], filtered: [], selected: null, visible: PAGE_STEP, recent: [], contactedSourceIds: new Set(), recentWeekInitialized: false, activeTab: 'jobs', editingRecordId: '' };
     const el = (id) => document.getElementById(id);
     const clean = (value) => String(value ?? '').trim();
     const escapeHTML = (value) => clean(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
@@ -150,12 +150,15 @@
             : `พร้อมค้นหาจาก ${state.jobs.length.toLocaleString('th-TH')} งาน`;
         el('job-list').innerHTML = !hasSearch
             ? '<div class="search-prompt"><span>⌕</span><strong>ค้นหางานที่ต้องการ</strong><p>พิมพ์คำค้นหา หรือเลือกเดือนและวันที่ติดตั้งด้านบน</p></div>'
-            : shown.length ? shown.map((job) => `
-            <button class="job-card ${state.selected?.sourceRow === job.sourceRow ? 'selected' : ''}" type="button" data-row="${job.sourceRow}">
-                <span class="job-card-top"><span class="company-tag">${escapeHTML(job.company)}</span><span class="job-date">${escapeHTML(job.installDate || 'ไม่ระบุวันที่')}</span></span>
+            : shown.length ? shown.map((job) => {
+                const contacted = state.contactedSourceIds.has(clean(job.id));
+                return `
+            <button class="job-card ${state.selected?.sourceRow === job.sourceRow ? 'selected' : ''} ${contacted ? 'contacted' : ''}" type="button" data-row="${job.sourceRow}">
+                <span class="job-card-top"><span class="job-card-tags"><span class="company-tag">${escapeHTML(job.company)}</span>${contacted ? '<span class="contacted-badge">✓ โทรติดต่อแล้ว</span>' : ''}</span><span class="job-date">${escapeHTML(job.installDate || 'ไม่ระบุวันที่')}</span></span>
                 <h3>${escapeHTML(job.customerName)}</h3><p>${escapeHTML(job.id)} · ${escapeHTML(job.address || 'ไม่ระบุที่อยู่')}</p>
                 <span class="job-card-meta"><span>ฝ่ายขาย <strong>${escapeHTML(job.sales || '—')}</strong></span><span>${job.glassArea ? `${numberFormat.format(job.glassArea)} ${escapeHTML(job.unit)}` : 'ไม่ระบุพื้นที่'}</span></span>
-            </button>`).join('') : '<div class="empty-mini">ไม่พบงานที่ตรงกับคำค้นหา</div>';
+            </button>`;
+            }).join('') : '<div class="empty-mini">ไม่พบงานที่ตรงกับคำค้นหา</div>';
         el('load-more').classList.toggle('hidden', !hasSearch || state.visible >= state.filtered.length);
         document.querySelectorAll('.job-card').forEach((button) => button.addEventListener('click', () => selectJob(Number(button.dataset.row))));
     }
@@ -255,12 +258,26 @@
     }
 
     function validatePayload(payload) {
-        if (!state.selected) return 'กรุณาเลือกงานจาก Our-DATA';
-        if (!payload.bbWeek) return 'กรุณาเลือก BB Week';
-        if (!payload.inquiryDate) return 'กรุณาระบุวันที่สอบถาม';
+        if (!state.selected) return { message: 'กรุณาเลือกงานจาก Our-DATA' };
+        if (!payload.bbWeek) return { message: 'กรุณาเลือก BB Week', fieldId: 'bb-week' };
+        if (!payload.inquiryDate) return { message: 'กรุณาระบุวันที่สอบถาม', fieldId: 'inquiry-date' };
+        if (payload.salesFeedback && !payload.salesComment) return { message: 'กรุณาเลือกคำติชมของฝ่ายขาย เนื่องจากมีการกรอก Feedback ฝ่ายขาย', fieldId: 'sales-comment' };
+        if (payload.techFeedback && !payload.techComment) return { message: 'กรุณาเลือกคำติชมของทีมช่าง เนื่องจากมีการกรอก Feedback ทีมช่าง', fieldId: 'tech-comment' };
         const feedbackFields = ['salesComment', 'salesFeedback', 'techComment', 'techFeedback', 'suggestions', 'note'];
-        if (!feedbackFields.some((key) => payload[key])) return 'กรุณากรอก Feedback อย่างน้อย 1 ช่อง';
-        return '';
+        if (!feedbackFields.some((key) => payload[key])) return { message: 'กรุณากรอก Feedback อย่างน้อย 1 ช่อง' };
+        return null;
+    }
+
+    function showValidationError(validation) {
+        showFormStatus(validation.message, true);
+        document.querySelectorAll('.field.validation-error').forEach((field) => field.classList.remove('validation-error'));
+        if (!validation.fieldId) return;
+        const input = el(validation.fieldId);
+        const field = input?.closest('.field');
+        field?.classList.add('validation-error');
+        input?.setAttribute('aria-invalid', 'true');
+        input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(() => input?.focus(), 280);
     }
 
     async function submitFeedback(event) {
@@ -268,7 +285,7 @@
         const scriptUrl = getScriptUrl();
         const payload = collectPayload();
         const validation = validatePayload(payload);
-        if (validation) { showFormStatus(validation, true); return; }
+        if (validation) { showValidationError(validation); return; }
         const button = el('submit-button');
         const isEditing = payload.action === 'update';
         button.disabled = true;
@@ -325,8 +342,14 @@
     function addRecent(payload) {
         state.recent = [payload, ...state.recent.filter((item) => item.recordId !== payload.recordId)].slice(0, 500);
         localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
-        populateRecentWeekFilter();
+        refreshContactedSourceIds();
+        populateRecentWeekFilter(payload.bbWeek);
         renderRecent();
+        renderJobs();
+    }
+
+    function refreshContactedSourceIds() {
+        state.contactedSourceIds = new Set(state.recent.map((item) => clean(item.sourceId)).filter(Boolean));
     }
 
     function renderRecent() {
@@ -344,25 +367,30 @@
         const scriptUrl = getScriptUrl();
         if (!scriptUrl) return;
         try {
-            const response = await fetch(`${scriptUrl}?action=list&limit=500&_=${Date.now()}`, { cache: 'no-store' });
+            const response = await fetch(`${scriptUrl}?action=list&limit=1000&_=${Date.now()}`, { cache: 'no-store' });
             const result = await response.json();
             if (result.ok && Array.isArray(result.records)) {
                 state.recent = result.records;
                 localStorage.setItem(RECENT_CACHE_KEY, JSON.stringify(state.recent));
+                refreshContactedSourceIds();
                 populateRecentWeekFilter();
                 renderRecent();
+                renderJobs();
             }
         } catch (_) { /* Keep local recent records when Apps Script response is blocked. */ }
     }
 
-    function populateRecentWeekFilter() {
+    function populateRecentWeekFilter(preferredWeek = '') {
         const select = el('recent-week-filter');
         if (!select) return;
-        const current = select.value;
+        const current = clean(preferredWeek) || select.value;
         const weeks = [...new Set(state.recent.map((item) => clean(item.bbWeek)).filter(Boolean))]
             .sort((a, b) => feedbackWeekRank(b) - feedbackWeekRank(a));
         select.innerHTML = '<option value="">ทุก Week</option>' + weeks.map((week) => `<option value="${escapeHTML(week)}">${escapeHTML(week)}</option>`).join('');
         if (weeks.includes(current)) select.value = current;
+        else if (!state.recentWeekInitialized && weeks.length) select.value = weeks[0];
+        else select.value = '';
+        if (weeks.length) state.recentWeekInitialized = true;
     }
 
     function feedbackWeekRank(value) {
@@ -446,6 +474,18 @@
     function setSourceStatus(text, online) { el('source-status').textContent = text; el('source-dot').classList.toggle('online', online); }
     function showFormStatus(message, error = false, success = false) { el('form-status').textContent = message; el('form-status').className = `form-status${error ? ' error' : success ? ' success' : ''}`; }
     function hideFormStatus() { el('form-status').classList.add('hidden'); }
+
+    function clearFieldValidation(id) {
+        const input = el(id);
+        input?.closest('.field')?.classList.remove('validation-error');
+        input?.removeAttribute('aria-invalid');
+    }
+    function syncConditionalRequirement(feedbackId, commentId) {
+        const hasFeedback = Boolean(clean(el(feedbackId).value));
+        el(commentId).toggleAttribute('required', hasFeedback);
+        el(commentId).setAttribute('aria-required', String(hasFeedback));
+        if (!hasFeedback || el(commentId).value) clearFieldValidation(commentId);
+    }
     function showToast(message) { el('toast-message').textContent = message; el('toast').classList.remove('hidden'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => el('toast').classList.add('hidden'), 3500); }
     function formatThaiDate(value) { const date = new Date(`${value}T00:00:00`); return Number.isNaN(date.getTime()) ? clean(value) : new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' }).format(date); }
     function normalizeDate(value) {
@@ -474,10 +514,16 @@
         el('change-customer').addEventListener('click', changeCustomer);
         el('clear-feedback').addEventListener('click', handleClearFeedback);
         el('feedback-form').addEventListener('submit', submitFeedback);
-        el('inquiry-date').addEventListener('change', () => { const date = new Date(`${el('inquiry-date').value}T00:00:00`); if (!Number.isNaN(date.getTime())) el('bb-week').value = `Week ${weekOfYear(date)}`; });
+        el('sales-feedback').addEventListener('input', () => syncConditionalRequirement('sales-feedback', 'sales-comment'));
+        el('tech-feedback').addEventListener('input', () => syncConditionalRequirement('tech-feedback', 'tech-comment'));
+        el('sales-comment').addEventListener('change', () => clearFieldValidation('sales-comment'));
+        el('tech-comment').addEventListener('change', () => clearFieldValidation('tech-comment'));
+        el('bb-week').addEventListener('change', () => clearFieldValidation('bb-week'));
+        el('inquiry-date').addEventListener('change', () => { clearFieldValidation('inquiry-date'); const date = new Date(`${el('inquiry-date').value}T00:00:00`); if (!Number.isNaN(date.getTime())) el('bb-week').value = `Week ${weekOfYear(date)}`; });
     }
 
     state.recent = readJSON(RECENT_CACHE_KEY) || [];
+    refreshContactedSourceIds();
     setupWeeks();
     populateRecentWeekFilter();
     renderRecent();

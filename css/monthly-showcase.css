@@ -1,0 +1,164 @@
+/* Reference artwork scales with each column; the wave is decorative, not data. */
+.monthly-reference.monthly-metrics { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; gap: 1.05%; color: #081e57; }
+.monthly-reference .monthly-card.monthly-metric { grid-column: auto; container-type: inline-size; width: 100%; height: 100%; min-height: 0; aspect-ratio: 966 / 760; border: 1px solid #97c9ff; border-radius: 22px; background: radial-gradient(ellipse at 102% 0%, #a6d9ff 0%, #e2f2ff 35%, transparent 68%), linear-gradient(145deg, #f6fbff, #eef7ff 70%, #f7fbff); box-shadow: 0 8px 22px #5a9ac41a; }
+.monthly-reference .monthly-card.monthly-metric::before { content: none; }
+.monthly-reference-wave { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.monthly-reference .monthly-metric-main { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; gap: 1.6cqw; padding: 2.1cqw; }
+.monthly-reference-scene { position: relative; flex: 1; min-height: 48.6cqw; }
+.monthly-reference .monthly-metric-title-row { position: absolute; top: 2.1cqw; left: 1.8cqw; right: 0; display: flex; gap: 3cqw; align-items: center; }
+.monthly-reference .monthly-metric-title-icon { flex: 0 0 auto; width: 8.5cqw; height: 8.5cqw; border-radius: 50%; background: linear-gradient(145deg, #31a5ff, #157eff); box-shadow: 0 0 0 1cqw #cbe6ffb8, 0 7px 14px #2384d91a; }
+.monthly-reference .monthly-metric-title-icon svg { width: 4.2cqw; height: 4.2cqw; stroke-width: 2.1; }
+.monthly-reference .monthly-metric-heading { display: block; color: #081d55; font-size: 4.55cqw; font-weight: 800; line-height: 1.25; letter-spacing: -.03em; margin: 0; }
+.monthly-reference .monthly-metric-title-row p { max-width: none; margin: .55cqw 0 0; font-size: 2.25cqw; font-weight: 500; line-height: 1.5; color: #5a78a4; }
+.monthly-reference .monthly-metric-value { position: absolute; top: 14.2cqw; left: 1.7cqw; width: 66%; margin: 0; font-size: 12.8cqw; font-weight: 800; line-height: 1.18; letter-spacing: -.055em; color: #061b55; white-space: nowrap; overflow-wrap: normal; text-shadow: 0 2px 1px #ffffff70; }
+.monthly-reference .monthly-metric-value span { margin-left: 1cqw; font-size: 3.15cqw; color: #081e57; font-weight: 700; }
+.monthly-reference .monthly-metric-attainment { position: absolute; top: 30.6cqw; left: 1.7cqw; width: 64%; display: block; }
+.monthly-reference .monthly-sales-progress { height: 2.35cqw; background: #c8e1ff; box-shadow: none; }
+.monthly-reference .monthly-sales-progress > span { background: linear-gradient(90deg, #219dff, #277dff); box-shadow: inset 0 1px 0 #ffffff50; }
+.monthly-reference .monthly-metric-progress-scale { position: absolute; top: 34cqw; left: 1.7cqw; width: 64%; margin: 0; font-size: 2.05cqw; color: #617fa9; font-weight: 500; }
+.monthly-reference-ring { position: absolute; top: 5.5cqw; right: 2.3cqw; display: grid; place-items: center; width: 25.4cqw; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fbfdff 54%, #e7f3ff 69%, #ffffff90 70%, transparent 72%); }
+.monthly-reference-ring > svg { grid-area: 1 / 1; width: 100%; height: 100%; overflow: visible; }
+.monthly-reference-ring-track { fill: none; stroke: #d2e7ff; stroke-width: 24; }
+.monthly-reference-ring-fill { fill: none; stroke: url(#monthly-ring-blue); stroke-width: 24; stroke-linecap: round; }
+.monthly-reference-ring > div { grid-area: 1 / 1; display: grid; gap: .2cqw; justify-items: center; z-index: 1; }
+.monthly-reference .monthly-metric-badge { color: #091e56; font-size: 4.75cqw; line-height: 1.2; font-weight: 800; }
+.monthly-reference-ring small { color: #607eaa; font-size: 2.25cqw; font-weight: 600; }
+.monthly-reference-quote { position: absolute; bottom: .15cqw; right: .5cqw; width: 32.5%; min-height: 11.4cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 1.3cqw 1.7cqw; border-radius: 1.9cqw; background: linear-gradient(130deg, #ffffffdc, #eaf6ffd9); box-shadow: 0 5px 18px #4e97d21a; color: #102c64; }
+.monthly-reference-quote > span { align-self: flex-start; font: 800 7cqw/1 Georgia, serif; color: #a5ceff; }
+.monthly-reference-quote p { margin: 0; font-size: 2.1cqw; line-height: 1.5; text-align: center; white-space: nowrap; }
+.monthly-reference-quote strong { font-weight: 700; }
+.monthly-reference-kpis { display: grid; grid-template-columns: 1fr 1.02fr 1.27fr; gap: 1.55cqw; }
+.monthly-reference-kpi { display: flex; align-items: center; gap: 1.65cqw; min-width: 0; min-height: 11.8cqw; padding: 1.5cqw; border: 1px solid #c5ddff; border-radius: 1.85cqw; background: linear-gradient(145deg, #ffffffda, #f4faffdf); }
+.monthly-reference-kpi > div { min-width: 0; }
+.monthly-reference-kpi-icon { display: grid; place-items: center; flex: 0 0 auto; width: 6.6cqw; height: 6.6cqw; border-radius: 50%; color: #0062ff; background: #e1efff; }
+.monthly-reference-kpi-icon svg { width: 3.8cqw; height: 3.8cqw; stroke-width: 2.8; }
+.monthly-reference-kpi h3 { color: #3b6191; font-size: 1.95cqw; font-weight: 700; line-height: 1.3; margin: 0 0 .65cqw; }
+.monthly-reference-kpi strong { display: block; color: #0058f3; font-size: 2.7cqw; font-weight: 800; line-height: 1.25; }
+.monthly-reference-kpi strong small { font-size: 1.7cqw; font-weight: 600; }
+.monthly-reference-gap { border-color: #ffd3de; background: linear-gradient(145deg, #fff7fa, #fff0f4d9); }
+.monthly-reference-gap h3, .monthly-reference-gap strong { color: #d80739; }
+.monthly-reference-gap strong { font-size: 2.4cqw; }
+.monthly-reference-gap .monthly-reference-kpi-icon { color: #e2093e; background: #ffe0e9; }
+.monthly-reference-gap[data-status="achieved"] { border-color: #f2dea7; background: linear-gradient(145deg, #fffdf4, #fff4d7df); }
+.monthly-reference-gap[data-status="achieved"] h3, .monthly-reference-gap[data-status="achieved"] strong { color: #966207; }
+.monthly-reference-gap[data-status="achieved"] .monthly-reference-kpi-icon { color: #bd7f0d; background: #ffedb8; }
+.monthly-reference-gap[data-status="pending"] { border-color: #d8e3f1; background: #f4f8fd; }
+.monthly-reference-gap[data-status="pending"] h3, .monthly-reference-gap[data-status="pending"] strong { color: #567194; }
+.monthly-reference-gap[data-status="pending"] strong { font-size: 1.7cqw; }
+.monthly-reference-comparison { gap: 1.5cqw; border-color: #d5dfff; background: linear-gradient(145deg, #f6faffdc, #f1f6ffdf); }
+.monthly-reference-comparison strong { color: #d90036; font-size: 2.12cqw; white-space: nowrap; }
+.monthly-reference-comparison strong small { font-size: 1em; }
+.monthly-reference-comparison .monthly-reference-kpi-icon { background: #ffe0e9; color: #e20b43; }
+.monthly-reference-comparison p { margin: .35cqw 0 0; color: #607fa9; font-size: 1.85cqw; line-height: 1.35; }
+.monthly-reference-comparison[data-direction="up"] strong { color: #00976d; }
+.monthly-reference-comparison[data-direction="up"] .monthly-reference-kpi-icon { background: #d7f7eb; color: #04a97e; }
+.monthly-reference-comparison[data-direction="flat"] strong, .monthly-reference-comparison[data-direction="pending"] strong { color: #55729a; }
+.monthly-reference-comparison[data-direction="pending"] .monthly-reference-kpi-icon, .monthly-reference-comparison[data-direction="flat"] .monthly-reference-kpi-icon { background: #e0edff; color: #5e7fa9; }
+.monthly-reference-comparison .monthly-reference-comparison-note { font-size: 1.5cqw; }
+.monthly-reference-result { display: flex; align-items: center; gap: 2cqw; min-height: 9.8cqw; padding: .7cqw 1.65cqw; border: 1px solid #ffd0dc; border-radius: 1.9cqw; background: linear-gradient(145deg, #fff2f6, #ffeaf0dc); color: #d7083d; }
+.monthly-reference-result-art { width: 8.2cqw; height: 8.2cqw; display: grid; place-items: center; flex: 0 0 auto; }
+.monthly-reference-result-art svg { width: 100%; height: 100%; }
+.monthly-reference-result strong { display: block; font-size: 3.1cqw; font-weight: 800; line-height: 1.25; }
+.monthly-reference-result p { font-size: 2cqw; margin: .1cqw 0 0; line-height: 1.35; }
+.monthly-reference-result[data-status="achieved"] { border-color: #f0dda9; background: linear-gradient(145deg, #fffcf1, #fff2cb); color: #986009; }
+.monthly-reference-result[data-status="pending"] { border-color: #d4e0ef; background: linear-gradient(145deg, #f9fbff, #eaf1f9); color: #536f93; }
+.monthly-reference-result[data-status="pending"] .monthly-reference-result-art { padding: 1.8cqw; }
+
+.monthly-reference-side { container-type: inline-size; min-width: 0; display: flex; flex-direction: column; gap: clamp(12px, 1.05vw, 20px); }
+.monthly-reference .monthly-business-summary, .monthly-reference .monthly-department-sales { grid-column: auto; grid-row: auto; min-width: 0; padding: 2.3cqw; margin: 0; border: 1px solid #d5e5fa; border-radius: 22px; background: linear-gradient(135deg, #ffffffea, #fbfdfff5); box-shadow: 0 6px 18px #2c66900a; }
+.monthly-reference .monthly-business-summary { flex: 0 0 auto; }
+.monthly-reference .monthly-panel-heading { display: flex; align-items: center; gap: 1.85cqw; padding: 0 .8cqw; }
+.monthly-reference .monthly-panel-icon { width: 6.05cqw; height: 6.05cqw; flex: 0 0 auto; border: 0; border-radius: 0; color: #268bff; background: transparent; }
+.monthly-reference .monthly-panel-icon svg { width: 5.4cqw; height: 5.4cqw; stroke-width: 2; }
+.monthly-reference .monthly-panel-heading h3, .monthly-reference .monthly-department-sales-head h4 { margin: 0; padding: 0; border: 0; color: #0a2059; font-size: 3.7cqw; font-weight: 800; line-height: 1.3; }
+.monthly-reference .monthly-panel-heading p { color: #607da8; font-size: 2.2cqw; font-weight: 500; margin: .35cqw 0 0; }
+.monthly-reference .monthly-company-list { display: flex; flex-direction: column; gap: 1.65cqw; margin: 1.4cqw 0 0; flex: 1; }
+.monthly-reference .monthly-company { display: grid; grid-template-columns: 8.1cqw 16.6cqw minmax(0, 1fr) 21cqw; align-items: center; gap: 2.2cqw; min-height: 11.1cqw; padding: 1.35cqw 1.7cqw; border: 1px solid #cce1ff; border-radius: 1.85cqw; background: linear-gradient(125deg, #edf5ff, #eaf3ffe0); box-shadow: none; }
+.monthly-reference .monthly-company-mhl { border-color: #e0d5ff; background: linear-gradient(125deg, #f7f2ff, #f3efffe0); --monthly-accent: #9257f5; --monthly-company-pill: #e7d8ff; }
+.monthly-reference .monthly-company-car { border-color: #c5efe5; background: linear-gradient(125deg, #edfdf8, #eafaf6e0); --monthly-accent: #06c495; --monthly-company-pill: #c9f5e8; }
+.monthly-reference .monthly-company-icon { width: 8.1cqw; height: 8.1cqw; }
+.monthly-reference .monthly-company-icon svg { width: 4.4cqw; height: 4.4cqw; stroke-width: 2.2; }
+.monthly-reference-company-name h4 { color: #0b225a; font-size: 2.85cqw; font-weight: 800; line-height: 1.2; margin: 0 0 .45cqw; }
+.monthly-reference-company-name p { color: #5c79a2; font-size: 2.1cqw; font-weight: 600; margin: 0; }
+.monthly-reference-company-progress { min-width: 0; }
+.monthly-reference .monthly-company .monthly-progress { height: 2.05cqw; margin: 0 0 1.65cqw; border-radius: 999px; background: var(--monthly-company-pill); }
+.monthly-reference .monthly-company .monthly-progress span { border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--monthly-accent), #fff 8%), var(--monthly-accent)); }
+.monthly-reference-company-progress p { color: #617fa8; font-size: 2cqw; margin: 0; white-space: nowrap; }
+.monthly-reference-company-amount { display: flex; flex-direction: column; align-items: flex-end; gap: .7cqw; min-width: 0; }
+.monthly-reference-company-amount strong { font-size: 2.95cqw; font-weight: 800; color: #0c235b; white-space: nowrap; line-height: 1.2; }
+.monthly-reference-company-amount small { font-size: 1.85cqw; font-weight: 500; color: #637ca1; }
+.monthly-reference .monthly-company-rate { padding: .38cqw 1.65cqw; border-radius: 999px; font-size: 2.4cqw; line-height: 1.5; color: #0060f1; }
+.monthly-reference .monthly-company-mhl .monthly-company-rate { color: #7942d6; }
+.monthly-reference .monthly-company-car .monthly-company-rate { color: #00a979; }
+.monthly-reference .monthly-department-sales { flex: 1; display: flex; flex-direction: column; }
+.monthly-reference .monthly-department-sales-head { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: .8cqw; margin: -.65cqw 0 1.2cqw; padding: 0; }
+.monthly-reference .monthly-department-sales-head .monthly-panel-heading { gap: 1.85cqw; }
+.monthly-reference .monthly-department-sales-head .monthly-reference-owner-note { padding: 1cqw 1.8cqw; border-radius: 999px; background: #eaf3ff; color: #607da5; font-size: 1.7cqw; font-weight: 700; white-space: nowrap; }
+.monthly-reference .monthly-department-sales-list { display: grid; grid-template-columns: .97fr 1.02fr .97fr; gap: 1.45cqw; flex: 1; }
+.monthly-reference .monthly-department-sales-item { align-items: center; gap: 1.5cqw; min-height: 13.9cqw; padding: 1.6cqw; border-radius: 1.9cqw; background: linear-gradient(135deg, #f0fcf8, #f3fbf9); border-color: #cceee5; --monthly-department-accent: #00ab7d; }
+.monthly-reference .monthly-department-sales-project { background: linear-gradient(135deg, #f2f7ff, #f0f6ff); border-color: #cee1ff; --monthly-department-accent: #005eff; }
+.monthly-reference .monthly-department-sales-admin { background: linear-gradient(135deg, #f7f4ff, #f4f1ff); border-color: #e0d8ff; --monthly-department-accent: #7955ed; }
+.monthly-reference .monthly-department-sales-icon { width: 6.9cqw; height: 6.9cqw; border-radius: 2.1cqw; box-shadow: 0 4px 12px #7ea5c31c; }
+.monthly-reference .monthly-department-sales-icon svg { width: 3.9cqw; height: 3.9cqw; stroke-width: 2.4; }
+.monthly-reference .monthly-department-sales-item p { margin: 0 0 1cqw; font-size: 1.87cqw; line-height: 1.35; font-weight: 600; color: #55749d; }
+.monthly-reference .monthly-department-sales-item strong { margin: 0; font-size: 3.05cqw; line-height: 1.2; font-weight: 800; overflow-wrap: normal; white-space: nowrap; }
+.monthly-reference .monthly-department-sales-item strong small { font-size: 1.65cqw; font-weight: 500; color: #6681a8; }
+.monthly-reference .monthly-data-note { font-size: max(11px, 1.4cqw); }
+
+@media (max-width: 1100px) {
+    .monthly-reference.monthly-metrics { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .monthly-reference .monthly-card.monthly-metric { height: auto; aspect-ratio: 966 / 760; }
+    .monthly-reference-side { gap: 18px; }
+}
+@media (max-width: 560px) {
+    .monthly-reference .monthly-card.monthly-metric { aspect-ratio: auto; }
+    .monthly-reference .monthly-metric-main { padding: 16px; gap: 12px; }
+    .monthly-reference-scene { min-height: 54cqw; }
+    .monthly-reference .monthly-metric-heading { font-size: 5cqw; }
+    .monthly-reference .monthly-metric-title-row p { font-size: 2.65cqw; }
+    .monthly-reference .monthly-metric-title-row { gap: 3cqw; left: 0; }
+    .monthly-reference .monthly-metric-value { left: 0; font-size: 11cqw; top: 18cqw; }
+    .monthly-reference .monthly-metric-attainment { top: 33cqw; left: 0; }
+    .monthly-reference .monthly-metric-progress-scale { top: 37cqw; left: 0; font-size: 11px; }
+    .monthly-reference-ring { right: 0; top: 16cqw; }
+    .monthly-reference-quote { width: 43%; min-height: 12cqw; bottom: 0; padding: 2cqw; }
+    .monthly-reference-quote p { font-size: 2.6cqw; }
+    .monthly-reference-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .monthly-reference-kpi { flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; min-height: 74px; border-radius: 14px; }
+    .monthly-reference-kpi-icon { width: 34px; height: 34px; }
+    .monthly-reference-kpi-icon svg { width: 22px; height: 22px; }
+    .monthly-reference-kpi h3 { font-size: 12px; }
+    .monthly-reference-kpi strong { font-size: 15px; }
+    .monthly-reference-kpi strong small { font-size: 11px; }
+    .monthly-reference-comparison { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+    .monthly-reference-comparison p, .monthly-reference-comparison .monthly-reference-comparison-note { font-size: 12px; }
+    .monthly-reference-comparison strong small { font-size: inherit; }
+    .monthly-reference-result { padding: 9px 12px; border-radius: 14px; gap: 12px; }
+    .monthly-reference-result-art { width: 44px; height: 44px; }
+    .monthly-reference-result strong { font-size: 19px; }
+    .monthly-reference-result p { font-size: 12px; }
+    .monthly-reference .monthly-business-summary, .monthly-reference .monthly-department-sales { padding: 14px; }
+    .monthly-reference .monthly-panel-heading h3, .monthly-reference .monthly-department-sales-head h4 { font-size: 20px; }
+    .monthly-reference .monthly-panel-heading p { font-size: 12px; }
+    .monthly-reference .monthly-company { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; padding: 12px; border-radius: 13px; }
+    .monthly-reference .monthly-company-icon { width: 38px; height: 38px; grid-row: 1 / 3; }
+    .monthly-reference .monthly-company-icon svg { width: 24px; height: 24px; }
+    .monthly-reference-company-name h4 { font-size: 16px; }
+    .monthly-reference-company-name p { font-size: 12px; }
+    .monthly-reference-company-progress { grid-row: 2; grid-column: 2 / -1; }
+    .monthly-reference .monthly-company .monthly-progress { height: 8px; margin-bottom: 5px; }
+    .monthly-reference-company-progress p { font-size: 11px; }
+    .monthly-reference-company-amount { grid-column: 3; grid-row: 1; }
+    .monthly-reference-company-amount strong { font-size: 17px; }
+    .monthly-reference-company-amount small { font-size: 11px; }
+    .monthly-reference .monthly-company-rate { font-size: 12px; padding: 1px 10px; }
+    .monthly-reference .monthly-department-sales-head { flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .monthly-reference .monthly-department-sales-head .monthly-reference-owner-note { font-size: 10px; white-space: normal; padding: 5px 9px; }
+    .monthly-reference .monthly-department-sales-list { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .monthly-reference .monthly-department-sales-item { min-height: 76px; padding: 12px; gap: 12px; border-radius: 13px; }
+    .monthly-reference .monthly-department-sales-icon { width: 42px; height: 42px; border-radius: 12px; }
+    .monthly-reference .monthly-department-sales-icon svg { width: 26px; height: 26px; }
+    .monthly-reference .monthly-department-sales-item p { font-size: 13px; margin-bottom: 5px; }
+    .monthly-reference .monthly-department-sales-item strong { font-size: 21px; }
+    .monthly-reference .monthly-department-sales-item strong small { font-size: 12px; }
+}
